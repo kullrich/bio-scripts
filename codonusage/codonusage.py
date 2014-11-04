@@ -1,6 +1,13 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+'''
+This script extracts codonusage from CDS input FASTA file and writes a table containing the number of codons used for each sequence in the input FASTA file.
+
+Author: Krisian Ullrich
+email: kristian.ullrich@biologie.uni-marburg.de
+'''
+
 from Bio import SeqIO
 import sys
 import argparse
