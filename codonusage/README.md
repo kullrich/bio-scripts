@@ -3,7 +3,7 @@ Python codonusage
 
 Dependencies
 ------------
-This python script depends on biopython `<http://biopython.org/wiki/Download>`, namely the module:
+This python script depends on biopython <http://biopython.org/wiki/Download>, namely the module:
 
 * Bio.SeqIO
 
