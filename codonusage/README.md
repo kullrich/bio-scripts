@@ -5,6 +5,10 @@ Description
 -----------
 This python script extracts codonusage from CDS input FASTA file. Output will be raw codon counts (.codoncnt), global ACTG counts (.actgcnt), first (.firstcnt), second (.secondcnt), third (.third) codon position counts and Relative Synonymous Codon Usage (.rscucnt). Optional different methods can be applied to calculate Effective Number of Codons (.enc).
 
+ENC will be calculated based on:
+* Wright (1990). The effective number of codons used in a gene. Gene 87:23-29. [Wright 1990](http://www.ncbi.nlm.nih.gov/pubmed/2110097)
+* Sun et al. (2012). An Improved Implementation of Effective Number of Codons (Nc). Mol. Biol. Evol. 30:191-196. [Sun 2012](http://www.ncbi.nlm.nih.gov/pubmed/22915832)
+
 Dependencies
 ------------
 This python script depends on biopython <http://biopython.org/wiki/Download>, namely the module:
