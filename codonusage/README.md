@@ -5,15 +5,6 @@ Description
 -----------
 This python script extracts codonusage from CDS input FASTA file. Output will be raw codon counts (.codoncnt), global ACTG counts (.actgcnt), first (.firstcnt), second (.secondcnt), third (.third) codon position counts and Relative Synonymous Codon Usage (.rscucnt). Optional different methods can be applied to calculate Effective Number of Codons (.enc).
 
-optional arguments:
-	-h,	--help	show this help message and exit
-	-v,	--verbose	increase output verbosity
-	-i	I	specify CDS input file in FASTA format
-	-o	O	specify output prefix
-	-r		specify if CDS sequences with length modulo 3 unequal to 0 should be removed and reported to std.out
-	-enc	{eq4Wright,eq2Sun,eq5Sun,all}	specify equation to calculate ENC. Either equation (4) [eq4Wright] of (Wright. (1990) Gene 87:23-29) or equation (2) [eq2Sun] or equation (5) [eq5Sun] of (Sun et al. (2012) Mol. Biol. Evol. 30:191-196) or [all].
-	-six2fourtwo	{True,False}	specify if sixfold codons should be grouped into one fourfold and one twofold group [default: False]. This will only affect calculation of ENC values.
-
 Dependencies
 ------------
 This python script depends on biopython <http://biopython.org/wiki/Download>, namely the module:
@@ -22,6 +13,18 @@ This python script depends on biopython <http://biopython.org/wiki/Download>, na
 
 Usage
 -----
+
+	optional arguments:
+	-h,	--help	show this help message and exit
+	-v,	--verbose	increase output verbosity
+	-i	I	specify CDS input file in FASTA format
+	-o	O	specify output prefix
+	-r		specify if CDS sequences with length modulo 3 unequal to 0 should be removed and reported to std.out
+	-enc	{eq4Wright,eq2Sun,eq5Sun,all}	specify equation to calculate ENC. Either equation (4) [eq4Wright] of (Wright. (1990) Gene 87:23-29) or equation (2) [eq2Sun] or equation (5) [eq5Sun] of (Sun et al. (2012) Mol. Biol. Evol. 30:191-196) or [all].
+	-six2fourtwo	{True,False}	specify if sixfold codons should be grouped into one fourfold and one twofold group [default: False]. This will only affect calculation of ENC values.
+
+Examples
+--------
 
 Specify your input FASTA file containing CDS sequences and run the script:
 
