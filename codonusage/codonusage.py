@@ -429,7 +429,7 @@ def eq2Sun(codoncounts, six2fourtwo):
     Nc=Ncone+Nctwo+Ncthree+Ncfour
   return(Nc)
 
-
+#N_{c} = \frac {K_{1} \times \sum_{i}^{K_{1}} n_{i}}{\sum_{i=1}^{K_{i}}(n_{i} \times F_{CF_{i}})} + \frac {K_{2} \times \sum_{i}^{K_{2}} n_{i}}{\sum_{i=1}^{K_{2}}(n_{i} \times F_{CF_{i}})} + \frac {K_{3} \times \sum_{i}^{K_{3}} n_{i}}{\sum_{i=1}^{K_{3}}(n_{i} \times F_{CF_{i}})} + \frac {K_{4} \times \sum_{i}^{K_{4}} n_{i}}{\sum_{i=1}^{K_{4}}(n_{i} \times F_{CF_{i}})} + \frac {K_{6} \times \sum_{i}^{K_{6}} n_{i}}{\sum_{i=1}^{K_{6}}(n_{i} \times F_{CF_{i}})}
 def eq5Sun(codoncounts, six2fourtwo):
   six_fcf_nrc = []
   four_fcf_nrc = []
