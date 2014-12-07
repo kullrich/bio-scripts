@@ -1,6 +1,19 @@
 Python codonusage
 =================
 
+Description
+-----------
+This python script extracts codonusage from CDS input FASTA file. Output will be raw codon counts (.codoncnt), global ACTG counts (.actgcnt), first (.firstcnt), second (.secondcnt), third (.third) codon position counts and Relative Synonymous Codon Usage (.rscucnt). Optional different methods can be applied to calculate Effective Number of Codons (.enc).
+
+optional arguments:
+	-h,	--help	show this help message and exit
+	-v,	--verbose	increase output verbosity
+	-i	I	specify CDS input file in FASTA format
+	-o	O	specify output prefix
+	-r		specify if CDS sequences with length modulo 3 unequal to 0 should be removed and reported to std.out
+	-enc	{eq4Wright,eq2Sun,eq5Sun,all}	specify equation to calculate ENC. Either equation (4) [eq4Wright] of (Wright. (1990) Gene 87:23-29) or equation (2) [eq2Sun] or equation (5) [eq5Sun] of (Sun et al. (2012) Mol. Biol. Evol. 30:191-196) or [all].
+	-six2fourtwo	{True,False}	specify if sixfold codons should be grouped into one fourfold and one twofold group [default: False]. This will only affect calculation of ENC values.
+
 Dependencies
 ------------
 This python script depends on biopython <http://biopython.org/wiki/Download>, namely the module:
@@ -26,6 +39,12 @@ With the 'enc' option one can choose a method to calculate the effective number 
 
 Note: If you specify the option (-six2fourtwo) all sixfold codon groups will be split into one fourfold and one twofold group to account for possible altering tRNA pools. This option will only affect the calculation of the ENC values for 'eq2Sun' and 'eq5Sun'.
 
+	$ ./codonusage.py -i FASTA -o OUTPUTPREFIX -enc eq5Sun -six2fourtwo
+
+To calculate all implemented ENC methods use the following command line
+
+	$ ./codonusage.py -i FASTA -o OUTPUTPREFIX -enc all
+
 Output
 ------
 
@@ -36,7 +55,7 @@ As Output different tables will be generated.
 	First codon position ACTG counts: OUTPUTPREFIX.firstcnt
 	Second codon position ACTG counts: OUTPUTPREFIX.secondcnt
 	Third codon position ACTG counts: OUTPUTPREFIX.thirdcnt
-        Relative Synonymous Codon Usage: OUTPUTPREFIX.rscucnt
+	Relative Synonymous Codon Usage: OUTPUTPREFIX.rscucnt
 
 If the (-enc) option was used an additional table containing the choosen method or all ENC values (-enc all) will be written to a file.
 
@@ -55,7 +74,7 @@ If the (-enc) option was used an additional table containing the choosen method 
 	#F_{CF} = \sum_{i=1}^{m} (\frac {n_{i}+1}{n+m})^{2}
 
 	Equation (5)
-	
+	#N_{c} = \frac {K_{1} \times \sum_{i}^{K_{1}} n_{i}}{\sum_{i=1}^{K_{i}}(n_{i} \times F_{CF_{i}})} + \frac {K_{2} \times \sum_{i}^{K_{2}} n_{i}}{\sum_{i=1}^{K_{2}}(n_{i} \times F_{CF_{i}})} + \frac {K_{3} \times \sum_{i}^{K_{3}} n_{i}}{\sum_{i=1}^{K_{3}}(n_{i} \times F_{CF_{i}})} + \frac {K_{4} \times \sum_{i}^{K_{4}} n_{i}}{\sum_{i=1}^{K_{4}}(n_{i} \times F_{CF_{i}})} + \frac {K_{6} \times \sum_{i}^{K_{6}} n_{i}}{\sum_{i=1}^{K_{6}}(n_{i} \times F_{CF_{i}})}	
 
 	Relative Synonymous Codon Usage
 	#RSCU_{i,j} = \frac{NumberofCodons_{i} \times CodonFrequency_{j}}{\sum_{j=1}^{NumberofCodons_{j}} CodonFrequency_{i}}
