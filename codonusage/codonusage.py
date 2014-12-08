@@ -142,7 +142,6 @@ def main():
                   tmp_enc = {}
                   if args.enc=='eq4Wright':
                     enchandle.write("id\tlen\tmo3\teq4Wright\n")
-                    tmp_GCbypos = GCbypos(tmp_counts, six2fourtwo)
                     enchandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + str(eq4Wright(tmp_GCbypos[2])) + "\n")
                   if args.enc=='eq2Sun':
                     enchandle.write("id\tlen\tmo3\teq2Sun\n")
@@ -405,7 +404,7 @@ def eq2Sun(codoncounts, six2fourtwo):
       six_fcf.append(six[0])
       six_nrc.append(six[1])
     #setting codons with no counts to average value 1/6
-    six_fcf=[float(1/6) if x=='NA' else x for x in six_fcf]
+    six_fcf=[float(1)/float(6) if x=='NA' else x for x in six_fcf]
     Ncsix = len(six_fcf)/(sum(six_fcf)/len(six_fcf))
   if six2fourtwo==True:
     four_aa = ['A', 'P', 'T', 'G', 'V', 'S', 'R', 'L']
@@ -418,7 +417,7 @@ def eq2Sun(codoncounts, six2fourtwo):
     four_fcf.append(four[0])
     four_nrc.append(four[1])
   #setting codons with no counts to average value 1/4
-  four_fcf=[float(1/4) if x=='NA' else x for x in four_fcf]
+  four_fcf=[float(1)/float(4) if x=='NA' else x for x in four_fcf]
   Ncfour = len(four_fcf)/(sum(four_fcf)/len(four_fcf))
   for aa in three_aa:
     tmp_three = [codoncounts[x] for x in codoncounts.keys() if codoncounts[x][0]==aa]
@@ -426,7 +425,7 @@ def eq2Sun(codoncounts, six2fourtwo):
     three_fcf.append(three[0])
     three_nrc.append(three[1])
   #setting codons with no counts to average value 1/3
-  three_fcf=[float(1/3) if x=='NA' else x for x in three_fcf]
+  three_fcf=[float(1)/float(3) if x=='NA' else x for x in three_fcf]
   Ncthree = len(three_fcf)/(sum(three_fcf)/len(three_fcf))
   for aa in two_aa:
     tmp_two = [codoncounts[x] for x in codoncounts.keys() if codoncounts[x][0]==aa]
@@ -434,7 +433,7 @@ def eq2Sun(codoncounts, six2fourtwo):
     two_fcf.append(two[0])
     two_nrc.append(two[1])
   #setting codons with no counts to average value 1/2
-  two_fcf=[float(1/2) if x=='NA' else x for x in two_fcf]
+  two_fcf=[float(1)/float(2) if x=='NA' else x for x in two_fcf]
   Nctwo = len(two_fcf)/(sum(two_fcf)/len(two_fcf))
   for aa in one_aa:
     tmp_one = [codoncounts[x] for x in codoncounts.keys() if codoncounts[x][0]==aa]
@@ -442,7 +441,7 @@ def eq2Sun(codoncounts, six2fourtwo):
     one_fcf.append(one[0])
     one_nrc.append(one[1])
   #setting codons with no counts to average value 1/1
-  one_fcf=[float(1/1) if x=='NA' else x for x in one_fcf]
+  one_fcf=[float(1)/float(1) if x=='NA' else x for x in one_fcf]
   Ncone = len(one_fcf)/(sum(one_fcf)/len(one_fcf))
   if six2fourtwo==False:  
     Nc=Ncone+Nctwo+Ncthree+Ncfour+Ncsix
