@@ -538,15 +538,15 @@ def GCbypos(codoncounts,six2fourtwo):
     gc_one = sum([x[1] for x in tmp_aa_one if x[0]=='G' or x[0]=='C'])
     GCone_sum.append(tmp_aa_one_sum)
     GCone_gc.append(gc_one)
-    GCone = float(sum(GCone_gc))/float(sum(GCone_sum))
     gc_two = sum([x[1] for x in tmp_aa_two if x[0]=='G' or x[0]=='C'])
     GCtwo_sum.append(tmp_aa_two_sum)
     GCtwo_gc.append(gc_two)
-    GCtwo = float(sum(GCtwo_gc))/float(sum(GCtwo_sum))
     gc_three = sum([x[1] for x in tmp_aa_two if x[0]=='G' or x[0]=='C'])
     GCthree_sum.append(tmp_aa_three_sum)
     GCthree_gc.append(gc_three)
-    GCthree = float(sum(GCthree_gc))/float(sum(GCthree_sum))
+  GCone = float(sum(GCone_gc))/float(sum(GCone_sum))
+  GCtwo = float(sum(GCtwo_gc))/float(sum(GCtwo_sum))
+  GCthree = float(sum(GCthree_gc))/float(sum(GCthree_sum))
   return([GCone,GCtwo,GCthree])
 
 if __name__ == '__main__':
