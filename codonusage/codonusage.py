@@ -88,6 +88,14 @@ def main():
             with open(outfile_rscucount,"w") as rscuhandle:
               if args.enc is not None:
                 enchandle = open(outfile_enc,"w")
+                if args.enc=='eq4Wright':
+                  enchandle.write("id\tlen\tmo3\teq4Wright\n")
+                if args.enc=='eq2Sun':
+                  enchandle.write("id\tlen\tmo3\teq2Sun\n")
+                if args.enc=='eq5Sun':
+                  enchandle.write("id\tlen\tmo3\teq5sun\n")
+                if args.enc=='all':
+                  enchandle.write("id\tlen\tmo3\teq4Wright\teq2Sun\teq5Sun\n")
               codonhandle.write("id\tlen\tmo3\t" + "\t".join(sorted(global_codons.keys())) + "\n")
               actghandle.write("id\tlen\tmo3\t" + "\t".join(sorted(global_actg.keys())) + "\n")
               firsthandle.write("id\tlen\tmo3\t" + "\t".join(sorted(global_first.keys())) + "\n")
@@ -141,17 +149,13 @@ def main():
                 if args.enc is not None:
                   tmp_enc = {}
                   if args.enc=='eq4Wright':
-                    enchandle.write("id\tlen\tmo3\teq4Wright\n")
                     enchandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + str(eq4Wright(tmp_GCbypos[2])) + "\n")
                   if args.enc=='eq2Sun':
-                    enchandle.write("id\tlen\tmo3\teq2Sun\n")
                     enchandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + str(eq2Sun(tmp_counts, six2fourtwo)) + "\n")
                   if args.enc=='eq5Sun':
-                    enchandle.write("id\tlen\tmo3\teq5sun\n")
                     enchandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + str(eq5Sun(tmp_counts, six2fourtwo)) + "\n")
                   if args.enc=='all':
                     tmp_GCbypos = GCbypos(tmp_counts, six2fourtwo)
-                    enchandle.write("id\tlen\tmo3\teq4Wright\teq2Sun\teq5Sun\n")
                     enchandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + str(eq4Wright(tmp_GCbypos[2])) + "\t" + str(eq2Sun(tmp_counts, six2fourtwo)) + "\t" + str(eq5Sun(tmp_counts, six2fourtwo)) + "\n")
                 tmp_rscu = RSCU(tmp_counts, codontable)
                 codonhandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + "\t".join([str(tmp_counts[x][2]) for x in sorted(tmp_counts.keys())]) + "\n")
