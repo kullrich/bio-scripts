@@ -85,3 +85,9 @@ If the (-enc) option was used an additional table containing the choosen method 
 
 	Relative Synonymous Codon Usage
 	#RSCU_{i,j} = \frac{NumberofCodons_{i} \times CodonFrequency_{j}}{\sum_{j=1}^{NumberofCodons_{j}} CodonFrequency_{i}}
+
+Plotting ENC distributions
+--------------------------
+
+
+
