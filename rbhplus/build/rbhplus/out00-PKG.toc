@@ -1,0 +1,11 @@
+('/home/ullrichg/codeprojects/rbhplus/rbhplus/build/rbhplus/out00-PKG.pkg',
+ {'BINARY': 1,
+  'DATA': 1,
+  'EXECUTABLE': 1,
+  'EXTENSION': 1,
+  'PYMODULE': 1,
+  'PYSOURCE': 1},
+ [('out00-PYZ.pyz', '/home/ullrichg/codeprojects/rbhplus/rbhplus/build/rbhplus/out00-PYZ.pyz', 'PYZ'), ('struct', '/usr/lib/python2.7/struct.pyc', 'PYMODULE'), ('pyi_os_path', '/home/ullrichg/opt/development/PyInstaller-2.1/PyInstaller/loader/pyi_os_path.pyc', 'PYMODULE'), ('pyi_archive', '/home/ullrichg/opt/development/PyInstaller-2.1/PyInstaller/loader/pyi_archive.pyc', 'PYMODULE'), ('pyi_importers', '/home/ullrichg/opt/development/PyInstaller-2.1/PyInstaller/loader/pyi_importers.pyc', 'PYMODULE'), ('_pyi_bootstrap', '/home/ullrichg/opt/development/PyInstaller-2.1/PyInstaller/loader/_pyi_bootstrap.py', 'PYSOURCE'), ('pyi_carchive', '/home/ullrichg/opt/development/PyInstaller-2.1/PyInstaller/loader/pyi_carchive.py', 'PYSOURCE'), ('rbhplus', 'rbhplus.py', 'PYSOURCE')],
+ True,
+ None,
+ False)
