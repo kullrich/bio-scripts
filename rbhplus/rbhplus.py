@@ -153,10 +153,11 @@ def commandoptions():
   parser.add_argument('-l', default=float(80), type=float, help='specify alignment length cutoff for BLAST+/ghostx result filtering [default: 80]')
   parser.add_argument('-covs', default=float(0.0), type=float, help='specify subject coverage for BLAST+ result filtering [default: 0.0]; can only be applied with BLAST+ since ghostx does not provide qlen and slen yet.')
   parser.add_argument('-covq', default=float(0.0), type=float, help='specify query coverage for BLAST+ result filtering [default: 0.0]; can only be applied with BLAST+ since ghostx does not provide qlen and slen yet.')
+  parser.add_argument('-nt', default=int(250), type=int, help='specify number of max. targets to be considered by BLAST+/ghostx [default: 250].')
   parser.add_argument('-pid', default='static', choices=['evalue', 'static', 'rost1999'], help='choose pident filtering for BLAST+/ghostx result filtering; either as static [pident+length], evalue or rost1999')
-  parser.add_argument('-sort', default='pure', choices=['pure', 'evl', 'pxl', 'selfscore'], help='choose reciprocal best hit sorting: either pure [only first hit of blast+/ghostx input will be processed]; evl [hits that fulfill pident cutoff will be sorted by evalue]; pxl [hits that fulfill pident cutoff will be sorted by pident*length] or selfscore [hits that fulfill pident cutoff will be sorted by selfscore provided via the -selfscore OPTION]')
+  parser.add_argument('-sort', default='pure', choices=['pure', 'evl', 'pxl', 'selfscore'], help='choose reciprocal best hit sorting: either [default: pure] (number of max. targets is restricted to 50 and only first hit of those which fulfill the pid criteria will be processed); [evl] (hits that fulfill pid criteria will be sorted by evalue, any number of max. targets possible); [pxl] (hits that fulfill pid criteria will be sorted by pident*length, any number of max. targets possible) or [selfscore] (hits that fulfill pid criteria will be sorted by normalized selfscore provided via the -selfscore OPTION or directly calculated via the -selfblast option, any number of max. targets possible).')
   parser.add_argument('-selfscore', nargs=2, help='specify selfscore files for the query and the database species [tab seperated format (ID\tSCORE)]. You need to have two file one for the query and one for the database. Selfscore files can be produced either by using [step: self] or by including the [selfblast] option, in this case the selfscores will be calculated anyway.')
-  parser.add_argument('-pre', default='False', choices=['True','False'], help='specify if pre-existing BLAST+/ghostx output files should be used; e.g. if BLAST+/ghostx output was produced elsewhere [default: False]. Please note that BLAST+ output needs to be in the format "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen nident gaps score"; ghostx in the current version does not support individual output format so we stick to standard output here. Also there exists a name convention "query input".vs."database input"')
+  parser.add_argument('-pre', default='False', choices=['True','False'], help='specify if pre-existing BLAST+/ghostx output files should be used; e.g. if BLAST+/ghostx output was produced elsewhere [default: False]. Please note that BLAST+ output needs to be in the format "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen nident gaps score"; ghostx in the current version does not support individual output format so we stick to standard output here. Also there exists a name convention "query input".vs."database input".')
   parser.add_argument('-prep', default='.', help='specify path with pre-existing BLAST+/ghostx output [default: .]')
   parser.add_argument('-out', default='out', help='specify output file')
   parser.add_argument('-v', default='False', choices=['True','False'], help='verbose output')
@@ -196,9 +197,9 @@ def commandoptions():
   option_covq = args.covq
   pident_method = args.pid
   sort_method = args.sort
-  num_targets = 999999999
+  num_targets = args.nt
   if sort_method == 'pure':
-    num_targets = 1
+    num_targets = 50
   step = args.step
   option_evalue = float(args.e)
   matrix = args.m
@@ -283,7 +284,8 @@ def main():
   print 'covq: %s' % (str(ooption_covq))
   print 'pident filter: %s' % (opident_method)
   print 'sort: %s' % (osort_method)
-  print 'blastpath: %s\n'  % (oblastpath)
+  print 'blastpath: %s'  % (oblastpath)
+  print 'verbose: %s\n' % (ooption_verbose)
   if ostep=='0':
     print '\n#####\nSTEP0: building %s sequence databases:\n' % (oprog)
     if oquery_species==odatabase_species and oprog=='blast+':
@@ -492,23 +494,23 @@ def main():
       selfscore_q_dict_dict = {}
       selfscore_d_dict_dict = {}
     #blast_dict_qd
-    blast_dict_qd=blast_dict(abs_ooutfile_qd, osort_method, opident_method, ooption_pident, ooption_length, ooption_evalue, ooption_covs, ooption_covq, ocomparison_qd, oprog, selfscore_q_dict_dict)
+    blast_dict_qd=blast_dict(abs_ooutfile_qd, osort_method, opident_method, ooption_pident, ooption_length, ooption_evalue, ooption_covs, ooption_covq, ocomparison_qd, oprog, selfscore_q_dict_dict, ooption_verbose)
     blast_dict_qd.parse()
     blast_dict_qd_dict=blast_dict_qd.dict
     if oquery_species==odatabase_species:
       ostep='4'
     if oquery_species!=odatabase_species:
       #blast_dict_dq
-      blast_dict_dq=blast_dict(abs_ooutfile_dq, osort_method, opident_method, ooption_pident, ooption_length, ooption_evalue, ooption_covs, ooption_covq, ocomparison_dq, oprog, selfscore_d_dict_dict)
+      blast_dict_dq=blast_dict(abs_ooutfile_dq, osort_method, opident_method, ooption_pident, ooption_length, ooption_evalue, ooption_covs, ooption_covq, ocomparison_dq, oprog, selfscore_d_dict_dict, ooption_verbose)
       blast_dict_dq.parse()
       blast_dict_dq_dict=blast_dict_dq.dict
       if oselfblast=='True':
         #blast_dict_qq
-        blast_dict_qq=blast_dict(abs_ooutfile_qq, osort_method, opident_method, ooption_pident, ooption_length, ooption_evalue, ooption_covs, ooption_covq, ocomparison_qq, oprog, selfscore_q_dict_dict)
+        blast_dict_qq=blast_dict(abs_ooutfile_qq, osort_method, opident_method, ooption_pident, ooption_length, ooption_evalue, ooption_covs, ooption_covq, ocomparison_qq, oprog, selfscore_q_dict_dict, ooption_verbose)
         blast_dict_qq.parse()
         blast_dict_qq_dict=blast_dict_qq.dict
         #blast_dict_dd
-        blast_dict_dd=blast_dict(abs_ooutfile_dd, osort_method, opident_method, ooption_pident, ooption_length, ooption_evalue, ooption_covs, ooption_covq, ocomparison_dd, oprog, selfscore_d_dict_dict)
+        blast_dict_dd=blast_dict(abs_ooutfile_dd, osort_method, opident_method, ooption_pident, ooption_length, ooption_evalue, ooption_covs, ooption_covq, ocomparison_dd, oprog, selfscore_d_dict_dict, ooption_verbose)
         blast_dict_dd.parse()
         blast_dict_dd_dict=blast_dict_dd.dict
       ostep='4'
@@ -838,7 +840,7 @@ def get_pident_by_length(x):
     return 19.5
 
 class blast_dict(object):
-  def __init__(self, infile, sort_method, pident_method, option_pident, option_length, option_evalue, option_covs, option_covq, comparison, form, selfscore):
+  def __init__(self, infile, sort_method, pident_method, option_pident, option_length, option_evalue, option_covs, option_covq, comparison, form, selfscore, verbose):
     self.infile = infile
     self.sort_method = sort_method
     self.pident_method = pident_method
@@ -850,6 +852,7 @@ class blast_dict(object):
     self.comparison = comparison
     self.form = form
     self.selfscore = selfscore
+    self.verbose = verbose
     self.dict = {}
     
   def parse(self):
@@ -933,50 +936,50 @@ class blast_dict(object):
           if self.sort_method=="pxl":
               if self.pident_method=="evalue":
                 if evalue<self.option_evalue and qseqid in self.dict and self.dict[qseqid][1]*self.dict[qseqid][2]<pident*length and covs>=self.option_covs and covq>=self.option_covq:
-                  if ooption_verbose=='True':
+                  if self.verbose=='True':
                     print qseqid
-                    print "new entry %f is larger than old entry %f" % (pident*length,self.dict[qseqid][1]*self.dict[qseqid][2])
+                    print "%s %f is larger than %s %f" % (sseqid,pident*length,self.dict[qseqid][0],self.dict[qseqid][1]*self.dict[qseqid][2])
                   self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,score,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
                 if evalue<self.option_evalue and qseqid not in self.dict and covs>=self.option_covs and covq>=self.option_covq:
                   self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,score,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
               if self.pident_method=="static":
                 if pident>=self.option_pident and length>=self.option_length and qseqid in self.dict and self.dict[qseqid][1]*self.dict[qseqid][2]<pident*length and covs>=self.option_covs and covq>=self.option_covq:
-                  if ooption_verbose=='True':
+                  if self.verbose=='True':
                     print qseqid
-                    print "new entry %f is larger than old entry %f" % (pident*length,self.dict[qseqid][1]*self.dict[qseqid][2])
+                    print "%s %f is larger than %s %f" % (sseqid,pident*length,self.dict[qseqid][0],self.dict[qseqid][1]*self.dict[qseqid][2])
                   self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,score,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
                 if pident>=self.option_pident and length>=self.option_length and qseqid not in self.dict and covs>=self.option_covs and covq>=self.option_covq:
                   self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,score,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
               if self.pident_method=="rost1999":
                 if pident>=get_pident_by_length(length) and qseqid in self.dict and self.dict[qseqid][1]*self.dict[qseqid][2]<pident*length and covs>=self.option_covs and covq>=self.option_covq:
-                  if ooption_verbose=='True':
+                  if self.verbose=='True':
                     print qseqid
-                    print "new entry %f is larger than old entry %f" % (pident*length,self.dict[qseqid][1]*self.dict[qseqid][2])
+                    print "%s %f is larger than %s %f" % (sseqid,pident*length,self.dict[qseqid][0],self.dict[qseqid][1]*self.dict[qseqid][2])
                   self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,score,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
                 if pident>=get_pident_by_length(length) and qseqid not in self.dict and covs>=self.option_covs and covq>=self.option_covq:
                   self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,score,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
           if self.sort_method=="evl":
             if self.pident_method=="evalue":
               if evalue<self.option_evalue and qseqid in self.dict and self.dict[qseqid][3]>evalue and covs>=self.option_covs and covq>=self.option_covq:
-                if ooption_verbose=='True':
+                if self.verbose=='True':
                   print qseqid
-                  print "new entry %f is smaller than old entry %f" % (evalue,self.dict[qseqid][3])
+                  print "%s %f is smaller than %s %f" % (sseqid,evalue,self.dict[qseqid][0],self.dict[qseqid][3])
                 self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,score,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
               if evalue<self.option_evalue and qseqid not in self.dict and covs>=self.option_covs and covq>=self.option_covq:
                 self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,score,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
             if self.pident_method=="static":
               if pident>=self.option_pident and length>=self.option_length and qseqid in self.dict and self.dict[qseqid][3]>evalue and covs>=self.option_covs and covq>=self.option_covq:
-                if ooption_verbose=='True':
+                if self.verbose=='True':
                   print qseqid
-                  print "new entry %f is smaller than old entry %f" % (evalue,self.dict[qseqid][3])
+                  print "%s %f is smaller than %s %f" % (sseqid,evalue,self.dict[qseqid][0],self.dict[qseqid][3])
                 self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,score,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
               if pident>=self.option_pident and length>=self.option_length and qseqid not in self.dict and covs>=self.option_covs and covq>=self.option_covq:
                 self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,score,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
             if self.pident_method=="rost1999":
               if pident>=get_pident_by_length(length) and qseqid in self.dict and self.dict[qseqid][3]>evalue and covs>=self.option_covs and covq>=self.option_covq:
-                if ooption_verbose=='True':
+                if self.verbose=='True':
                   print qseqid
-                  print "new entry %f is smaller than old entry %f" % (evalue,self.dict[qseqid][3])
+                  print "%s %f is smaller than %s %f" % (sseqid,evalue,self.dict[qseqid][0],self.dict[qseqid][3])
                 self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
               if pident>=get_pident_by_length(length) and qseqid not in self.dict and covs>=self.option_covs and covq>=self.option_covq:
                 self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,score,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
@@ -984,25 +987,25 @@ class blast_dict(object):
             normscore=score/self.selfscore[qseqid]
             if self.pident_method=="evalue":
               if evalue<self.option_evalue and qseqid in self.dict and self.dict[qseqid][6]<normscore and covs>=self.option_covs and covq>=self.option_covq:
-                if ooption_verbose=='True':
+                if self.verbose=='True':
                   print qseqid
-                  print "new entry %f is larger than old entry %f" % (normscore,self.dict[qseqid][6])
+                  print "%s %f is larger than %s %f" % (sseqid,normscore,self.dict[qseqid][0],self.dict[qseqid][6])
                 self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,normscore,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
               if evalue<self.option_evalue and qseqid not in self.dict and covs>=self.option_covs and covq>=self.option_covq:
                 self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,normscore,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
             if self.pident_method=="static":
               if pident>=self.option_pident and length>=self.option_length and qseqid in self.dict and self.dict[qseqid][6]<normscore and covs>=self.option_covs and covq>=self.option_covq:
-                if ooption_verbose=='True':
+                if self.verbose=='True':
                   print qseqid
-                  print "new entry %f is larger than old entry %f" % (normscore,self.dict[qseqid][6])
+                  print "%s %f is larger than %s %f" % (sseqid,normscore,self.dict[qseqid][0],self.dict[qseqid][6])
                 self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,normscore,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
               if pident>=self.option_pident and length>=self.option_length and qseqid not in self.dict and covs>=self.option_covs and covq>=self.option_covq:
                 self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,normscore,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
             if self.pident_method=="rost1999":
               if pident>=get_pident_by_length(length) and qseqid in self.dict and self.dict[qseqid][6]<normscore and covs>=self.option_covs and covq>=self.option_covq:
-                if ooption_verbose=='True':
+                if self.verbose=='True':
                   print qseqid
-                  print "%f is larger than %f" % (normscore,self.dict[qseqid][6])
+                  print "%s %f is larger than %s %f" % (sseqid,normscore,self.dict[qseqid][0],self.dict[qseqid][6])
                 self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,normscore,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
               if pident>=get_pident_by_length(length) and qseqid not in self.dict and covs>=self.option_covs and covq>=self.option_covq:
                 self.dict[qseqid]=[sseqid,pident,length,evalue,bitscore,score,normscore,qlen,slen,nident,covs,covS,covns,covq,covQ,covnq]
