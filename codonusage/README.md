@@ -9,6 +9,9 @@ ENC will be calculated based on:
 * Wright (1990). The effective number of codons used in a gene. Gene 87:23-29. [Wright 1990](http://www.ncbi.nlm.nih.gov/pubmed/2110097)
 * Sun et al. (2012). An Improved Implementation of Effective Number of Codons (Nc). Mol. Biol. Evol. 30:191-196. [Sun 2012](http://www.ncbi.nlm.nih.gov/pubmed/22915832)
 
+RSCU will be calculated based on:
+* Sharp et al. (1986). Codon usage in yeast: cluster analysis clearly differentiates highly and lowly expressed genes. Nucl. Acids. Res. 14:5125-5143. [Sharp 1986](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC311530/)
+
 Dependencies
 ------------
 This python script depends on biopython <http://biopython.org/wiki/Download>, namely the module:
@@ -84,7 +87,7 @@ If the (-enc) option was used an additional table containing the choosen method 
 	#N_{c} = \frac {K_{1} \times \sum_{i}^{K_{1}} n_{i}}{\sum_{i=1}^{K_{i}}(n_{i} \times F_{CF_{i}})} + \frac {K_{2} \times \sum_{i}^{K_{2}} n_{i}}{\sum_{i=1}^{K_{2}}(n_{i} \times F_{CF_{i}})} + \frac {K_{3} \times \sum_{i}^{K_{3}} n_{i}}{\sum_{i=1}^{K_{3}}(n_{i} \times F_{CF_{i}})} + \frac {K_{4} \times \sum_{i}^{K_{4}} n_{i}}{\sum_{i=1}^{K_{4}}(n_{i} \times F_{CF_{i}})} + \frac {K_{6} \times \sum_{i}^{K_{6}} n_{i}}{\sum_{i=1}^{K_{6}}(n_{i} \times F_{CF_{i}})}	
 
 	Relative Synonymous Codon Usage
-	#RSCU_{i,j} = \frac{NumberofCodons_{i} \times CodonFrequency_{j}}{\sum_{j=1}^{NumberofCodons_{j}} CodonFrequency_{i}}
+	#RSCU_{i,j} = \frac{X_{i,j}}{\frac{1}{n_{i}} \times \sum_{j=1}^{n_{i}} X_{i,j}}
 
 Plotting ENC distributions
 --------------------------

@@ -68,7 +68,7 @@ def main():
   six2fourtwo = bool(args.six2fourtwo)
   codontable = codontable1
   if six2fourtwo==True:
-    codontable=codontable2
+    codontable = codontable2
 
   print("read fasta")
   original_fasta = SeqIO.parse(infile, "fasta")
@@ -148,6 +148,7 @@ def main():
                     tmp_third['X'][1]+=1
                 if args.enc is not None:
                   tmp_enc = {}
+                  tmp_GCbypos = GCbypos(tmp_counts, six2fourtwo)
                   if args.enc=='eq4Wright':
                     enchandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + str(eq4Wright(tmp_GCbypos[2])) + "\n")
                   if args.enc=='eq2Sun':
@@ -155,7 +156,6 @@ def main():
                   if args.enc=='eq5Sun':
                     enchandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + str(eq5Sun(tmp_counts, six2fourtwo)) + "\n")
                   if args.enc=='all':
-                    tmp_GCbypos = GCbypos(tmp_counts, six2fourtwo)
                     enchandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + str(eq4Wright(tmp_GCbypos[2])) + "\t" + str(eq2Sun(tmp_counts, six2fourtwo)) + "\t" + str(eq5Sun(tmp_counts, six2fourtwo)) + "\n")
                 tmp_rscu = RSCU(tmp_counts, codontable)
                 codonhandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + "\t".join([str(tmp_counts[x][2]) for x in sorted(tmp_counts.keys())]) + "\n")
@@ -503,7 +503,7 @@ def eq5Sun(codoncounts, six2fourtwo):
   return(Nc)
 
 #Relative Synonymous Codon Usage
-#RSCU_{i,j} = \frac{NumberofCodons_{i} \times CodonFrequency_{j}}{\sum_{j=1}^{NumberofCodons_{j}} CodonFrequency_{i}}
+#RSCU_{i,j} = \frac{X_{i,j}}{\frac{1}{n_{i}} \times \sum_{j=1}^{n_{i}} X_{i,j}}
 def RSCU(codoncounts,codontable):
   RSCUtable=codontable()
   for codon in RSCUtable.keys():
@@ -516,8 +516,7 @@ def RSCU(codoncounts,codontable):
     else:
       tmp_codon_na = [x[1] for x in tmp_aa if x[0]==codon][0]
       tmp_codon_freq = tmp_codon_na/float(na)
-      tmp_aa_freq = [x/float(na) for x in counts]
-      tmp_codon_rscu = (tmp_codon_freq/sum(tmp_aa_freq))*len(counts)
+      tmp_codon_rscu = tmp_codon_freq*len(counts)
       RSCUtable[codon][2]=tmp_codon_rscu
   return(RSCUtable)
 
