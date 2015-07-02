@@ -136,29 +136,29 @@ def get_comparison_by_type(qt, dbt, selfblast):
     return [comparison_qd, comparison_dq, comparison_qq, comparison_dd]
     
 def commandoptions():
-  parser = argparse.ArgumentParser(prog='rbhplus', usage='%(prog)s [options] -prog blast+ -q AFASTTA -qt prot -d BFASTA -dt prot -step 1 -out AFASTA.BFASTA.out', description='Performs reciprocal BLAST+ [-prog blast+] or ghostx [-prog ghostx] searches between two species by either starting and performing BLAST+/ghostx search or providing BLAST+/ghostx produced table files. BLAST+/ghostx binary are supposed to be in the PATH otherwise specify with [pp] option. Mandatory are FASTA format sequences for two species and their sequence type (see help). For single species reciprocal BLAST+/ghostx use the same input sequence as query and database, please "omit the selfblast option in this case!". Optional parameters can be set, e.g. if you want to add selfbalst (within species) BLAST+/ghostx comparison [default: only between; can be changed with the selfblast option], if BLAST+/ghostx should build the necessary BLAST+/ghostx databases with makeblastdb/ghostx db [default: false] and some BLAST+/ghostx specific options (see help).')
+  parser = argparse.ArgumentParser(prog='rbhplus', usage='%(prog)s [options] -prog blast+ -q AFASTTA -qt prot -d BFASTA -dt prot -step 1 -out AFASTA.BFASTA.out', description='Performs conditional reciprocal BLAST+ [-prog blast+] or ghostx [-prog ghostx] or [-prog diamond] searches between two species by either starting and performing BLAST+/ghostx/diamond search or providing BLAST+/ghostx/diamond produced table files. BLAST+/ghostx/diamond binary are supposed to be in the PATH otherwise specify with [pp] option. Mandatory are FASTA format sequences for two species and their sequence type (see help). For single species reciprocal BLAST+/ghostx/diamond use the same input sequence as query and database, please "omit the selfblast option in this case!". Optional parameters can be set, e.g. if you want to add selfblast (within species) BLAST+/ghostx/diamond comparison [default: only between; can be changed with the selfblast option], if BLAST+/ghostx/dimaond should build the necessary BLAST+/ghostx/diamond databases with makeblastdb/ghostx db/diamond makedb [default: false] and some BLAST+/ghostx/diamond specific options (see help).')
   parser.add_argument('-prog', default='blast+', help='specify if BLAST+ or ghostx should be used for sequence comparison [default: blast+]')
   parser.add_argument('-pp', default='', help='specify BLAST+/ghostx binary path [default: PATH]')
   parser.add_argument('-selfblast', default='False', choices=['True','False'], help='specify if BLAST+/ghostx search should be run also within each species to extract selfscores. Can also run as standalone option with step option set to [-step self]. This step is necessary if you would like to sort the BLAST+/ghostx result by selfscores.')
-  parser.add_argument('-step', default='1', choices=['0','1','2','3','4','self'], help='specify which step should be performed: [1]->BLAST+/ghostx initially builds the necessary BLAST+/ghostx sequence databases. [2]->BLAST+/ghostx search is performed. [3]->BLAST+/ghostx output is parsed. [4]->Reciprocal Best Hits (RBHs) are calculated. Optional: [self]->BLAST+/ghostx initially builds the necessary BLAST+/ghostx sequence databases if it is not already existing and selfscores are obtained for each species. Optional: [0]->BLAST+/ghostx builds the BLAST+/ghostx sequence databases and exists.')
+  parser.add_argument('-step', default='1', choices=['0','1','2','3','4','self'], help='specify which step should be performed: [1]->BLAST+/ghostx/diamond initially builds the necessary BLAST+/ghostx/diamond sequence databases. [2]->BLAST+/ghostx/diamond search is performed. [3]->BLAST+/ghostx/diamond output is parsed. [4]->Reciprocal Best Hits (RBHs) are calculated. Optional: [self]->BLAST+/ghostx/diamond initially builds the necessary BLAST+/ghostx/diamond sequence databases if it is not already existing and selfscores are obtained for each species. Optional: [0]->BLAST+/ghostx/diamond builds the BLAST+/ghostx sequence databases and exists.')
   parser.add_argument('-q', help='specify query')
   parser.add_argument('-qt', default='prot', choices=['prot','nucl'], help='specify query type [default: prot] or [nucl]')
   parser.add_argument('-db', help='specify database')
   parser.add_argument('-dbt', default='prot', choices=['prot','nucl'], help='specify database type [default: prot] or [nucl]')
   parser.add_argument('-e', default=float(1E-5), type=float, help='specify the evalue cutoff [default: 1E-5]')
-  parser.add_argument('-m', default='BLOSUM62', help='specify the BLAST+/ghostx matrix [default: BLOSUM62]')
+  parser.add_argument('-m', default='BLOSUM62', help='specify the BLAST+/ghostx/diamond matrix [default: BLOSUM62]')
   parser.add_argument('-n',default=int(1), help='specfiy number of threads to use')
   parser.add_argument('-op', default='.', help='specify output path [default: .]')
-  parser.add_argument('-p', default=float(30), type=float, help='specify pident cutoff for BLAST+/ghostx result filtering [default: 30]')
-  parser.add_argument('-l', default=float(80), type=float, help='specify alignment length cutoff for BLAST+/ghostx result filtering [default: 80]')
-  parser.add_argument('-covs', default=float(0.0), type=float, help='specify subject coverage for BLAST+ result filtering [default: 0.0]; can only be applied with BLAST+ since ghostx does not provide qlen and slen yet.')
-  parser.add_argument('-covq', default=float(0.0), type=float, help='specify query coverage for BLAST+ result filtering [default: 0.0]; can only be applied with BLAST+ since ghostx does not provide qlen and slen yet.')
-  parser.add_argument('-nt', default=int(250), type=int, help='specify number of max. targets to be considered by BLAST+/ghostx [default: 250].')
-  parser.add_argument('-pid', default='static', choices=['evalue', 'static', 'rost1999'], help='choose pident filtering for BLAST+/ghostx result filtering; either as static [pident+length], evalue or rost1999')
+  parser.add_argument('-p', default=float(30), type=float, help='specify pident cutoff for BLAST+/ghostx/diamond result filtering [default: 30]')
+  parser.add_argument('-l', default=float(80), type=float, help='specify alignment length cutoff for BLAST+/ghostx/diamond result filtering [default: 80]')
+  parser.add_argument('-covs', default=float(0.0), type=float, help='specify subject coverage [alignment length / subject length] for BLAST+ result filtering [default: 0.0]; can only be applied with BLAST+ and diamond [see help file how to compile diamond to also provide qlen and slen]; ghostx does not provide qlen and slen yet.')
+  parser.add_argument('-covq', default=float(0.0), type=float, help='specify query coverage [alignment length / query length] for BLAST+ result filtering [default: 0.0]; can only be applied with BLAST+ and diamond [see help file how to compile diamond to also provied qlen and slen]; ghostx does not provide qlen and slen yet.')
+  parser.add_argument('-nt', default=int(250), type=int, help='specify number of max. targets to be considered by BLAST+/ghostx/diamond [default: 250].')
+  parser.add_argument('-pid', default='static', choices=['evalue', 'static', 'rost1999'], help='choose pident filtering for BLAST+/ghostx/diamond result filtering; either as static [pident+length], evalue or rost1999')
   parser.add_argument('-sort', default='pure', choices=['pure', 'evl', 'pxl', 'selfscore'], help='choose reciprocal best hit sorting: either [default: pure] (number of max. targets is restricted to 50 and only first hit of those which fulfill the pid criteria will be processed); [evl] (hits that fulfill pid criteria will be sorted by evalue, any number of max. targets possible); [pxl] (hits that fulfill pid criteria will be sorted by pident*length, any number of max. targets possible) or [selfscore] (hits that fulfill pid criteria will be sorted by normalized selfscore provided via the -selfscore OPTION or directly calculated via the -selfblast option, any number of max. targets possible).')
   parser.add_argument('-selfscore', nargs=2, help='specify selfscore files for the query and the database species [tab seperated format (ID\tSCORE)]. You need to have two file one for the query and one for the database. Selfscore files can be produced either by using [step: self] or by including the [selfblast] option, in this case the selfscores will be calculated anyway.')
-  parser.add_argument('-pre', default='False', choices=['True','False'], help='specify if pre-existing BLAST+/ghostx output files should be used; e.g. if BLAST+/ghostx output was produced elsewhere [default: False]. Please note that BLAST+ output needs to be in the format "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen nident gaps score"; ghostx in the current version does not support individual output format so we stick to standard output here. Also there exists a name convention "query input".vs."database input".')
-  parser.add_argument('-prep', default='.', help='specify path with pre-existing BLAST+/ghostx output [default: .]')
+  parser.add_argument('-pre', default='False', choices=['True','False'], help='specify if pre-existing BLAST+/ghostx/diamond output files should be used; e.g. if BLAST+/ghostx/diamond output was produced elsewhere [default: False]. Please note that BLAST+ output needs to be in the format "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen nident gaps score"; diamond output needs to be in the format ""; ghostx in the current version does not support individual output format so we stick to standard output here. Also there exists a name convention "query input".vs."database input".')
+  parser.add_argument('-prep', default='.', help='specify path with pre-existing BLAST+/ghostx/diamond output [default: .]')
   parser.add_argument('-out', default='out', help='specify output file')
   parser.add_argument('-v', default='False', choices=['True','False'], help='verbose output')
   args = parser.parse_args()
@@ -222,6 +222,13 @@ def commandoptions():
     outfile_dd = outpath+'/'+database_species+'.vs.'+database_species+'.ghostx.out'
     selfscore_q = outpath+'/'+query_species+'.ghostx.selfscore'
     selfscore_d = outpath+'/'+database_species+'.ghostx.selfscore'
+  if prog == 'diamond':
+    outfile_qd = outpath+'/'+query_species+'.vs.'+database_species+'.diamond.out'
+    outfile_dq = outpath+'/'+database_species+'.vs.'+query_species+'.diamond.out'
+    outfile_qq = outpath+'/'+query_species+'.vs.'+query_species+'.diamond.out'
+    outfile_dd = outpath+'/'+database_species+'.vs.'+database_species+'.diamond.out'
+    selfscore_q = outpath+'/'+query_species+'.diamond.selfscore'
+    selfscore_d = outpath+'/'+database_species+'.diamond.selfscore'
   if args.selfscore is None:
     selfscore = ''
   if args.selfscore is not None:
@@ -292,12 +299,17 @@ def main():
       build_blast_db(oblastpath,abs_oquery_species,oquery_species_type,abs_oprepath,oprecheck)
     if oquery_species==odatabase_species and oprog=='ghostx':
       build_ghostx_db(oblastpath,abs_oquery_species,oquery_species_type,abs_oprepath,oprecheck)
+#    if oquery_species==odatabase_species and oprog=='diamond':
+#      build_ghostx_db(oblastpath,abs_oquery_species,oquery_species_type,abs_oprepath,oprecheck)
     if oquery_species!=odatabase_species and oprog=='blast+':
       build_blast_db(oblastpath,abs_oquery_species,oquery_species_type,abs_oprepath,oprecheck)
       build_blast_db(oblastpath,abs_odatabase_species,odatabase_species_type,abs_oprepath,oprecheck)
-    if oquery_species!=odatabase_species and oprog=='ghostx':
+#    if oquery_species!=odatabase_species and oprog=='ghostx':
+#      build_ghostx_db(oblastpath,abs_oquery_species,oquery_species_type,abs_oprepath,oprecheck)
+#      build_ghostx_db(oblastpath,abs_odatabase_species,odatabase_species_type,abs_oprepath,oprecheck)
+    if oquery_species!=odatabase_species and oprog=='diamond':
       build_ghostx_db(oblastpath,abs_oquery_species,oquery_species_type,abs_oprepath,oprecheck)
-      build_ghostx_db(oblastpath,abs_odatabase_species,odatabase_species_type,abs_oprepath,oprecheck)    
+      build_ghostx_db(oblastpath,abs_odatabase_species,odatabase_species_type,abs_oprepath,oprecheck)
     ostep='exit'
   if ostep=='1':
     print '\n#####\nSTEP1: building %s sequence databases:\n' % (oprog)
@@ -305,10 +317,15 @@ def main():
       build_blast_db(oblastpath,abs_oquery_species,oquery_species_type,oprepath,oprecheck)
     if oquery_species==odatabase_species and oprog=='ghostx':
       build_ghostx_db(oblastpath,abs_oquery_species,oquery_species_type,oprepath,oprecheck)
+#    if oquery_species==odatabase_species and oprog=='diamond':
+#      build_ghostx_db(oblastpath,abs_oquery_species,oquery_species_type,oprepath,oprecheck)
     if oquery_species!=odatabase_species and oprog=='blast+':
       build_blast_db(oblastpath,abs_oquery_species,oquery_species_type,oprepath,oprecheck)
       build_blast_db(oblastpath,abs_odatabase_species,odatabase_species_type,oprepath,oprecheck)
     if oquery_species!=odatabase_species and oprog=='ghostx':
+      build_ghostx_db(oblastpath,abs_oquery_species,oquery_species_type,oprepath,oprecheck)
+      build_ghostx_db(oblastpath,abs_odatabase_species,odatabase_species_type,oprepath,oprecheck)
+    if oquery_species!=odatabase_species and oprog=='diamond':
       build_ghostx_db(oblastpath,abs_oquery_species,oquery_species_type,oprepath,oprecheck)
       build_ghostx_db(oblastpath,abs_odatabase_species,odatabase_species_type,oprepath,oprecheck)
     ostep='2'
@@ -333,6 +350,15 @@ def main():
           print 'start ghostx q vs d'
           _qd.process()
           print 'finished ghostx q vs d'
+#      if oquery_species==odatabase_species and oprog=='diamond':
+#        print '\n###\ndiamond q vs d'
+#        _qd = diamond(oblastpath, oprog, abs_oquery_species, abs_odatabase_species, oquery_species_type, odatabase_species_type, onum_targets, onum_threads, abs_ooutfile_qd, abs_oprepath, oprecheck, ooutfile_qd)
+#        if _qd.check() and oprecheck=='True':
+#          print 'diamond q vs d - already exists'
+#        else:
+#          print 'start diamond q vs d'
+#          _qd.process()
+#          print 'finished diamond q vs d'
       if oquery_species!=odatabase_species and oprog=='blast+':
         print '\n###\nBLAST+ q vs d'
         _qd = blast(oblastpath, ocomparison_qd, abs_oquery_species, abs_odatabase_species, ooption_evalue, omatrix, onum_targets, onum_threads, abs_ooutfile_qd, abs_oprepath, oprecheck, ooutfile_qd)
@@ -367,6 +393,23 @@ def main():
           print 'start ghostx d vs q'
           _dq.process()
           print 'finished ghostx d vs q'
+#      if oquery_species!=odatabase_species and oprog=='diamond':
+#        print '\n###\nghostx q vs d'
+#        _qd = diamond(oblastpath, oprog, abs_oquery_species, abs_odatabase_species, oquery_species_type, odatabase_species_type, onum_targets, onum_threads, abs_ooutfile_qd, abs_oprepath, oprecheck, ooutfile_qd)
+#        if _qd.check() and oprecheck=='True':
+#          print 'diamond q vs d - already exists'
+#        else:
+#          print 'start diamond q vs d'
+#          _qd.process()
+#          print 'finished diamond q vs d'
+#        print '\n###\ndiamond d vs q'
+#        _dq = diamond(oblastpath, oprog, abs_odatabase_species, abs_oquery_species, odatabase_species_type, oquery_species_type, onum_targets, onum_threads, abs_ooutfile_dq, abs_oprepath, oprecheck, ooutfile_dq)
+#        if _dq.check() and oprecheck=='True':
+#          print 'diamond d vs q - already exists'
+#        else:
+#          print 'start diamond d vs q'
+#          _dq.process()
+#          print 'finished diamond d vs q'
       ostep='3'
     if oselfblast=='True':
       if oprog=='blast+':
@@ -435,6 +478,39 @@ def main():
           print 'start ghostx d vs d'
           _dd.process()
           print 'finished ghostx d vs d'
+#      if oprog=='diamond':
+#        print '\n###\nghostx q vs d'
+#        _qd = diamond(oblastpath, oprog, abs_oquery_species, abs_odatabase_species, oquery_species_type, odatabase_species_type, onum_targets, onum_threads, abs_ooutfile_qd, abs_oprepath, oprecheck, ooutfile_qd)
+#        if _qd.check() and oprecheck=='True':
+#          print 'diamond q vs d - already exists'
+#        else:
+#          print 'start diamond q vs d'
+#          _qd.process()
+#          print 'finished diamond q vs d'
+#        print '\n###\ndiamond d vs q'
+#        _dq = diamond(oblastpath, oprog, abs_odatabase_species, abs_oquery_species, odatabase_species_type, oquery_species_type, onum_targets, onum_threads, abs_ooutfile_dq, abs_oprepath, oprecheck, ooutfile_dq)
+#        if _dq.check() and oprecheck=='True':
+#          print 'diamond d vs q - already exists'
+#        else:
+#          print 'start diamond d vs q'
+#          _dq.process()
+#          print 'finished diamond d vs q'
+#        print '\n###\ndiamond q vs q'
+#        _qq = diamond(oblastpath, oprog, abs_oquery_species, abs_oquery_species, oquery_species_type, oquery_species_type, onum_targets, onum_threads, abs_ooutfile_qq, abs_oprepath, oprecheck, ooutfile_qq)
+#        if _qq.check() and oprecheck=='True':
+#          print 'diamond q vs q - already exists'
+#        else:
+#          print 'start diamond q vs q'
+#          _qq.process()
+#          print 'finished diamond q vs q'
+#        print '\n###\ndiamond d vs d'
+#        _dd = diamond(oblastpath, oprog, abs_odatabase_species, abs_odatabase_species, odatabase_species_type, odatabase_species_type, onum_targets, onum_threads, abs_ooutfile_dd, abs_oprepath, oprecheck, ooutfile_dd)
+#        if _dd.check() and oprecheck=='True':
+#          print 'diamond d vs d - already exists'
+#        else:
+#          print 'start diamond d vs d'
+#          _dd.process()
+#          print 'finished diamond d vs d'
       ostep='3'
   if ostep=='3':
     print '\n#####\nSTEP3: parse %s output' % (oprog)
@@ -467,6 +543,13 @@ def main():
               if oquery_species!=odatabase_species:
                 parser.print_help()
                 sys.exit('\n#####\nExit program: selfscores can not be extracted, if you want to do this please use the "-selfblast" option or directly "-step self".')
+#            if oprog=='diamond':
+#              selfscore_q_dict = selfscore_dict(abs_ooutfile_qd, abs_oselfscore_q, 'diamond')
+#              selfscore_q_dict.parse()
+#              selfscore_q_dict.write()
+#              if oquery_species!=odatabase_species:
+#                parser.print_help()
+#                sys.exit('\n#####\nExit program: selfscores can not be extracted, if you want to do this please use the "-selfblast" option or directly "-step self".')
             selfscore_q_dict_dict = selfscore_q_dict.dict
         if oselfblast=='True':
           print 'since selfblast was running the selfscores can now be extracted\n'
@@ -488,6 +571,15 @@ def main():
             selfscore_d_dict = selfscore_dict(abs_ooutfile_dd, abs_oselfscore_d,'ghostx')
             selfscore_d_dict.parse()
             selfscore_d_dict.write()
+#          if oprog=='diamond':
+#            print 'extract %s selfscores q' % (oprog)
+#            selfscore_q_dict = selfscore_dict(abs_ooutfile_qq, abs_oselfscore_q,'diamond')
+#            selfscore_q_dict.parse()
+#            selfscore_q_dict.write()
+#            print 'extract selfscores d'
+#            selfscore_d_dict = selfscore_dict(abs_ooutfile_dd, abs_oselfscore_d,'diamond')
+#            selfscore_d_dict.parse()
+#            selfscore_d_dict.write()
           selfscore_q_dict_dict = selfscore_q_dict.dict
           selfscore_d_dict_dict = selfscore_d_dict.dict
     if osort_method!='selfscore':
@@ -694,12 +786,17 @@ def main():
       build_blast_db(oblastpath,abs_oquery_species,oquery_species_type,oprepath,oprecheck)
     if oquery_species==odatabase_species and oprog=='ghostx':
       build_ghostx_db(oblastpath,abs_oquery_species,oquery_species_type,oprepath,oprecheck)
+#    if oquery_species==odatabase_species and oprog=='diamond':
+#      build_ghostx_db(oblastpath,abs_oquery_species,oquery_species_type,oprepath,oprecheck)
     if oquery_species!=odatabase_species and oprog=='blast+':
       build_blast_db(oblastpath,abs_oquery_species,oquery_species_type,oprepath,oprecheck)
       build_blast_db(oblastpath,abs_odatabase_species,odatabase_species_type,oprepath,oprecheck)
     if oquery_species!=odatabase_species and oprog=='ghostx':
       build_ghostx_db(oblastpath,abs_oquery_species,oquery_species_type,oprepath,oprecheck)
       build_ghostx_db(oblastpath,abs_odatabase_species,odatabase_species_type,oprepath,oprecheck)
+#    if oquery_species!=odatabase_species and oprog=='diamond':
+#      build_ghostx_db(oblastpath,abs_oquery_species,oquery_species_type,oprepath,oprecheck)
+#      build_ghostx_db(oblastpath,abs_odatabase_species,odatabase_species_type,oprepath,oprecheck)
     print '\n#####\nSTEP2: %s searches\n' % (oprog)
     if oquery_species==odatabase_species and oprog=='blast+':
       print '\n###\nBLAST+ q vs d'
@@ -718,7 +815,16 @@ def main():
       else:
         print 'start ghostx q vs d'
         _qd.process()
-        print 'finished ghostx q vs d'      
+        print 'finished ghostx q vs d'
+#    if oquery_species==odatabase_species and oprog=='diamond':
+#      print '\n###\ndiamond q vs d'
+#      _qd = diamond(oblastpath, oprog, abs_oquery_species, abs_odatabase_species, oquery_species_type, odatabase_species_type, onum_targets, onum_threads, abs_ooutfile_qd, abs_oprepath, oprecheck, ooutfile_qd)
+#      if _qd.check() and oprecheck=='True':
+#        print 'diamond q vs d - already exists'
+#      else:
+#        print 'start diamond q vs d'
+#        _qd.process()
+#        print 'finished diamond q vs d'
     if oquery_species!=odatabase_species and oprog=='blast+':
       print '\n###\nBLAST+ q vs q'
       _qq = blast(oblastpath, ocomparison_qq, abs_oquery_species, abs_oquery_species, ooption_evalue, omatrix, onum_targets, onum_threads, abs_ooutfile_qq, abs_oprepath, oprecheck, ooutfile_qq)
@@ -753,6 +859,23 @@ def main():
         print 'start ghostx d vs d'
         _dd.process()
         print 'finished ghostx d vs d'
+#    if oquery_species!=odatabase_species and oprog=='diamond':
+#      print '\n###\ndiamond q vs q'
+#      _qq = diamond(oblastpath, oprog, abs_oquery_species, abs_oquery_species, oquery_species_type, oquery_species_type, onum_targets, onum_threads, abs_ooutfile_qq, abs_oprepath, oprecheck, ooutfile_qq)
+#      if _qq.check() and oprecheck=='True':
+#        print 'diamond q vs q - already exists'
+#      else:
+#        print 'start diamond q vs q'
+#        _qq.process()
+#        print 'finished diamond q vs q'
+#      print '\n###\ndiamond d vs d'
+#      _dd = diamond(oblastpath, oprog, abs_odatabase_species, abs_odatabase_species, odatabase_species_type, odatabase_species_type, onum_targets, onum_threads, abs_ooutfile_dd, abs_oprepath, oprecheck, ooutfile_dd)
+#      if _dd.check() and oprecheck=='True':
+#        print 'diamond d vs d - already exists'
+#      else:
+#        print 'start diamond d vs d'
+#        _dd.process()
+#        print 'finished diamond d vs d'
     if oquery_species==odatabase_species:
       print 'query species (%s) equals database species (%s)\n' % (oquery_species, odatabase_species)
       print 'extract %s selfscores' % (oprog)
@@ -764,6 +887,10 @@ def main():
         selfscore_q_dict = selfscore_dict(abs_ooutfile_qd, abs_oselfscore_q, 'ghostx')
         selfscore_q_dict.parse()
         selfscore_q_dict.write()
+#      if oprog=='diamond':
+#        selfscore_q_dict = selfscore_dict(abs_ooutfile_qd, abs_oselfscore_q, 'diamond')
+#        selfscore_q_dict.parse()
+#        selfscore_q_dict.write()
     if oquery_species!=odatabase_species:
       if oprog=='blast+':
         print 'extract %s selfscores q' % (oprog)
@@ -783,6 +910,15 @@ def main():
         selfscore_d_dict = selfscore_dict(abs_ooutfile_dd, abs_oselfscore_d,'ghostx')
         selfscore_d_dict.parse()
         selfscore_d_dict.write()
+#      if oprog=='diamond':
+#        print 'extract %s selfscores q' % (oprog)
+#        selfscore_q_dict = selfscore_dict(abs_ooutfile_qq, abs_oselfscore_q,'diamond')
+#        selfscore_q_dict.parse()
+#        selfscore_q_dict.write()
+#        print 'extract selfscores d'
+#        selfscore_d_dict = selfscore_dict(abs_ooutfile_dd, abs_oselfscore_d,'diamond')
+#        selfscore_d_dict.parse()
+#        selfscore_d_dict.write()
     ostep='finished'
   if ostep=='finished':
     print '\n#####\nFinished'
@@ -812,6 +948,12 @@ def get_species_type_ghostx(species_type):
   if species_type=='nucl':
     return 'd'
 
+#def get_species_type_diamond(species_type):
+#  if species_type=='prot':
+#    return 'p'
+#  if species_type=='nucl':
+#    return 'd'
+
 def build_ghostx_db(path, species, species_type, prepath, precheck):
   if precheck=='False':
     print 'overwrite existing ghostx sequeunce files since "-pre" option is not set\n'
@@ -831,6 +973,25 @@ def build_ghostx_db(path, species, species_type, prepath, precheck):
         print 'building %s sequence database - already exists\n' % (species)
         os.system(path+'ghostx db -i '+species+' -t '+get_species_type_ghostx(species_type)+' -o '+species)
 
+#def build_diamond_db(path, species, species_type, prepath, precheck):
+#  if precheck=='False':
+#    print 'overwrite existing diamond sequeunce files since "-pre" option is not set\n'
+#    print 'building %s sequence database\n' % (species)
+#    os.system(path+'diamond makedb -i '+species+' -t '+get_species_type_diamond(species_type)+' -o '+species)
+#  if precheck=='True':
+#    if species_type == 'prot':
+#      if os.path.isfile(species+'.inf'):
+#        print 'skip building %s sequence database - already exists\n' % (species)
+#      else:
+#        print 'building %s sequence database\n' % (species)
+#        os.system(path+'diamond db -i '+species+' -t '+get_species_type_ghostx(species_type)+' -o '+species)
+#    if species_type == 'nucl':
+#      if os.path.isfile(species+'.inf'):
+#        print 'skip building %s sequence database\n' % (species)
+#      else:
+#        print 'building %s sequence database - already exists\n' % (species)
+#        os.system(path+'diamond makedb -i '+species+' -t '+get_species_type_ghostx(species_type)+' -o '+species)
+
 def get_pident_by_length(x):
   if x<=11:
     return float(100)
@@ -839,6 +1000,7 @@ def get_pident_by_length(x):
   if x>450:
     return 19.5
 
+#TODO: each blast_dict needs two selfscore files [query and database selfscore]
 class blast_dict(object):
   def __init__(self, infile, sort_method, pident_method, option_pident, option_length, option_evalue, option_covs, option_covq, comparison, form, selfscore, verbose):
     self.infile = infile
@@ -915,6 +1077,34 @@ class blast_dict(object):
             covq = float(999)
             covQ = float(999)
             covnq = float(999)
+#          if self.form=='diamond':
+#            qseqid,sseqid,pident,length,mismatch,gapopen,qstart,qend,sstart,send,evalue,bitscore = parts
+#            evalue = float(evalue)
+#            bitscore = float(bitscore)
+#            pident = float(pident)
+#            length = float(length)
+#            score = bitscore
+            #if self.comparison=='blastp' or self.comparison=='blastn':
+              #qlen = float(qlen)
+              #slen = float(slen)
+            #if self.comparison=='blastx':
+              #qlen = float(qlen)/3
+              #slen = float(slen)
+            #if self.comparison=='tblastn':
+              #qlen = float(qlen)
+              #slen = float(slen)/3
+            #if self.comparison=='tblastx':
+              #qlen = float(qlen)/3
+              #slen = float(slen)/3
+#            qlen = float(1)
+#            slen = float(1)
+#            nident = float(-999)
+#            covs = float(999)
+#            covS = float(999)
+#            covns = float(999)
+#            covq = float(999)
+#            covQ = float(999)
+#            covnq = float(999)
           if qseqid==sseqid:
             continue
           if self.sort_method=="pure":
@@ -1037,6 +1227,14 @@ class selfscore_dict(object):
           score = float(bitscore)
           if qseqid not in self.dict and qseqid == sseqid:
             self.dict[qseqid] = float(bitscore)
+#    if self.form == 'diamond':
+#      with open(self.infile,'rU') as inhandle:
+#        for line in inhandle:
+#          parts = line.strip().split('\t')
+#          qseqid,sseqid,pident,length,mismatch,gapopen,qstart,qend,sstart,send,evalue,bitscore = parts
+#          score = float(bitscore)
+#          if qseqid not in self.dict and qseqid == sseqid:
+#            self.dict[qseqid] = float(bitscore)
     if self.form == 'score':
       with open(self.infile,'rU') as inhandle:
         inhandle.next()
@@ -1104,6 +1302,33 @@ class ghostx(object):
     if self.precheck:
       if os.path.isfile(self.prepath+'/'+self.out):
         return True
+
+#class diamond(object):
+#  def __init__(self, path, prog, query, db, query_type, db_type, num_targets, num_threads, abs_out, prepath, precheck, out):
+#    self.path = path
+#    self.prog = prog
+#    self.query = query
+#    self.db = db
+#    self.query_type = query_type
+#    self.db_type = db_type
+#    self.num_targets = str(num_targets)
+#    self.num_threads = str(num_threads)
+#    self.abs_out = abs_out
+#    self.out = out
+#    self.prepath = prepath
+#    self.precheck = precheck
+#
+#  def parameters(self):
+#    print(self.path, self.prog, self.query, self.db, self.query_type, self.db_type, self.num_targets, self.num_threads, self.abs_out, self.prepath, self.precheck, self.out)
+#
+#  def process(self):
+#    print self.path+self.prog+' aln -i '+self.query+' -d '+self.db+' -b '+self.num_targets+' -a '+self.num_threads+' -o '+self.abs_out+' -q '+get_species_type_ghostx(self.query_type)+' -t '+get_species_type_ghostx(self.db_type)
+#    os.system(self.path+self.prog+' aln -i '+self.query+' -d '+self.db+' -b '+self.num_targets+' -a '+self.num_threads+' -o '+self.abs_out+' -q '+get_species_type_ghostx(self.query_type)+' -t '+get_species_type_ghostx(self.db_type))
+#
+#  def check(self):
+#    if self.precheck:
+#      if os.path.isfile(self.prepath+'/'+self.out):
+#        return True
 
 if __name__ == '__main__':
     main()
