@@ -567,7 +567,7 @@ def main():
             selfscore_q_dict = selfscore_dict(abs_ooutfile_qq, abs_oselfscore_q,'ghostx')
             selfscore_q_dict.parse()
             selfscore_q_dict.write()
-            print 'extract selfscores d'
+            print 'extract %s selfscores d' % (oprog)
             selfscore_d_dict = selfscore_dict(abs_ooutfile_dd, abs_oselfscore_d,'ghostx')
             selfscore_d_dict.parse()
             selfscore_d_dict.write()
@@ -576,7 +576,7 @@ def main():
 #            selfscore_q_dict = selfscore_dict(abs_ooutfile_qq, abs_oselfscore_q,'diamond')
 #            selfscore_q_dict.parse()
 #            selfscore_q_dict.write()
-#            print 'extract selfscores d'
+#            print 'extract %s selfscores d' % (oprog)
 #            selfscore_d_dict = selfscore_dict(abs_ooutfile_dd, abs_oselfscore_d,'diamond')
 #            selfscore_d_dict.parse()
 #            selfscore_d_dict.write()
