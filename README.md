@@ -49,4 +49,4 @@ see <https://github.com/kullrich/bio-scripts/tree/master/gff>
 blastparse
 ----------
 
-see <https://github.com/kullrich/bio-scripts/tree/master/blast>
+see <https://github.com/kullrich/bio-scripts/tree/master/blastparse>
