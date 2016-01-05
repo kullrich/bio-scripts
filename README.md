@@ -46,7 +46,7 @@ gff
 
 see <https://github.com/kullrich/bio-scripts/tree/master/gff>
 
-blast
------
+blastparse
+----------
 
 see <https://github.com/kullrich/bio-scripts/tree/master/blast>
