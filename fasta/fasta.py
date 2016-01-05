@@ -71,7 +71,7 @@ transtable_std=CT.CodonTable(forward_table = {
 )
 
 def mainparser(parser):
-    parser.add_argument('-l', help='show sub-script list')
+    return()
 
 def subparser(subparsers):
     # translate; parser
@@ -143,28 +143,276 @@ def subparser(subparsers):
     parser_gc.add_argument('-t', default='gc', choices=['gc','gc1','gc2','gc3'], help='specify type [default: gc] or [gc1] or [gc2] or [gc3]')
     parser_gc.set_defaults(func=gccontent)
     # reduce names; parser
-    parser_redname = subparsers.add_parser('redname', help='reduce IDs help')
-    parser_redname.add_argument('-si', type=bool, default=True, help='specify if input from STDIN')
-    parser_redname.add_argument('-so', type=bool, default=True, help='specify if output to STDOUT')
-    parser_redname.add_argument('-i', help='input file')
-    parser_redname.add_argument('-o', help='output file')
-    parser_redname.add_argument('-s', default=' ', help='specify split [default: " "]')
-    parser_redname.add_argument('-k', default=0, help='specify keep field [default: 0]')
-    parser_redname.set_defaults(func=redname)
+    parser_redids = subparsers.add_parser('redids', help='reduce IDs help')
+    parser_redids.add_argument('-si', type=bool, default=True, help='specify if input from STDIN')
+    parser_redids.add_argument('-so', type=bool, default=True, help='specify if output to STDOUT')
+    parser_redids.add_argument('-i', help='input file')
+    parser_redids.add_argument('-o', help='output file')
+    parser_redids.add_argument('-s', default=' ', help='specify split [default: " "]')
+    parser_redids.add_argument('-k', default=0, help='specify keep field [default: 0]')
+    parser_redids.set_defaults(func=redids)
     # convert names from strings to numbers, storing name number assignment into a table; parser
     parser_id2num = subparsers.add_parser('id2num', help='id2num help')
     parser_id2num.add_argument('-si', type=bool, default=True, help='specify if input from STDIN')
     parser_id2num.add_argument('-so', type=bool, default=True, help='specify if output to STDOUT')
     parser_id2num.add_argument('-i', help='input file')
     parser_id2num.add_argument('-o', help='output file')
+    parser_id2num.add_argument('-t', help='table output file')
     parser_id2num.set_defaults(func=id2num)
     # convert names from numbers to strings, using a name number assignment table; parser
-
+    parser_num2id = subparsers.add_parser('num2id', help='num2id help')
+    parser_num2id.add_argument('-si', type=bool, default=True, help='specify if input from STDIN')
+    parser_num2id.add_argument('-so', type=bool, default=True, help='specify if output to STDOUT')
+    parser_num2id.add_argument('-t', help='table input file')
+    parser_num2id.add_argument('-i', help='input file')
+    parser_num2id.add_argument('-o', help='output file')
+    parser_num2id.set_defaults(func=num2id)
     # split sequences into short sequences; parser
-
+    parser_split = subparsers.add_parser('split', help='split help')
+    parser_split.add_argument('-si', type=bool, default=True, help='specify if input from STDIN')
+    parser_split.add_argument('-so', type=bool, default=True, help='specify if output to STDOUT')
+    parser_split.add_argument('-i', help='input file')
+    parser_split.add_argument('-o', help='output file')
+    parser_split.add_argument('-m', default=1000, type=int, help='split length [default: 1000]')
+    parser_split.set_defaults(func=fsplit)
     # extract longest component trinity; parser
-
+    parser_lctrinity = subparsers.add_parser('lctrinity', help='lctrinity help')
+    parser_lctrinity.add_argument('-si', type=bool, default=True, help='specify if input from STDIN')
+    parser_lctrinity.add_argument('-so', type=bool, default=True, help='specify if output to STDOUT')
+    parser_lctrinity.add_argument('-i', help='input file')
+    parser_lctrinity.add_argument('-o', help='output file')
+    parser_lctrinity.set_defaults(func=lctrinity)
     # extract longest component velvet/oases; parser
+    parser_lcvelvet = subparsers.add_parser('lcvelvet', help='lcvelvet help')
+    parser_lcvelvet.add_argument('-si', type=bool, default=True, help='specify if input from STDIN')
+    parser_lcvelvet.add_argument('-so', type=bool, default=True, help='specify if output to STDOUT')
+    parser_lcvelvet.add_argument('-i', help='input file')
+    parser_lcvelvet.add_argument('-o', help='output file')
+    parser_lcvelvet.add_argument('-t', default='longest', choices=['longest','highconf'],help='specify type to filter [default: longest] or [highconf]')
+    parser_lcvelvet.add_argument('-c', default=0.0, type=float, help='specify confidence level [default: 0.0]')
+    parser_lcvelvet.set_defaults(func=lcvelvet)
+
+def lcvelvet(args, parser):
+    if args.si==True and args.i is None and sys.stdin.isatty():
+        parser.print_help()
+        sys.exit('\nPlease provide STDIN or input file')        
+    if args.i is not None:
+        args.si = False
+    if args.si==False and args.i is None:
+        parser.print_help()
+        sys.exit('\nPlease specify input file')
+    if args.o is not None:
+        args.so = False
+    if args.so==False and args.o is None:
+        parser.print_help()
+        sys.exit('\nPlease specify output file')
+    print(args)
+    if args.si:
+        original_fasta = SeqIO.parse(sys.stdin, "fasta")
+    if not args.si:
+        original_fasta = SeqIO.parse(args.i, "fasta")
+    lcvelvet_dict = lcvelvet_gen(original_fasta, args)
+    if args.so:
+        for k in sorted(lcvelvet_dict.keys()):
+            SeqIO.write(lcvelvet_dict[k], sys.stdout, "fasta")
+    if not args.so:
+        for k in sorted(lcvelvet_dict.keys()):
+            SeqIO.write(lcvelvet_dict[k], args.o, "fasta")
+
+def lcvelvet_gen(records, args):
+    seq_dict={}
+    for record in records:
+        tmp_id=record.id.split('_')[0]+'_'+record.id.split('_')[1]
+        tmp_conf=float(record.id.split('Confidence_')[1].split('_')[0])
+        if args.t=='longest':
+            if tmp_id in seq_dict and tmp_conf>=args.c:
+                if len(record)>len(seq_dict[tmp_id]):
+                    seq_dict[tmp_id]=record
+            if tmp_id not in seq_dict and tmp_conf>=args.c:
+                seq_dict[tmp_id]=record
+        if args.t=='highconf':
+            if tmp_id in seq_dict and tmp_conf>=args.c:
+                if tmp_conf>float(seq_dict[tmp_id].id.split('Confidence_')[1].split('_')[0]):
+                    seq_dict[tmp_id]=record
+            if tmp_id not in seq_dict and tmp_conf>=args.c:
+                seq_dict[tmp_id]=record
+    return(seq_dict)
+
+def lctrinity(args, parser):
+    if args.si==True and args.i is None and sys.stdin.isatty():
+        parser.print_help()
+        sys.exit('\nPlease provide STDIN or input file')        
+    if args.i is not None:
+        args.si = False
+    if args.si==False and args.i is None:
+        parser.print_help()
+        sys.exit('\nPlease specify input file')
+    if args.o is not None:
+        args.so = False
+    if args.so==False and args.o is None:
+        parser.print_help()
+        sys.exit('\nPlease specify output file')
+    print(args)
+    if args.si:
+        original_fasta = SeqIO.parse(sys.stdin, "fasta")
+    if not args.si:
+        original_fasta = SeqIO.parse(args.i, "fasta")
+    lctrinity_dict = lctrinity_gen(original_fasta, args)
+    if args.so:
+        for k in sorted(lctrinity_dict.keys()):
+            SeqIO.write(lctrinity_dict[k], sys.stdout, "fasta")
+    if not args.so:
+        for k in sorted(lctrinity_dict.keys()):
+            SeqIO.write(lctrinity_dict[k], args.o, "fasta")
+
+def lctrinity_gen(records, args):
+    seq_dict={}
+    for record in records:
+        if record.id.split('_i')[0] in seq_dict:
+            if len(record)>len(seq_dict[record.id.split('_i')[0]]):
+                seq_dict[record.id.split('_i')[0]]=record
+        if record.id.split('_i')[0] not in seq_dict:
+            seq_dict[record.id.split('_i')[0]]=record
+    return(seq_dict)
+
+def fsplit(args, parser):
+    if args.si==True and args.i is None and sys.stdin.isatty():
+        parser.print_help()
+        sys.exit('\nPlease provide STDIN or input file')        
+    if args.i is not None:
+        args.si = False
+    if args.si==False and args.i is None:
+        parser.print_help()
+        sys.exit('\nPlease specify input file')
+    if args.o is not None:
+        args.so = False
+    if args.so==False and args.o is None:
+        parser.print_help()
+        sys.exit('\nPlease specify output file')
+    print(args)
+    if args.si:
+        original_fasta = SeqIO.parse(sys.stdin, "fasta")
+    if not args.si:
+        original_fasta = SeqIO.parse(args.i, "fasta")
+    split_fasta = fsplit_gen(original_fasta, args)
+    if args.so:
+        count = SeqIO.write(split_fasta, sys.stdout, "fasta")
+    if not args.so:
+        count = SeqIO.write(split_fasta, args.o, "fasta")
+
+def fsplit_gen(records, args):
+    """Split sequence object by length.
+
+    This is a generator function, the records argument should
+    be a list or iterator returning SeqRecord objects.
+    """
+    for record in records:
+        tmp_range = range(0,len(record),args.m)
+        tmp_records = [record[x:x+args.m] for x in tmp_range]
+        for i,val in enumerate(tmp_range):
+            tmp_end = val+args.m
+            if tmp_end>len(record):
+                tmp_end = len(record)
+            tmp_rec = SeqIO.SeqRecord(tmp_records[i].seq,name=tmp_records[i].name,id=tmp_records[i].id,description=tmp_records[i].description+' '+str(val+1)+'_'+str(tmp_end))
+            yield tmp_rec
+
+def num2id(args, parser):
+    if args.t is None:
+        parser.print_help()
+        sys.exit('\nPlease specify table input file')
+    if args.si==True and args.i is None and sys.stdin.isatty():
+        parser.print_help()
+        sys.exit('\nPlease provide STDIN or input file')        
+    if args.i is not None:
+        args.si = False
+    if args.si==False and args.i is None:
+        parser.print_help()
+        sys.exit('\nPlease specify input file')
+    if args.o is not None:
+        args.so = False
+    if args.so==False and args.o is None:
+        parser.print_help()
+        sys.exit('\nPlease specify output file')
+    print(args)
+    if args.si:
+        original_fasta = SeqIO.parse(sys.stdin, "fasta")
+    if not args.si:
+        original_fasta = SeqIO.parse(args.i, "fasta")
+    numdict={}
+    with open(args.t,'rU') as inhandle:
+        for lines in inhandle:
+            line = lines.strip().split('\t')
+            numdict[line[1]]=line[0]
+    num2id_fasta = convert_num2id(original_fasta, args, numdict)
+    if args.so:
+        count = SeqIO.write(num2id_fasta, sys.stdout, "fasta")
+    if not args.so:
+        count = SeqIO.write(num2id_fasta, args.o, "fasta")
+        print "converted %i sequences" % count
+
+def convert_num2id(records, args, numdict):
+    """Converts number of sequence objects to name.
+
+    This is a generator function, the records argument should
+    be a list or iterator returning SeqRecord objects.
+    """    
+    for record in records:
+        if record.name not in numdict:
+            tmp_name = record.name
+            tmp_id = tmp_name
+            tmp_description = 'not_in_table'
+        if record.name in numdict:
+            tmp_name = numdict[record.name]
+            tmp_id = tmp_name
+            tmp_description = ''
+        redseq = SeqIO.SeqRecord(record.seq,name=tmp_name,id=tmp_id,description=tmp_description)
+        yield redseq
+
+def id2num(args, parser):
+    if args.t is None:
+        parser.print_help()
+        sys.exit('\nPlease specify table output file')
+    if args.si==True and args.i is None and sys.stdin.isatty():
+        parser.print_help()
+        sys.exit('\nPlease provide STDIN or input file')        
+    if args.i is not None:
+        args.si = False
+    if args.si==False and args.i is None:
+        parser.print_help()
+        sys.exit('\nPlease specify input file')
+    if args.o is not None:
+        args.so = False
+    if args.so==False and args.o is None:
+        parser.print_help()
+        sys.exit('\nPlease specify output file')
+    print(args)
+    if args.si:
+        original_fasta = SeqIO.parse(sys.stdin, "fasta")
+    if not args.si:
+        original_fasta = SeqIO.parse(args.i, "fasta")
+    iddict={}
+    id2num_fasta = convert_id2num(original_fasta, args, iddict)
+    if args.so:
+        count = SeqIO.write(id2num_fasta, sys.stdout, "fasta")
+    if not args.so:
+        count = SeqIO.write(id2num_fasta, args.o, "fasta")
+        print "converted %i sequences" % count
+    with open(args.t,'w') as outhandle:
+        for k in sorted(iddict.keys()):
+            outhandle.write('%s\t%s\n' % (k,iddict[k]))
+
+def convert_id2num(records, args, iddict):
+    """Converts names of sequence objects to numbers.
+
+    This is a generator function, the records argument should
+    be a list or iterator returning SeqRecord objects.
+    """    
+    idcounter=0
+    for record in records:
+        idcounter+=1
+        iddict[record.name]=idcounter
+        redseq = SeqIO.SeqRecord(record.seq,name=str(idcounter),id=str(idcounter),description=str(idcounter))
+        yield redseq
 
 def translate(args, parser):
     if args.si==True and args.i is None and sys.stdin.isatty():
@@ -399,7 +647,7 @@ def calc_gc(records, args):
             gcdict[tmp_id] = tmp_gc
     return(gcdict)
 
-def redname(args, parser):
+def redids(args, parser):
     if args.si==True and args.i is None and sys.stdin.isatty():
         parser.print_help()
         sys.exit('\nPlease provide STDIN or input file')        
@@ -418,14 +666,14 @@ def redname(args, parser):
         original_fasta = SeqIO.parse(sys.stdin, "fasta")
     if not args.si:
         original_fasta = SeqIO.parse(args.i, "fasta")
-    red_fasta = redids(original_fasta, args)
+    red_fasta = redname(original_fasta, args)
     if args.so:
         count = SeqIO.write(red_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(red_fasta, args.o, "fasta")
         print "reduced ids from %i sequences" % count
 
-def redids(records, args):
+def redname(records, args):
     """Reduces names of sequence objects.
 
     This is a generator function, the records argument should
