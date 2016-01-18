@@ -549,9 +549,21 @@ def GCbypos(codoncounts,six2fourtwo):
     gc_three = sum([x[1] for x in tmp_aa_two if x[0]=='G' or x[0]=='C'])
     GCthree_sum.append(tmp_aa_three_sum)
     GCthree_gc.append(gc_three)
-  GCone = float(sum(GCone_gc))/float(sum(GCone_sum))
-  GCtwo = float(sum(GCtwo_gc))/float(sum(GCtwo_sum))
-  GCthree = float(sum(GCthree_gc))/float(sum(GCthree_sum))
+  if float(sum(GCone_gc))==0 and float(sum(GCone_sum))==0:
+    print 'GCone_gc and GCone_sum zero\n'
+    GCone = 0
+  if float(sum(GCone_gc))!=0 or float(sum(GCone_sum))!=0:
+    GCone = float(sum(GCone_gc))/float(sum(GCone_sum))
+  if float(sum(GCtwo_gc))==0 and float(sum(GCtwo_sum))==0:
+    print 'GCtwo_gc and GCtwo_sum zero\n' 
+    GCtwo = 0
+  if float(sum(GCtwo_gc))!=0 or float(sum(GCtwo_sum))!=0:
+    GCtwo = float(sum(GCtwo_gc))/float(sum(GCtwo_sum))
+  if float(sum(GCthree_gc))==0 and float(sum(GCthree_sum))==0:
+    print 'GCthree_gc and GCthree_sum zero\n' 
+    GCthree = 0
+  if float(sum(GCthree_gc))!=0 or float(sum(GCthree_sum))!=0:
+    GCthree = float(sum(GCthree_gc))/float(sum(GCthree_sum))
   return([GCone,GCtwo,GCthree])
 
 if __name__ == '__main__':
