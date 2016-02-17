@@ -574,6 +574,7 @@ def reversecomplementfasta(records):
                                      description=record.name)
         yield revcompseq
 
+
 def complement(args, parser):
     original_fasta = None
     if args.si is True and args.i is None and sys.stdin.isatty():
