@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-'''
+"""
 Author: Krisian Ullrich
 date: Dezember 2015
 email: kristian.ullrich@biologie.uni-marburg.de
@@ -26,52 +26,50 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import sys
 import argparse
 import numpy
-from Bio.Data import CodonTable as CT
+from Bio.Data import CodonTable
 from Bio import SeqIO
 from Bio.SeqUtils import GC
 
-transtable_std=CT.CodonTable(forward_table = {
-     'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 'TCT': 'S',
-     'TCC': 'S', 'TCA': 'S', 'TCG': 'S', 'TAT': 'Y', 'TAC': 'Y',
-     'TGT': 'C', 'TGC': 'C', 'TGG': 'W', 'CTT': 'L', 'CTC': 'L',
-     'CTA': 'L', 'CTG': 'L', 'CCT': 'P', 'CCC': 'P', 'CCA': 'P',
-     'CCG': 'P', 'CAT': 'H', 'CAC': 'H', 'CAA': 'Q', 'CAG': 'Q',
-     'CGT': 'R', 'CGC': 'R', 'CGA': 'R', 'CGG': 'R', 'ATT': 'I',
-     'ATC': 'I', 'ATA': 'I', 'ATG': 'M', 'ACT': 'T', 'ACC': 'T',
-     'ACA': 'T', 'ACG': 'T', 'AAT': 'N', 'AAC': 'N', 'AAA': 'K',
-     'AAG': 'K', 'AGT': 'S', 'AGC': 'S', 'AGA': 'R', 'AGG': 'R',
-     'GTT': 'V', 'GTC': 'V', 'GTA': 'V', 'GTG': 'V', 'GCT': 'A',
-     'GCC': 'A', 'GCA': 'A', 'GCG': 'A', 'GAT': 'D', 'GAC': 'D',
-     'GAA': 'E', 'GAG': 'E', 'GGT': 'G', 'GGC': 'G', 'GGA': 'G',
-     'GGG': 'G', '---': 'X', '--A': 'X', '--C': 'X', '--G': 'X',
-     '--T': 'X', '-A-': 'X', '-AA': 'X', '-AC': 'X', '-AG': 'X',
-     '-AT': 'X', '-C-': 'X', '-CA': 'X', '-CC': 'X', '-CG': 'X',
-     '-CT': 'X', '-G-': 'X', '-GA': 'X', '-GC': 'X', '-GG': 'X',
-     '-GT': 'X', '-T-': 'X', '-TA': 'X', '-TC': 'X', '-TG': 'X',
-     '-TT': 'X', 'A--': 'X', 'A-A': 'X', 'A-C': 'X', 'A-G': 'X',
-     'A-T': 'X', 'AA-': 'X', 'AC-': 'X', 'AG-': 'X', 'AT-': 'X',
-     'C--': 'X', 'C-A': 'X', 'C-C': 'X', 'C-G': 'X', 'C-T': 'X',
-     'CA-': 'X', 'CC-': 'X', 'CG-': 'X', 'CT-': 'X', 'G--': 'X',
-     'G-A': 'X', 'G-C': 'X', 'G-G': 'X', 'G-T': 'X', 'GA-': 'X',
-     'GC-': 'X', 'GG-': 'X', 'GT-': 'X', 'T--': 'X', 'T-A': 'X',
-     'T-C': 'X', 'T-G': 'X', 'T-T': 'X', 'TA-': 'X', 'TC-': 'X',
-     'TG-': 'X', 'TT-': 'X', 'NNN': 'X', 'GCN': 'A', 'CGN': 'R',
-     'MGR': 'R', 'AAY': 'N', 'GAY': 'D', 'TGY': 'C', 'CAR': 'Q',
-     'GAR': 'E', 'GGN': 'G', 'CAY': 'H', 'ATH': 'I', 'YTR': 'L',
-     'CTN': 'L', 'AAR': 'K', 'TTY': 'F', 'CCN': 'P', 'TCN': 'S',
-     'AGY': 'S', 'ACN': 'T', 'TAY': 'Y', 'GTN': 'V', 'TAR': '*',
-     'TRA': '*', },
-                   stop_codons = [ 'TAA', 'TAG', 'TGA', ],
-                   start_codons = [ 'TTG', 'CTG', 'ATG', ]
+transtable_std = CodonTable.CodonTable(forward_table={
+    'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 'TCT': 'S',
+    'TCC': 'S', 'TCA': 'S', 'TCG': 'S', 'TAT': 'Y', 'TAC': 'Y',
+    'TGT': 'C', 'TGC': 'C', 'TGG': 'W', 'CTT': 'L', 'CTC': 'L',
+    'CTA': 'L', 'CTG': 'L', 'CCT': 'P', 'CCC': 'P', 'CCA': 'P',
+    'CCG': 'P', 'CAT': 'H', 'CAC': 'H', 'CAA': 'Q', 'CAG': 'Q',
+    'CGT': 'R', 'CGC': 'R', 'CGA': 'R', 'CGG': 'R', 'ATT': 'I',
+    'ATC': 'I', 'ATA': 'I', 'ATG': 'M', 'ACT': 'T', 'ACC': 'T',
+    'ACA': 'T', 'ACG': 'T', 'AAT': 'N', 'AAC': 'N', 'AAA': 'K',
+    'AAG': 'K', 'AGT': 'S', 'AGC': 'S', 'AGA': 'R', 'AGG': 'R',
+    'GTT': 'V', 'GTC': 'V', 'GTA': 'V', 'GTG': 'V', 'GCT': 'A',
+    'GCC': 'A', 'GCA': 'A', 'GCG': 'A', 'GAT': 'D', 'GAC': 'D',
+    'GAA': 'E', 'GAG': 'E', 'GGT': 'G', 'GGC': 'G', 'GGA': 'G',
+    'GGG': 'G', '---': 'X', '--A': 'X', '--C': 'X', '--G': 'X',
+    '--T': 'X', '-A-': 'X', '-AA': 'X', '-AC': 'X', '-AG': 'X',
+    '-AT': 'X', '-C-': 'X', '-CA': 'X', '-CC': 'X', '-CG': 'X',
+    '-CT': 'X', '-G-': 'X', '-GA': 'X', '-GC': 'X', '-GG': 'X',
+    '-GT': 'X', '-T-': 'X', '-TA': 'X', '-TC': 'X', '-TG': 'X',
+    '-TT': 'X', 'A--': 'X', 'A-A': 'X', 'A-C': 'X', 'A-G': 'X',
+    'A-T': 'X', 'AA-': 'X', 'AC-': 'X', 'AG-': 'X', 'AT-': 'X',
+    'C--': 'X', 'C-A': 'X', 'C-C': 'X', 'C-G': 'X', 'C-T': 'X',
+    'CA-': 'X', 'CC-': 'X', 'CG-': 'X', 'CT-': 'X', 'G--': 'X',
+    'G-A': 'X', 'G-C': 'X', 'G-G': 'X', 'G-T': 'X', 'GA-': 'X',
+    'GC-': 'X', 'GG-': 'X', 'GT-': 'X', 'T--': 'X', 'T-A': 'X',
+    'T-C': 'X', 'T-G': 'X', 'T-T': 'X', 'TA-': 'X', 'TC-': 'X',
+    'TG-': 'X', 'TT-': 'X', 'NNN': 'X', 'GCN': 'A', 'CGN': 'R',
+    'MGR': 'R', 'AAY': 'N', 'GAY': 'D', 'TGY': 'C', 'CAR': 'Q',
+    'GAR': 'E', 'GGN': 'G', 'CAY': 'H', 'ATH': 'I', 'YTR': 'L',
+    'CTN': 'L', 'AAR': 'K', 'TTY': 'F', 'CCN': 'P', 'TCN': 'S',
+    'AGY': 'S', 'ACN': 'T', 'TAY': 'Y', 'GTN': 'V', 'TAR': '*',
+    'TRA': '*', },
+    stop_codons=['TAA', 'TAG', 'TGA', ],
+    start_codons=['TTG', 'CTG', 'ATG', ]
 )
 
-def mainparser(parser):
-    return()
 
 def subparser(subparsers):
     # translate; parser
@@ -131,7 +129,8 @@ def subparser(subparsers):
     parser_redlength.add_argument('-so', type=bool, default=True, help='specify if output to STDOUT')
     parser_redlength.add_argument('-i', help='input file')
     parser_redlength.add_argument('-o', help='output file')
-    parser_redlength.add_argument('-t', default='min', choices=['min','max'], help='specify type [default: min] or [max]')
+    parser_redlength.add_argument('-t', default='min', choices=['min', 'max'],
+                                  help='specify type [default: min] or [max]')
     parser_redlength.add_argument('-m', default=0, type=int, help='specify length [default: 0]')
     parser_redlength.set_defaults(func=redlen)
     # GC content; parser
@@ -140,7 +139,8 @@ def subparser(subparsers):
     parser_gc.add_argument('-so', type=bool, default=True, help='specify if output to STDOUT')
     parser_gc.add_argument('-i', help='input file')
     parser_gc.add_argument('-o', help='output file')
-    parser_gc.add_argument('-t', default='gc', choices=['gc','gc1','gc2','gc3'], help='specify type [default: gc] or [gc1] or [gc2] or [gc3]')
+    parser_gc.add_argument('-t', default='gc', choices=['gc', 'gc1', 'gc2', 'gc3'],
+                           help='specify type [default: gc] or [gc1] or [gc2] or [gc3]')
     parser_gc.set_defaults(func=gccontent)
     # reduce names; parser
     parser_redids = subparsers.add_parser('redids', help='reduce IDs help')
@@ -188,22 +188,25 @@ def subparser(subparsers):
     parser_lcvelvet.add_argument('-so', type=bool, default=True, help='specify if output to STDOUT')
     parser_lcvelvet.add_argument('-i', help='input file')
     parser_lcvelvet.add_argument('-o', help='output file')
-    parser_lcvelvet.add_argument('-t', default='longest', choices=['longest','highconf'],help='specify type to filter [default: longest] or [highconf]')
+    parser_lcvelvet.add_argument('-t', default='longest', choices=['longest', 'highconf'],
+                                 help='specify type to filter [default: longest] or [highconf]')
     parser_lcvelvet.add_argument('-c', default=0.0, type=float, help='specify confidence level [default: 0.0]')
     parser_lcvelvet.set_defaults(func=lcvelvet)
 
+
 def lcvelvet(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -219,37 +222,40 @@ def lcvelvet(args, parser):
         for k in sorted(lcvelvet_dict.keys()):
             SeqIO.write(lcvelvet_dict[k], args.o, "fasta")
 
+
 def lcvelvet_gen(records, args):
-    seq_dict={}
+    seq_dict = {}
     for record in records:
-        tmp_id=record.id.split('_')[0]+'_'+record.id.split('_')[1]
-        tmp_conf=float(record.id.split('Confidence_')[1].split('_')[0])
-        if args.t=='longest':
-            if tmp_id in seq_dict and tmp_conf>=args.c:
-                if len(record)>len(seq_dict[tmp_id]):
-                    seq_dict[tmp_id]=record
-            if tmp_id not in seq_dict and tmp_conf>=args.c:
-                seq_dict[tmp_id]=record
-        if args.t=='highconf':
-            if tmp_id in seq_dict and tmp_conf>=args.c:
-                if tmp_conf>float(seq_dict[tmp_id].id.split('Confidence_')[1].split('_')[0]):
-                    seq_dict[tmp_id]=record
-            if tmp_id not in seq_dict and tmp_conf>=args.c:
-                seq_dict[tmp_id]=record
-    return(seq_dict)
+        tmp_id = record.id.split('_')[0] + '_' + record.id.split('_')[1]
+        tmp_conf = float(record.id.split('Confidence_')[1].split('_')[0])
+        if args.t == 'longest':
+            if tmp_id in seq_dict and tmp_conf >= args.c:
+                if len(record) > len(seq_dict[tmp_id]):
+                    seq_dict[tmp_id] = record
+            if tmp_id not in seq_dict and tmp_conf >= args.c:
+                seq_dict[tmp_id] = record
+        if args.t == 'highconf':
+            if tmp_id in seq_dict and tmp_conf >= args.c:
+                if tmp_conf > float(seq_dict[tmp_id].id.split('Confidence_')[1].split('_')[0]):
+                    seq_dict[tmp_id] = record
+            if tmp_id not in seq_dict and tmp_conf >= args.c:
+                seq_dict[tmp_id] = record
+    return seq_dict
+
 
 def lctrinity(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -265,28 +271,31 @@ def lctrinity(args, parser):
         for k in sorted(lctrinity_dict.keys()):
             SeqIO.write(lctrinity_dict[k], args.o, "fasta")
 
+
 def lctrinity_gen(records, args):
-    seq_dict={}
+    seq_dict = {}
     for record in records:
         if record.id.split('_i')[0] in seq_dict:
-            if len(record)>len(seq_dict[record.id.split('_i')[0]]):
-                seq_dict[record.id.split('_i')[0]]=record
+            if len(record) > len(seq_dict[record.id.split('_i')[0]]):
+                seq_dict[record.id.split('_i')[0]] = record
         if record.id.split('_i')[0] not in seq_dict:
-            seq_dict[record.id.split('_i')[0]]=record
-    return(seq_dict)
+            seq_dict[record.id.split('_i')[0]] = record
+    return seq_dict
+
 
 def fsplit(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -296,41 +305,49 @@ def fsplit(args, parser):
         original_fasta = SeqIO.parse(args.i, "fasta")
     split_fasta = fsplit_gen(original_fasta, args)
     if args.so:
-        count = SeqIO.write(split_fasta, sys.stdout, "fasta")
+        SeqIO.write(split_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(split_fasta, args.o, "fasta")
+        print "splited into %i sequences" % count
+
 
 def fsplit_gen(records, args):
     """Split sequence object by length.
+
+    :param records:
+    :param args:
 
     This is a generator function, the records argument should
     be a list or iterator returning SeqRecord objects.
     """
     for record in records:
-        tmp_range = range(0,len(record),args.m)
-        tmp_records = [record[x:x+args.m] for x in tmp_range]
-        for i,val in enumerate(tmp_range):
-            tmp_end = val+args.m
-            if tmp_end>len(record):
+        tmp_range = range(0, len(record), args.m)
+        tmp_records = [record[x:x + args.m] for x in tmp_range]
+        for i, val in enumerate(tmp_range):
+            tmp_end = val + args.m
+            if tmp_end > len(record):
                 tmp_end = len(record)
-            tmp_rec = SeqIO.SeqRecord(tmp_records[i].seq,name=tmp_records[i].name,id=tmp_records[i].id,description=tmp_records[i].description+' '+str(val+1)+'_'+str(tmp_end))
+            tmp_rec = SeqIO.SeqRecord(tmp_records[i].seq, name=tmp_records[i].name, id=tmp_records[i].id,
+                                      description=tmp_records[i].description + ' ' + str(val + 1) + '_' + str(tmp_end))
             yield tmp_rec
 
+
 def num2id(args, parser):
+    original_fasta = None
     if args.t is None:
         parser.print_help()
         sys.exit('\nPlease specify table input file')
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -338,25 +355,33 @@ def num2id(args, parser):
         original_fasta = SeqIO.parse(sys.stdin, "fasta")
     if not args.si:
         original_fasta = SeqIO.parse(args.i, "fasta")
-    numdict={}
-    with open(args.t,'rU') as inhandle:
+    numdict = {}
+    with open(args.t, 'rU') as inhandle:
         for lines in inhandle:
             line = lines.strip().split('\t')
-            numdict[line[1]]=line[0]
+            numdict[line[1]] = line[0]
     num2id_fasta = convert_num2id(original_fasta, args, numdict)
     if args.so:
-        count = SeqIO.write(num2id_fasta, sys.stdout, "fasta")
+        SeqIO.write(num2id_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(num2id_fasta, args.o, "fasta")
         print "converted %i sequences" % count
 
+
 def convert_num2id(records, args, numdict):
     """Converts number of sequence objects to name.
 
+    :param numdict:
+    :param args:
+    :param records:
+
     This is a generator function, the records argument should
     be a list or iterator returning SeqRecord objects.
-    """    
+    """
     for record in records:
+        tmp_name = None
+        tmp_id = None
+        tmp_description = None
         if record.name not in numdict:
             tmp_name = record.name
             tmp_id = tmp_name
@@ -365,24 +390,26 @@ def convert_num2id(records, args, numdict):
             tmp_name = numdict[record.name]
             tmp_id = tmp_name
             tmp_description = ''
-        redseq = SeqIO.SeqRecord(record.seq,name=tmp_name,id=tmp_id,description=tmp_description)
+        redseq = SeqIO.SeqRecord(record.seq, name=tmp_name, id=tmp_id, description=tmp_description)
         yield redseq
 
+
 def id2num(args, parser):
+    original_fasta = None
     if args.t is None:
         parser.print_help()
         sys.exit('\nPlease specify table output file')
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -390,42 +417,50 @@ def id2num(args, parser):
         original_fasta = SeqIO.parse(sys.stdin, "fasta")
     if not args.si:
         original_fasta = SeqIO.parse(args.i, "fasta")
-    iddict={}
+    iddict = {}
     id2num_fasta = convert_id2num(original_fasta, args, iddict)
     if args.so:
-        count = SeqIO.write(id2num_fasta, sys.stdout, "fasta")
+        SeqIO.write(id2num_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(id2num_fasta, args.o, "fasta")
         print "converted %i sequences" % count
-    with open(args.t,'w') as outhandle:
+    with open(args.t, 'w') as outhandle:
         for k in sorted(iddict.keys()):
-            outhandle.write('%s\t%s\n' % (k,iddict[k]))
+            outhandle.write('%s\t%s\n' % (k, iddict[k]))
+
 
 def convert_id2num(records, args, iddict):
     """Converts names of sequence objects to numbers.
 
+    :param records:
+    :param args:
+    :param iddict:
+
     This is a generator function, the records argument should
     be a list or iterator returning SeqRecord objects.
-    """    
-    idcounter=0
+    """
+    idcounter = 0
     for record in records:
-        idcounter+=1
-        iddict[record.name]=idcounter
-        redseq = SeqIO.SeqRecord(record.seq,name=str(idcounter),id=str(idcounter),description=str(idcounter))
+        idcounter += 1
+        iddict[record.name] = idcounter
+        redseq = SeqIO.SeqRecord(record.seq, name=str(idcounter), id=str(idcounter), description=str(idcounter))
         yield redseq
 
+
 def translate(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    cds2aa_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -433,36 +468,43 @@ def translate(args, parser):
         original_fasta = SeqIO.parse(sys.stdin, "fasta")
     if not args.si:
         original_fasta = SeqIO.parse(args.i, "fasta")
-    if args.t=='std':
+    if args.t == 'std':
         cds2aa_fasta = cds2aa(original_fasta, transtable_std)
     if args.so:
-        count = SeqIO.write(cds2aa_fasta, sys.stdout, "fasta")
+        SeqIO.write(cds2aa_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(cds2aa_fasta, args.o, "fasta")
         print "translated %i sequences" % count
 
+
 def cds2aa(records, transtable):
     """Translates nucleotide to amino acids assuming that cds is in frame 0.
+
+    :param records:
+    :param transtable:
 
     This is a generator function, the records argument should
     be a list or iterator returning SeqRecord objects.
     """
     for record in records:
-        aa = SeqIO.SeqRecord(record.seq.translate(transtable),name=record.name,id=record.name,description=record.name)
+        aa = SeqIO.SeqRecord(record.seq.translate(transtable), name=record.name, id=record.name,
+                             description=record.name)
         yield aa
 
+
 def reverse(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -472,33 +514,38 @@ def reverse(args, parser):
         original_fasta = SeqIO.parse(args.i, "fasta")
     rev_fasta = reversefasta(original_fasta)
     if args.so:
-        count = SeqIO.write(rev_fasta, sys.stdout, "fasta")
+        SeqIO.write(rev_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(rev_fasta, args.o, "fasta")
         print "reverted %i sequences" % count
 
+
 def reversefasta(records):
     """Reverts sequence objects.
+
+    :param records:
 
     This is a generator function, the records argument should
     be a list or iterator returning SeqRecord objects.
     """
     for record in records:
-        revseq = SeqIO.SeqRecord(record.seq[::-1],name=record.name,id=record.name,description=record.name)
+        revseq = SeqIO.SeqRecord(record.seq[::-1], name=record.name, id=record.name, description=record.name)
         yield revseq
 
+
 def reverse_complement(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -508,33 +555,39 @@ def reverse_complement(args, parser):
         original_fasta = SeqIO.parse(args.i, "fasta")
     revcomp_fasta = reversecomplementfasta(original_fasta)
     if args.so:
-        count = SeqIO.write(revcomp_fasta, sys.stdout, "fasta")
+        SeqIO.write(revcomp_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(revcomp_fasta, args.o, "fasta")
         print "reverse complemented %i sequences" % count
 
+
 def reversecomplementfasta(records):
     """Reverse complements sequence objects.
+
+    :param records:
 
     This is a generator function, the records argument should
     be a list or iterator returning SeqRecord objects.
     """
     for record in records:
-        revcompseq = SeqIO.SeqRecord(record.seq.reverse_complement(),name=record.name,id=record.name,description=record.name)
+        revcompseq = SeqIO.SeqRecord(record.seq.reverse_complement(), name=record.name, id=record.name,
+                                     description=record.name)
         yield revcompseq
 
+
 def complement(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -544,33 +597,38 @@ def complement(args, parser):
         original_fasta = SeqIO.parse(args.i, "fasta")
     comp_fasta = complementfasta(original_fasta)
     if args.so:
-        count = SeqIO.write(comp_fasta, sys.stdout, "fasta")
+        SeqIO.write(comp_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(comp_fasta, args.o, "fasta")
         print "reverse complemented %i sequences" % count
 
+
 def complementfasta(records):
     """Complements sequence objects.
+
+    :param records:
 
     This is a generator function, the records argument should
     be a list or iterator returning SeqRecord objects.
     """
     for record in records:
-        revcompseq = SeqIO.SeqRecord(record.seq.complement(),name=record.name,id=record.name,description=record.name)
+        revcompseq = SeqIO.SeqRecord(record.seq.complement(), name=record.name, id=record.name, description=record.name)
         yield revcompseq
 
+
 def gccontent(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -580,85 +638,89 @@ def gccontent(args, parser):
         original_fasta = SeqIO.parse(args.i, "fasta")
     gcdict = calc_gc(original_fasta, args)
     gcmean = numpy.mean(gcdict.values())
-    gcsd = numpy.std(gcdict.values(),ddof=1)
+    gcsd = numpy.std(gcdict.values(), ddof=1)
     if args.so:
-        if args.t=='gc':
+        if args.t == 'gc':
             print('#GC')
-            print('mean GC percent: %s' % (gcmean))
-            print('sd GC percent: %s' % (gcsd))
-        if args.t=='gc1':
+            print('mean GC percent: %s' % gcmean)
+            print('sd GC percent: %s' % gcsd)
+        if args.t == 'gc1':
             print('#GC1')
-            print('mean GC1 percent: %s' % (gcmean))
-            print('sd GC1 percent: %s' % (gcsd))
-        if args.t=='gc2':
+            print('mean GC1 percent: %s' % gcmean)
+            print('sd GC1 percent: %s' % gcsd)
+        if args.t == 'gc2':
             print('#GC2')
-            print('mean GC2 percent: %s' % (gcmean))
-            print('sd GC2 percent: %s' % (gcsd))
-        if args.t=='gc3':
+            print('mean GC2 percent: %s' % gcmean)
+            print('sd GC2 percent: %s' % gcsd)
+        if args.t == 'gc3':
             print('#GC3')
-            print('mean GC3 percent: %s' % (gcmean))
-            print('sd GC3 percent: %s' % (gcsd))
+            print('mean GC3 percent: %s' % gcmean)
+            print('sd GC3 percent: %s' % gcsd)
         for k in sorted(gcdict.keys()):
-            print('%s\t%s' % (k,gcdict[k]))
+            print('%s\t%s' % (k, gcdict[k]))
     if not args.so:
-        with open(args.o,'w') as outhandle:
-            if args.t=='gc':
+        with open(args.o, 'w') as outhandle:
+            if args.t == 'gc':
                 outhandle.write('#GC\n')
-            if args.t=='gc1':
+            if args.t == 'gc1':
                 outhandle.write('#GC1\n')
-            if args.t=='gc2':
+            if args.t == 'gc2':
                 outhandle.write('#GC2\n')
-            if args.t=='gc3':
+            if args.t == 'gc3':
                 outhandle.write('#GC3\n')
             for k in sorted(gcdict.keys()):
-                outhandle.write('%s\t%f\n' % (k,gcdict[k]))
-        if args.t=='gc':
+                outhandle.write('%s\t%f\n' % (k, gcdict[k]))
+        if args.t == 'gc':
             print('#GC')
-            print('mean GC percent: %s' % (gcmean))
-            print('sd GC percent: %s' % (gcsd))
-        if args.t=='gc1':
+            print('mean GC percent: %s' % gcmean)
+            print('sd GC percent: %s' % gcsd)
+        if args.t == 'gc1':
             print('#GC1')
-            print('mean GC1 percent: %s' % (gcmean))
-            print('sd GC1 percent: %s' % (gcsd))
-        if args.t=='gc2':
+            print('mean GC1 percent: %s' % gcmean)
+            print('sd GC1 percent: %s' % gcsd)
+        if args.t == 'gc2':
             print('#GC2')
-            print('mean GC2 percent: %s' % (gcmean))
-            print('sd GC2 percent: %s' % (gcsd))
-        if args.t=='gc3':
+            print('mean GC2 percent: %s' % gcmean)
+            print('sd GC2 percent: %s' % gcsd)
+        if args.t == 'gc3':
             print('#GC3')
-            print('mean GC3 percent: %s' % (gcmean))
-            print('sd GC3 percent: %s' % (gcsd))
+            print('mean GC3 percent: %s' % gcmean)
+            print('sd GC3 percent: %s' % gcsd)
+
 
 def calc_gc(records, args):
+    tmp_gc = None
     gcdict = {}
     for record in records:
         tmp_id = record.id.split()[0]
-        if args.t=='gc':
+        if args.t == 'gc':
             tmp_gc = GC(record.seq)
-        if args.t=='gc1':
+        if args.t == 'gc1':
             tmp_gc = GC(record.seq[::3])
-        if args.t=='gc2':
+        if args.t == 'gc2':
             tmp_gc = GC(record.seq[1::3])
-        if args.t=='gc3':
+        if args.t == 'gc3':
             tmp_gc = GC(record.seq[2::3])
         if tmp_id in gcdict:
-            print('duplicated id: %s; skip GC calculation' % (tmp_id))
+            print('duplicated id: %s; skip GC calculation' % tmp_id)
         if tmp_id not in gcdict:
             gcdict[tmp_id] = tmp_gc
-    return(gcdict)
+    return gcdict
+
 
 def redids(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -668,33 +730,41 @@ def redids(args, parser):
         original_fasta = SeqIO.parse(args.i, "fasta")
     red_fasta = redname(original_fasta, args)
     if args.so:
-        count = SeqIO.write(red_fasta, sys.stdout, "fasta")
+        SeqIO.write(red_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(red_fasta, args.o, "fasta")
         print "reduced ids from %i sequences" % count
 
+
 def redname(records, args):
     """Reduces names of sequence objects.
+
+    :param records:
+    :param args:
 
     This is a generator function, the records argument should
     be a list or iterator returning SeqRecord objects.
     """
     for record in records:
-        redseq = SeqIO.SeqRecord(record.seq,name=record.description.split(args.s)[int(args.k)],id=record.description.split(args.s)[int(args.k)],description=record.description.split(args.s)[int(args.k)])
+        redseq = SeqIO.SeqRecord(record.seq, name=record.description.split(args.s)[int(args.k)],
+                                 id=record.description.split(args.s)[int(args.k)],
+                                 description=record.description.split(args.s)[int(args.k)])
         yield redseq
 
+
 def redlen(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -704,37 +774,43 @@ def redlen(args, parser):
         original_fasta = SeqIO.parse(args.i, "fasta")
     red_fasta = red_len(original_fasta, args)
     if args.so:
-        count = SeqIO.write(red_fasta, sys.stdout, "fasta")
+        SeqIO.write(red_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(red_fasta, args.o, "fasta")
         print "kept %i sequences" % count
 
+
 def red_len(records, args):
     """Reduces sequence objects based on min/max length.
+
+    :param records:
+    :param args:
 
     This is a generator function, the records argument should
     be a list or iterator returning SeqRecord objects.
     """
     for record in records:
-        if args.t=='min':
-            if len(record)>=args.m:
+        if args.t == 'min':
+            if len(record) >= args.m:
                 yield record
-        if args.t=='max':
-            if len(record)<=args.m:
+        if args.t == 'max':
+            if len(record) <= args.m:
                 yield record
 
+
 def getlen(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -744,21 +820,22 @@ def getlen(args, parser):
         original_fasta = SeqIO.parse(args.i, "fasta")
     lendict = get_len(original_fasta, args)
     lenmean = numpy.mean(lendict.values())
-    lensd = numpy.std(lendict.values(),ddof=1)
+    lensd = numpy.std(lendict.values(), ddof=1)
     if args.so:
         print('#LEN')
-        print('mean length: %s' % (lenmean))
-        print('sd length: %s' % (lensd))
+        print('mean length: %s' % lenmean)
+        print('sd length: %s' % lensd)
         for k in sorted(lendict.keys()):
-            print('%s\t%s' % (k,lendict[k]))
+            print('%s\t%s' % (k, lendict[k]))
     if not args.so:
-        with open(args.o,'w') as outhandle:
+        with open(args.o, 'w') as outhandle:
             outhandle.write('#LEN\n')
             for k in sorted(lendict.keys()):
-                outhandle.write('%s\t%f\n' % (k,lendict[k]))
+                outhandle.write('%s\t%f\n' % (k, lendict[k]))
             print('#LEN')
-            print('mean length: %s' % (lenmean))
-            print('sd length: %s' % (lensd))
+            print('mean length: %s' % lenmean)
+            print('sd length: %s' % lensd)
+
 
 def get_len(records, args):
     lendict = {}
@@ -766,23 +843,25 @@ def get_len(records, args):
         tmp_id = record.id.split()[0]
         tmp_len = len(record)
         if tmp_id in lendict:
-            print('duplicated id: %s; skip length calculation' % (tmp_id))
+            print('duplicated id: %s; skip length calculation' % tmp_id)
         if tmp_id not in lendict:
             lendict[tmp_id] = tmp_len
-    return(lendict)
+    return lendict
+
 
 def n50stats(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -793,35 +872,36 @@ def n50stats(args, parser):
     gc_len_summary = calc_n50stats(original_fasta, args)
     if args.so:
         print('#N50stats')
-        print('%s\t%s' % ('n',gc_len_summary[0]))
-        print('%s\t%s' % ('GCmean',gc_len_summary[1]))
-        print('%s\t%s' % ('GCsd',gc_len_summary[2]))
-        print('%s\t%s' % ('Sum',gc_len_summary[3]))
-        print('%s\t%s' % ('Min',gc_len_summary[4]))
-        print('%s\t%s' % ('Max',gc_len_summary[5]))
-        print('%s\t%s' % ('Mean',gc_len_summary[6]))
-        print('%s\t%s' % ('Median',gc_len_summary[7]))
-        print('%s\t%s' % ('N5',gc_len_summary[8]))
-        print('%s\t%s' % ('N25',gc_len_summary[9]))
-        print('%s\t%s' % ('N50',gc_len_summary[10]))
-        print('%s\t%s' % ('N75',gc_len_summary[12]))
-        print('%s\t%s' % ('N95',gc_len_summary[12]))
+        print('%s\t%s' % ('n', gc_len_summary[0]))
+        print('%s\t%s' % ('GCmean', gc_len_summary[1]))
+        print('%s\t%s' % ('GCsd', gc_len_summary[2]))
+        print('%s\t%s' % ('Sum', gc_len_summary[3]))
+        print('%s\t%s' % ('Min', gc_len_summary[4]))
+        print('%s\t%s' % ('Max', gc_len_summary[5]))
+        print('%s\t%s' % ('Mean', gc_len_summary[6]))
+        print('%s\t%s' % ('Median', gc_len_summary[7]))
+        print('%s\t%s' % ('N5', gc_len_summary[8]))
+        print('%s\t%s' % ('N25', gc_len_summary[9]))
+        print('%s\t%s' % ('N50', gc_len_summary[10]))
+        print('%s\t%s' % ('N75', gc_len_summary[12]))
+        print('%s\t%s' % ('N95', gc_len_summary[12]))
     if not args.so:
-        with open(args.o,'w') as outhandle:
+        with open(args.o, 'w') as outhandle:
             outhandle.write('#N50stats\n')
-            outhandle.write('%s\t%s\n' % ('n',gc_len_summary[0]))
-            outhandle.write('%s\t%s\n' % ('GCmean',gc_len_summary[1]))
-            outhandle.write('%s\t%s\n' % ('GCsd',gc_len_summary[2]))
-            outhandle.write('%s\t%s\n' % ('Sum',gc_len_summary[3]))
-            outhandle.write('%s\t%s\n' % ('Min',gc_len_summary[4]))
-            outhandle.write('%s\t%s\n' % ('Max',gc_len_summary[5]))
-            outhandle.write('%s\t%s\n' % ('Mean',gc_len_summary[6]))
-            outhandle.write('%s\t%s\n' % ('Median',gc_len_summary[7]))
-            outhandle.write('%s\t%s\n' % ('N5',gc_len_summary[8]))
-            outhandle.write('%s\t%s\n' % ('N25',gc_len_summary[9]))
-            outhandle.write('%s\t%s\n' % ('N50',gc_len_summary[10]))
-            outhandle.write('%s\t%s\n' % ('N75',gc_len_summary[12]))
-            outhandle.write('%s\t%s\n' % ('N95',gc_len_summary[12]))
+            outhandle.write('%s\t%s\n' % ('n', gc_len_summary[0]))
+            outhandle.write('%s\t%s\n' % ('GCmean', gc_len_summary[1]))
+            outhandle.write('%s\t%s\n' % ('GCsd', gc_len_summary[2]))
+            outhandle.write('%s\t%s\n' % ('Sum', gc_len_summary[3]))
+            outhandle.write('%s\t%s\n' % ('Min', gc_len_summary[4]))
+            outhandle.write('%s\t%s\n' % ('Max', gc_len_summary[5]))
+            outhandle.write('%s\t%s\n' % ('Mean', gc_len_summary[6]))
+            outhandle.write('%s\t%s\n' % ('Median', gc_len_summary[7]))
+            outhandle.write('%s\t%s\n' % ('N5', gc_len_summary[8]))
+            outhandle.write('%s\t%s\n' % ('N25', gc_len_summary[9]))
+            outhandle.write('%s\t%s\n' % ('N50', gc_len_summary[10]))
+            outhandle.write('%s\t%s\n' % ('N75', gc_len_summary[12]))
+            outhandle.write('%s\t%s\n' % ('N95', gc_len_summary[12]))
+
 
 def calc_n50stats(records, args):
     gcdict = {}
@@ -831,43 +911,47 @@ def calc_n50stats(records, args):
         tmp_gc = GC(record.seq)
         tmp_len = len(record)
         if tmp_id in gcdict:
-            print('duplicated id: %s; skip GC and length calculation' % (tmp_id))
+            print('duplicated id: %s; skip GC and length calculation' % tmp_id)
         if tmp_id not in gcdict:
             gcdict[tmp_id] = tmp_gc
             if tmp_len in lendict:
-                lendict[tmp_len]+=1
+                lendict[tmp_len] += 1
             if tmp_len not in lendict:
-                lendict[tmp_len]=1
+                lendict[tmp_len] = 1
     gcmean = numpy.mean(gcdict.values())
-    gcsd = numpy.std(gcdict.values(),ddof=1)
-    lenu = numpy.repeat(lendict.keys(),lendict.values())
-    lenr = numpy.repeat(lendict.keys(),[x[0]*x[1] for x in lendict.items()])
+    gcsd = numpy.std(gcdict.values(), ddof=1)
+    lenu = numpy.repeat(lendict.keys(), lendict.values())
+    lenr = numpy.repeat(lendict.keys(), [x[0] * x[1] for x in lendict.items()])
     minlen = numpy.min(lendict.keys())
     maxlen = numpy.max(lendict.keys())
     meanlen = numpy.mean(lenu)
     medianlen = numpy.median(lenu)
     totallen = len(lenr)
     number_contigs = len(lenu)
-    N5 = numpy.percentile(lenr,95)
-    N25 = numpy.percentile(lenr,75)
-    N50 = numpy.percentile(lenr,50)
-    N75 = numpy.percentile(lenr,25)
-    N95 = numpy.percentile(lenr,5)
-    gc_len_summary = [number_contigs,gcmean,gcsd,totallen,minlen,maxlen,meanlen,medianlen,N5,N25,N50,N75,N95]
-    return(gc_len_summary)
+    n5 = numpy.percentile(lenr, 95)
+    n25 = numpy.percentile(lenr, 75)
+    n50 = numpy.percentile(lenr, 50)
+    n75 = numpy.percentile(lenr, 25)
+    n95 = numpy.percentile(lenr, 5)
+    gc_len_summary = [number_contigs, gcmean, gcsd, totallen, minlen, maxlen, meanlen, medianlen, n5, n25, n50, n75,
+                      n95]
+    return gc_len_summary
+
 
 def nuc26orf(args, parser):
-    if args.si==True and args.i is None and sys.stdin.isatty():
+    original_fasta = None
+    nuc26orf_fasta = None
+    if args.si is True and args.i is None and sys.stdin.isatty():
         parser.print_help()
-        sys.exit('\nPlease provide STDIN or input file')        
+        sys.exit('\nPlease provide STDIN or input file')
     if args.i is not None:
         args.si = False
-    if args.si==False and args.i is None:
+    if args.si is False and args.i is None:
         parser.print_help()
         sys.exit('\nPlease specify input file')
     if args.o is not None:
         args.so = False
-    if args.so==False and args.o is None:
+    if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
     print(args)
@@ -875,16 +959,20 @@ def nuc26orf(args, parser):
         original_fasta = SeqIO.parse(sys.stdin, "fasta")
     if not args.si:
         original_fasta = SeqIO.parse(args.i, "fasta")
-    if args.t=='std':
+    if args.t == 'std':
         nuc26orf_fasta = calc_nuc26orf(original_fasta, transtable_std)
     if args.so:
-        count = SeqIO.write(nuc26orf_fasta, sys.stdout, "fasta")
+        SeqIO.write(nuc26orf_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(nuc26orf_fasta, args.o, "fasta")
         print "translated %i sequences" % count
 
+
 def calc_nuc26orf(records, transtable):
     """Extracting of all 6 open reading frame(ORFs).
+
+    :param records:
+    :param transtable:
 
     This is a generator function, the records argument should
     be a list or iterator returning SeqRecord objects.
@@ -892,20 +980,29 @@ def calc_nuc26orf(records, transtable):
     for record in records:
         for strand, nuc in [("+", record.seq), ("-", record.seq.reverse_complement())]:
             for frame in range(3):
-                length = 3 * ((len(record)-frame) // 3) #Multiple of three
-                pro = SeqIO.SeqRecord(nuc[frame:frame+length].translate(transtable),name=record.name+"_"+str(frame)+str(strand),id=record.name+"_"+str(frame)+str(strand),description=record.name+"_"+str(frame)+str(strand))
+                length = 3 * ((len(record) - frame) // 3)  # Multiple of three
+                pro = SeqIO.SeqRecord(nuc[frame:frame + length].translate(transtable),
+                                      name=record.name + "_" + str(frame) + str(strand),
+                                      id=record.name + "_" + str(frame) + str(strand),
+                                      description=record.name + "_" + str(frame) + str(strand))
                 yield pro
+
 
 def main():
     # top-level parser
-    parser = argparse.ArgumentParser(prog='fasta', usage='%(prog)s <sub-script> [options] [<arguments>...]', description='scripts for FASTA file handling')
-    mainparser(parser)
-    subparsers = parser.add_subparsers(title='sub-scripts', description='valid sub-scripts', help='sub-scripts help', dest='cmd')
+    parser = argparse.ArgumentParser(prog='fasta', usage='%(prog)s <sub-script> [options] [<arguments>...]',
+                                     description='scripts for FASTA file handling')
+    subparsers = parser.add_subparsers(title='sub-scripts', description='valid sub-scripts', help='sub-scripts help',
+                                       dest='cmd')
     # sub-level parser
     subparser(subparsers)
+
+    # get args
     args = parser.parse_args()
+
+    # call function
     args.func(args, parser)
+
 
 if __name__ == '__main__':
     main()
-
