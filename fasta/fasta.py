@@ -570,9 +570,7 @@ def reversecomplementfasta(records):
     be a list or iterator returning SeqRecord objects.
     """
     for record in records:
-        revcompseq = SeqIO.SeqRecord(record.seq.reverse_complement(), name=record.name, id=record.name,
-                                     description=record.name)
-        yield revcompseq
+        yield record.reverse_complement(name=True,id=True,description=True)
 
 
 def complement(args, parser):
@@ -612,8 +610,7 @@ def complementfasta(records):
     be a list or iterator returning SeqRecord objects.
     """
     for record in records:
-        revcompseq = SeqIO.SeqRecord(record.seq.complement(), name=record.name, id=record.name, description=record.name)
-        yield revcompseq
+        yield record.complement(name=True,id=True,description=True)
 
 
 def gccontent(args, parser):
