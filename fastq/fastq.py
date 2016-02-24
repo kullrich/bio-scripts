@@ -141,7 +141,7 @@ def trimmott_se(records, args):
     for record in records:
         record = mottrecord(record, args.q)
         if args.r:
-            record = record.reverse_complement()
+            record = record.reverse_complement(name=True,id=True,description=True)
         if args.d:
             record.name += '/1'
             record.id += '/1'
@@ -164,8 +164,8 @@ def trimmott_pe(records1, records2, args):
         rec1 = mottrecord(rec1, args.q)
         rec2 = mottrecord(rec2, args.q)
         if args.r:
-            rec1 = rec1.reverse_complement()
-            rec2 = rec2.reverse_complement()
+            rec1 = rec1.reverse_complement(name=True,id=True,description=True)
+            rec2 = rec2.reverse_complement(name=True,id=True,description=True)
         if args.d:
             rec1.name += '/1'
             rec1.id += '/1'
@@ -374,7 +374,7 @@ def trimdynamic_se(records, args):
             cutpos = numpy.max(jumps) + 1
         record = record[:cutpos]
         if args.r:
-            record = record.reverse_complement()
+            record = record.reverse_complement(name=True,id=True,description=True)
         if args.d:
             record.name += '/1'
             record.id += '/1'
@@ -413,8 +413,8 @@ def trimdynamic_pe(records1, records2, args):
             cutpos2 = numpy.max(jumps2) + 1
         rec2 = rec2[:cutpos2]
         if args.r:
-            rec1 = rec1.reverse_complement()
-            rec2 = rec2.reverse_complement()
+            rec1 = rec1.reverse_complement(name=True,id=True,description=True)
+            rec2 = rec2.reverse_complement(name=True,id=True,description=True)
         if args.d:
             rec1.name += '/1'
             rec1.id += '/1'
@@ -483,7 +483,7 @@ def trimstatic_se(records, args):
     for record in records:
         record = record[args.f:len(record) - args.t]
         if args.r:
-            record = record.reverse_complement()
+            record = record.reverse_complement(name=True,id=True,description=True)
         if args.d:
             record.name += '/1'
             record.id += '/1'
@@ -506,8 +506,8 @@ def trimstatic_pe(records1, records2, args):
         rec1 = rec1[args.f:len(rec1) - args.t]
         rec2 = rec2[args.f:len(rec2) - args.t]
         if args.r:
-            rec1 = rec1.reverse_complement()
-            rec2 = rec2.reverse_complement()
+            rec1 = rec1.reverse_complement(name=True,id=True,description=True)
+            rec2 = rec2.reverse_complement(name=True,id=True,description=True)
         if args.d:
             rec1.name += '/1'
             rec1.id += '/1'
