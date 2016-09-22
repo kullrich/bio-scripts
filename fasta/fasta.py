@@ -65,7 +65,7 @@ transtable_std = CodonTable.CodonTable(forward_table={
     'GAR': 'E', 'GGN': 'G', 'CAY': 'H', 'ATH': 'I', 'YTR': 'L',
     'CTN': 'L', 'AAR': 'K', 'TTY': 'F', 'CCN': 'P', 'TCN': 'S',
     'AGY': 'S', 'ACN': 'T', 'TAY': 'Y', 'GTN': 'V', 'TAR': '*',
-    'TRA': '*', },
+    'TRA': '*',},
     stop_codons=['TAA', 'TAG', 'TGA', ],
     start_codons=['TTG', 'CTG', 'ATG', ]
 )
@@ -181,6 +181,8 @@ def subparser(subparsers):
     parser_lctrinity.add_argument('-so', type=bool, default=True, help='specify if output to STDOUT')
     parser_lctrinity.add_argument('-i', help='input file')
     parser_lctrinity.add_argument('-o', help='output file')
+    parser_lctrinity.add_argument('-t', default='gene', choices=['gene', 'component'],
+                                  help='specify type of filter [default: gene] or [component]')
     parser_lctrinity.set_defaults(func=lctrinity)
     # extract longest component velvet/oases; parser
     parser_lcvelvet = subparsers.add_parser('lcvelvet', help='lcvelvet help')
@@ -209,7 +211,6 @@ def lcvelvet(args, parser):
     if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
-    print(args)
     if args.si:
         original_fasta = SeqIO.parse(sys.stdin, "fasta")
     if not args.si:
@@ -219,8 +220,8 @@ def lcvelvet(args, parser):
         for k in sorted(lcvelvet_dict.keys()):
             SeqIO.write(lcvelvet_dict[k], sys.stdout, "fasta")
     if not args.so:
-        for k in sorted(lcvelvet_dict.keys()):
-            SeqIO.write(lcvelvet_dict[k], args.o, "fasta")
+        print(args)
+        SeqIO.write(lcvelvet_dict.values(), args.o, "fasta")
 
 
 def lcvelvet_gen(records, args):
@@ -258,7 +259,6 @@ def lctrinity(args, parser):
     if args.so is False and args.o is None:
         parser.print_help()
         sys.exit('\nPlease specify output file')
-    print(args)
     if args.si:
         original_fasta = SeqIO.parse(sys.stdin, "fasta")
     if not args.si:
@@ -268,18 +268,23 @@ def lctrinity(args, parser):
         for k in sorted(lctrinity_dict.keys()):
             SeqIO.write(lctrinity_dict[k], sys.stdout, "fasta")
     if not args.so:
-        for k in sorted(lctrinity_dict.keys()):
-            SeqIO.write(lctrinity_dict[k], args.o, "fasta")
+        print(args)
+        SeqIO.write(lctrinity_dict.values(), args.o, "fasta")
 
 
 def lctrinity_gen(records, args):
+    global tmp_id
     seq_dict = {}
     for record in records:
-        if record.id.split('_i')[0] in seq_dict:
-            if len(record) > len(seq_dict[record.id.split('_i')[0]]):
-                seq_dict[record.id.split('_i')[0]] = record
-        if record.id.split('_i')[0] not in seq_dict:
-            seq_dict[record.id.split('_i')[0]] = record
+        if args.t == 'gene':
+            tmp_id = record.id.split('_i')[0]
+        if args.t == 'component':
+            tmp_id = record.id.split('_g')[0]
+        if tmp_id in seq_dict:
+            if len(record) > len(seq_dict[tmp_id]):
+                seq_dict[tmp_id] = record
+        if tmp_id not in seq_dict:
+            seq_dict[tmp_id] = record
     return seq_dict
 
 
@@ -570,7 +575,7 @@ def reversecomplementfasta(records):
     be a list or iterator returning SeqRecord objects.
     """
     for record in records:
-        yield record.reverse_complement(name=True,id=True,description=True)
+        yield record.reverse_complement(name=True, id=True, description=True)
 
 
 def complement(args, parser):
@@ -610,7 +615,7 @@ def complementfasta(records):
     be a list or iterator returning SeqRecord objects.
     """
     for record in records:
-        yield record.complement(name=True,id=True,description=True)
+        yield record.complement(name=True, id=True, description=True)
 
 
 def gccontent(args, parser):
