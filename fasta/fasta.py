@@ -3,13 +3,13 @@
 
 """
 Author: Krisian Ullrich
-date: Dezember 2015
-email: kristian.ullrich@biologie.uni-marburg.de
+date: Januar 2019
+email: ullrich@evolbio.mpg.de
 License: MIT
 
 The MIT License (MIT)
 
-Copyright (c) 2015 Kristian Ullrich
+Copyright (c) 2019 Kristian Ullrich
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -65,7 +65,7 @@ transtable_std = CodonTable.CodonTable(forward_table={
     'GAR': 'E', 'GGN': 'G', 'CAY': 'H', 'ATH': 'I', 'YTR': 'L',
     'CTN': 'L', 'AAR': 'K', 'TTY': 'F', 'CCN': 'P', 'TCN': 'S',
     'AGY': 'S', 'ACN': 'T', 'TAY': 'Y', 'GTN': 'V', 'TAR': '*',
-    'TRA': '*',},
+    'TRA': '*'},
     stop_codons=['TAA', 'TAG', 'TGA', ],
     start_codons=['TTG', 'CTG', 'ATG', ]
 )
@@ -273,7 +273,7 @@ def lctrinity(args, parser):
 
 
 def lctrinity_gen(records, args):
-    global tmp_id
+    tmp_id = ''
     seq_dict = {}
     for record in records:
         if args.t == 'gene':
@@ -313,7 +313,7 @@ def fsplit(args, parser):
         SeqIO.write(split_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(split_fasta, args.o, "fasta")
-        print "splited into %i sequences" % count
+        print("splited into %i sequences" % count)
 
 
 def fsplit_gen(records, args):
@@ -365,19 +365,18 @@ def num2id(args, parser):
         for lines in inhandle:
             line = lines.strip().split('\t')
             numdict[line[1]] = line[0]
-    num2id_fasta = convert_num2id(original_fasta, args, numdict)
+    num2id_fasta = convert_num2id(original_fasta, numdict)
     if args.so:
         SeqIO.write(num2id_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(num2id_fasta, args.o, "fasta")
-        print "converted %i sequences" % count
+        print("converted %i sequences" % count)
 
 
-def convert_num2id(records, args, numdict):
+def convert_num2id(records, numdict):
     """Converts number of sequence objects to name.
 
     :param numdict:
-    :param args:
     :param records:
 
     This is a generator function, the records argument should
@@ -423,22 +422,21 @@ def id2num(args, parser):
     if not args.si:
         original_fasta = SeqIO.parse(args.i, "fasta")
     iddict = {}
-    id2num_fasta = convert_id2num(original_fasta, args, iddict)
+    id2num_fasta = convert_id2num(original_fasta, iddict)
     if args.so:
         SeqIO.write(id2num_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(id2num_fasta, args.o, "fasta")
-        print "converted %i sequences" % count
+        print("converted %i sequences" % count)
     with open(args.t, 'w') as outhandle:
         for k in sorted(iddict.keys()):
             outhandle.write('%s\t%s\n' % (k, iddict[k]))
 
 
-def convert_id2num(records, args, iddict):
+def convert_id2num(records, iddict):
     """Converts names of sequence objects to numbers.
 
     :param records:
-    :param args:
     :param iddict:
 
     This is a generator function, the records argument should
@@ -479,7 +477,7 @@ def translate(args, parser):
         SeqIO.write(cds2aa_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(cds2aa_fasta, args.o, "fasta")
-        print "translated %i sequences" % count
+        print("translated %i sequences" % count)
 
 
 def cds2aa(records, transtable):
@@ -522,7 +520,7 @@ def reverse(args, parser):
         SeqIO.write(rev_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(rev_fasta, args.o, "fasta")
-        print "reverted %i sequences" % count
+        print("reverted %i sequences" % count)
 
 
 def reversefasta(records):
@@ -563,7 +561,7 @@ def reverse_complement(args, parser):
         SeqIO.write(revcomp_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(revcomp_fasta, args.o, "fasta")
-        print "reverse complemented %i sequences" % count
+        print("reverse complemented %i sequences" % count)
 
 
 def reversecomplementfasta(records):
@@ -603,7 +601,7 @@ def complement(args, parser):
         SeqIO.write(comp_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(comp_fasta, args.o, "fasta")
-        print "reverse complemented %i sequences" % count
+        print("reverse complemented %i sequences" % count)
 
 
 def complementfasta(records):
@@ -735,7 +733,7 @@ def redids(args, parser):
         SeqIO.write(red_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(red_fasta, args.o, "fasta")
-        print "reduced ids from %i sequences" % count
+        print("reduced ids from %i sequences" % count)
 
 
 def redname(records, args):
@@ -779,7 +777,7 @@ def redlen(args, parser):
         SeqIO.write(red_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(red_fasta, args.o, "fasta")
-        print "kept %i sequences" % count
+        print("kept %i sequences" % count)
 
 
 def red_len(records, args):
@@ -820,7 +818,7 @@ def getlen(args, parser):
         original_fasta = SeqIO.parse(sys.stdin, "fasta")
     if not args.si:
         original_fasta = SeqIO.parse(args.i, "fasta")
-    lendict = get_len(original_fasta, args)
+    lendict = get_len(original_fasta)
     lenmean = numpy.mean(lendict.values())
     lensd = numpy.std(lendict.values(), ddof=1)
     if args.so:
@@ -839,7 +837,7 @@ def getlen(args, parser):
             print('sd length: %s' % lensd)
 
 
-def get_len(records, args):
+def get_len(records):
     lendict = {}
     for record in records:
         tmp_id = record.id.split()[0]
@@ -871,7 +869,7 @@ def n50stats(args, parser):
         original_fasta = SeqIO.parse(sys.stdin, "fasta")
     if not args.si:
         original_fasta = SeqIO.parse(args.i, "fasta")
-    gc_len_summary = calc_n50stats(original_fasta, args)
+    gc_len_summary = calc_n50stats(original_fasta)
     if args.so:
         print('#N50stats')
         print('%s\t%s' % ('n', gc_len_summary[0]))
@@ -905,7 +903,7 @@ def n50stats(args, parser):
             outhandle.write('%s\t%s\n' % ('N95', gc_len_summary[12]))
 
 
-def calc_n50stats(records, args):
+def calc_n50stats(records):
     gcdict = {}
     lendict = {}
     for record in records:
@@ -967,7 +965,7 @@ def nuc26orf(args, parser):
         SeqIO.write(nuc26orf_fasta, sys.stdout, "fasta")
     if not args.so:
         count = SeqIO.write(nuc26orf_fasta, args.o, "fasta")
-        print "translated %i sequences" % count
+        print("translated %i sequences" % count)
 
 
 def calc_nuc26orf(records, transtable):
