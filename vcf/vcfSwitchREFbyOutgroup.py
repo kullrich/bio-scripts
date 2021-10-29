@@ -4,11 +4,11 @@
 
 """
 Author: Krisian Ullrich
-date: March 2020
+date: October 2021
 email: ullrich@evolbio.mpg.de
 License: MIT
 The MIT License (MIT)
-Copyright (c) 2020 Kristian Ullrich
+Copyright (c) 2021 Kristian Ullrich
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -39,16 +39,29 @@ def multiple_replace(string, rep_dict):
     return pattern.sub(lambda x: rep_dict[x.group(0)], string)
 
 
-def parse_lines(fin, fou, ind, keep):
+def parse_lines(fin, fou, ind, keep, add):
     switchcount = 0
     removecount = 0
+    totalcount = 0
     for line in fin:
         if line[0] == '#':
-            fou.write(line)
+            if(add):
+                if(line.split('\t')[0] == '#CHROM'):
+                    fou.write('##INFO=<ID=AA,Number=1,Type=String,Description="Ancestral Allele">\n')
+                    fou.write(line)
+                else:
+                    fou.write(line)
+            else:
+                fou.write(line)
         if line[0] != '#':
+            totalcount += 1
             linesplit = line.strip().split('\t')
             if linesplit[8 + ind] == '0/0' or linesplit[8 + ind] == '0|0':
-                fou.write(line)
+                if(add):
+                    linesplit[7] = 'AA=' + linesplit[3] + ';' + linesplit[7]
+                    fou.write('\t'.join(linesplit) + '\n')
+                else:
+                    fou.write(line)
             if linesplit[8 + ind] == '0/1' or linesplit[8 + ind] == '0|1' or linesplit[8 + ind] == '1/0' or linesplit[8 + ind] == '1|0':
                 removecount += 1
                 if keep:
@@ -60,7 +73,12 @@ def parse_lines(fin, fou, ind, keep):
                 linesplit[3] = REF
                 linesplit[4] = ALT
                 changed = linesplit[:9] + [multiple_replace('\t'.join(linesplit[9:]),{'0':'1', '1':'0'})]
-                fou.write('\t'.join(changed) + '\n')
+                if(add):
+                    changed[7] = 'AA=' + changed[3] + ';' + changed[7]
+                    fou.write('\t'.join(changed) + '\n')
+                else:
+                    fou.write('\t'.join(changed) + '\n')
+    print('Parsed ' + str(totalcount) + ' sites.')
     if keep:
         print('Kept ' + str(removecount) + ' sites with undefined ancestral state.')
     if not keep:
@@ -83,6 +101,7 @@ bcftools commands to retain only bi-allelic sites and GT field:
     parser.add_argument('-out', help='specify output file')
     parser.add_argument('-ind', type=int, help='specify individual idx to be used for switch REF and ALT allele')
     parser.add_argument('-keep', action='store_true', help='specify if undefined ancestral states should be kept in output')
+    parser.add_argument('-add', action='store_true', help='add ancestral state to INFO field')
     args = parser.parse_args()
     print(args)
     if args.vcf is None:
@@ -98,18 +117,18 @@ bcftools commands to retain only bi-allelic sites and GT field:
         with gzip.open(args.out, 'wt') as fou:
             if args.vcf.endswith('gz'):
                 with gzip.open(args.vcf, 'rt') as fin:
-                    parse_lines(fin, fou, args.ind, args.keep)
+                    parse_lines(fin, fou, args.ind, args.keep, args.add)
             if not args.vcf.endswith('gz'):
                 with open(args.vcf, 'rt') as fin:
-                    parse_lines(fin, fou, args.ind, args.keep)
+                    parse_lines(fin, fou, args.ind, args.keep, args.add)
     if not args.out.endswith('gz'):
         with open(args.out, 'wt') as fou:
             if args.vcf.endswith('gz'):
                 with gzip.open(args.vcf, 'rt') as fin:
-                    parse_lines(fin, fou, args.ind, args.keep)
+                    parse_lines(fin, fou, args.ind, args.keep, args.add)
             if not args.vcf.endswith('gz'):
                 with open(args.vcf, 'rt') as fin:
-                    parse_lines(fin, fou, args.ind, args.keep)
+                    parse_lines(fin, fou, args.ind, args.keep, args.add)
 
 
 if __name__ == '__main__':
