@@ -87,7 +87,7 @@ def parse_lines(fin, fou, ind, keep, add):
 
 
 def main():
-    parser = argparse.ArgumentParser(prog='vcfSwitchREFbyOutgroup', description='Switch REF and ALT allele of a vcf file, if specified individual is homozygous ALT.', formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(prog='polarizeVCFbyOutgroup', description='Switch REF and ALT allele of a vcf file, if specified individual is homozygous ALT.', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-vcf', help=textwrap.dedent('''\
 specify vcf input file
 vcf file should only contain bi-allelic sites and only GT field
