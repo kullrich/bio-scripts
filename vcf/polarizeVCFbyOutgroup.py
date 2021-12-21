@@ -4,7 +4,7 @@
 
 """
 Author: Krisian Ullrich
-date: October 2021
+date: December 2021
 email: ullrich@evolbio.mpg.de
 License: MIT
 The MIT License (MIT)
