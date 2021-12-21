@@ -42,6 +42,7 @@ def multiple_replace(string, rep_dict):
 def parse_lines(fin, fou, ind, keep, add):
     switchcount = 0
     removecount = 0
+    outmissing = 0
     totalcount = 0
     for line in fin:
         if line[0] == '#':
@@ -56,6 +57,8 @@ def parse_lines(fin, fou, ind, keep, add):
         if line[0] != '#':
             totalcount += 1
             linesplit = line.strip().split('\t')
+            if linesplit[8 + ind] == './.' or linesplit[8 + ind] == '.|.':
+                outmissing += 1
             if linesplit[8 + ind] == '0/0' or linesplit[8 + ind] == '0|0':
                 if(add):
                     linesplit[7] = 'AA=' + linesplit[3] + ';' + linesplit[7]
@@ -79,6 +82,7 @@ def parse_lines(fin, fou, ind, keep, add):
                 else:
                     fou.write('\t'.join(changed) + '\n')
     print('Parsed ' + str(totalcount) + ' sites.')
+    print('Removed ' + str(outmissing) + ' sites due to missing allele info in switch individual.')
     if keep:
         print('Kept ' + str(removecount) + ' sites with undefined ancestral state.')
     if not keep:
