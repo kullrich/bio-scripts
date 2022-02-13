@@ -1,52 +1,32 @@
 bio-scripts
 ===========
 
-collection of scripts and software tools for bioinformatic analysis
+collection of scripts, examples and software tools for bioinformatic analysis
 
 * codonusage
-* rbhplus
 * fasta
 * fastq
-* gff
-* blastparse
+* gtf_gff3
 
 Dependencies
 ------------
-Scripts depends on biopython <http://biopython.org/wiki/Download>, namely the modules:
 
-* Bio.Data
-* Bio.SeqIO
-* Bio.SeqUtils
-* Bio.SeqRecord
-
-Scripts depends on numpy <http://www.numpy.org/>
+see the individual README.md per sub folder for dependencies
 
 codonusage
 ----------
 
-see <https://github.com/kullrich/bio-scripts/tree/master/codonusage>
-
-rbhplus
--------
-
-see <https://github.com/kullrich/bio-scripts/tree/master/rbhplus>
-
 fasta
 -----
 
-see <https://github.com/kullrich/bio-scripts/tree/master/fasta>
+
 
 fastq
 -----
 
-see <https://github.com/kullrich/bio-scripts/tree/master/fastq>
 
-gff
+
+gtf/gff3
 ---
 
-see <https://github.com/kullrich/bio-scripts/tree/master/gff>
 
-blastparse
-----------
-
-see <https://github.com/kullrich/bio-scripts/tree/master/blastparse>
