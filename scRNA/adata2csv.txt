@@ -1,0 +1,11 @@
+import numpy as np
+import pandas as pd
+import scanpy as sc
+
+adata = sc.read('input.h5ad')
+adata = adata.T
+adata.raw = adata
+m = adata.var
+pd.DataFrame(data=m, index=m.index, columns=m.columns).to_csv('output.meta.csv')
+t=adata.raw.X.toarray()
+pd.DataFrame(data=t, index=adata.obs_names, columns=adata.raw.var_names).to_csv('output.csv')
