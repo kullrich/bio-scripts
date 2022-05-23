@@ -221,18 +221,22 @@ def get_random_tss(input_bam, output_dir, reference, reference_gtf, min_size, ra
         gtf_tes_k = gtf_tes[k]
         gtf_introns_k = gtf_introns[k]
         gtf_subset_merge_k = gtf_subset_merge[k]
-        gtf_tss_k_pos = get_sample_position(gtf_tss_k, random_tss_per_chr)
-        gtf_tes_k_pos = get_sample_position(gtf_tes_k, random_tss_per_chr)
-        gtf_introns_k_pos = get_sample_position(gtf_introns_k, random_tss_per_chr)
-        gtf_subset_merge_k_pos = get_sample_position(gtf_subset_merge_k, random_tss_per_chr)
-        tss_inside_bed, tss_outside_bed = create_bed(k, "random_tss", gtf_tss_k_pos, output_dir, bam_header_file)
-        tes_inside_bed, tes_outside_bed = create_bed(k, "random_tes", gtf_tes_k_pos, output_dir, bam_header_file)
-        introns_inside_bed, introns_outside_bed = create_bed(k, "random_introns", gtf_introns_k_pos, output_dir, bam_header_file)
-        feature_inside_bed, feature_outside_bed = create_bed(k, "random_feature", gtf_subset_merge_k_pos, output_dir, bam_header_file)
-        get_ratio_TSS(tss_inside_bed, tss_outside_bed, output_dir, input_bam, k, "random_tss", bam_header_file, verbose)
-        get_ratio_TSS(tes_inside_bed, tes_outside_bed, output_dir, input_bam, k, "random_tes", bam_header_file, verbose)
-        get_ratio_TSS(introns_inside_bed, introns_outside_bed, output_dir, input_bam, k, "random_introns", bam_header_file, verbose)
-        get_ratio_TSS(feature_inside_bed, feature_outside_bed, output_dir, input_bam, k, "random_feature", bam_header_file, verbose)
+        if len(gtf_tss_k) > 0:
+            gtf_tss_k_pos = get_sample_position(gtf_tss_k, random_tss_per_chr)
+            tss_inside_bed, tss_outside_bed = create_bed(k, "random_tss", gtf_tss_k_pos, output_dir, bam_header_file)
+            get_ratio_TSS(tss_inside_bed, tss_outside_bed, output_dir, input_bam, k, "random_tss", bam_header_file, verbose)
+        if len(gtf_tes_k) > 0:
+            gtf_tes_k_pos = get_sample_position(gtf_tes_k, random_tss_per_chr)
+            tes_inside_bed, tes_outside_bed = create_bed(k, "random_tes", gtf_tes_k_pos, output_dir, bam_header_file)
+            get_ratio_TSS(tes_inside_bed, tes_outside_bed, output_dir, input_bam, k, "random_tes", bam_header_file, verbose)
+        if len(gtf_introns_k) > 0:
+            gtf_introns_k_pos = get_sample_position(gtf_introns_k, random_tss_per_chr)
+            introns_inside_bed, introns_outside_bed = create_bed(k, "random_introns", gtf_introns_k_pos, output_dir, bam_header_file)
+            get_ratio_TSS(introns_inside_bed, introns_outside_bed, output_dir, input_bam, k, "random_introns", bam_header_file, verbose)
+        if len(gtf_subset_merge_k) > 0:
+            gtf_subset_merge_k_pos = get_sample_position(gtf_subset_merge_k, random_tss_per_chr)
+            feature_inside_bed, feature_outside_bed = create_bed(k, "random_feature", gtf_subset_merge_k_pos, output_dir, bam_header_file)
+            get_ratio_TSS(feature_inside_bed, feature_outside_bed, output_dir, input_bam, k, "random_feature", bam_header_file, verbose)
 
 
 if __name__ == "__main__":
