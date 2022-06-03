@@ -331,7 +331,7 @@ sub generateAlignmentUsingBwa
     print "Generate alignments of reads using bwa sampe...\n";
     # $command = "${path}bwa samse -n 1 $folder$contigName[ -1 ] ${folder}read.sai - | awk \'{ if( \$3 != \"*\" ) print \$0 }\' > $folder$outputFile";
     # $command = "${path}bwa samse -n 1 $folder$contigName[ -1 ] ${folder}read.sai - | grep '\\(^@\\|XT:A:U\\)' | samtools view -S -h -b -F 0x4 - | samtools sort -no - ${folder}temporarySam | samtools view -h -b - > $folder$outputFile";
-    $command = "${path}bwa samse -n 1 $folder$contigName[ -1 ] ${folder}read.sai - | grep '\\(^@\\|XT:A:U\\)' | ${samtoolsDir}samtools view -S -h -b -F 0x4 - | ${samtoolsDir}samtools sort -\@ ${num_cpu} -no - > $folder$outputFile";
+    $command = "${path}bwa samse -n 1 $folder$contigName[ -1 ] ${folder}read.sai - | grep '\\(^@\\|XT:A:U\\)' | ${samtoolsDir}samtools view -S -h -b -F 0x4 - | ${samtoolsDir}samtools sort -O SAM -\@ ${num_cpu} -no - > $folder$outputFile";
     print $command."\n";
 }
 
