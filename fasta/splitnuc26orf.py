@@ -43,7 +43,26 @@ def splitnuc26orf(records, fout, fmp='\*[^\*]', bmp='[^\*]\*', fbmp='\**[^\*]*\*
     front_back_pattern = re.compile(front_back_match_pattern)
     for record in records:
         rec_len = len(record)
-        rec_orf = record.id.split('_')[-1] 
+        rec_orflen = record.id.split('_')[-1]
+        if rec_orflen[:2]=='0+':
+            rec_orf = '0+'
+            rec_nuc_len = int(rec_orflen.split('+')[-1])
+        if rec_orflen[:2]=='1+':
+            rec_orf = '1+'
+            rec_nuc_len = int(rec_orflen.split('+')[-1])
+        if rec_orflen[:2]=='2+':
+            rec_orf = '2+'
+            rec_nuc_len = int(rec_orflen.split('+')[-1])
+        if rec_orflen[:2]=='0-':
+            rec_orf = '0-'
+            rec_nuc_len = int(rec_orflen.split('-')[-1])
+        if rec_orflen[:2]=='1-':
+            rec_orf = '1-'
+            rec_nuc_len = int(rec_orflen.split('-')[-1])
+        if rec_orflen[:2]=='2-':
+            rec_orf = '2-'
+            rec_nuc_len = int(rec_orflen.split('-')[-1])
+        rec_cutoff = rec_nuc_len - (rec_len * 3)
         front_iter = front_pattern.finditer('*' + str(record.seq))
         back_iter = back_pattern.finditer(str(record.seq) + '*')
         front_back_iter = front_back_pattern.finditer('*' + str(record.seq) + '*')
@@ -52,17 +71,17 @@ def splitnuc26orf(records, fout, fmp='\*[^\*]', bmp='[^\*]\*', fbmp='\**[^\*]*\*
             out_str = out_str.replace("X", "")
             if len(out_str) >= min:
                 if rec_orf=='0+':
-                    fout.write('>' + record.id + '_%i_%i' % ((((m.end()-1) * 3) + 0), ((n.end() * 3) + 0)) + '\n')
+                    fout.write('>' + record.id + '_%i_%i' % ((((m.end()-1) * 3) - 2), (((n.end()-1) * 3) + 0)) + '\n')
                 if rec_orf=='1+':
-                    fout.write('>' + record.id + '_%i_%i' % ((((m.end()-1) * 3) + 1), ((n.end() * 3) + 1)) + '\n')
+                    fout.write('>' + record.id + '_%i_%i' % ((((m.end()-1) * 3) - 1), (((n.end()-1) * 3) + 1)) + '\n')
                 if rec_orf=='2+':
-                    fout.write('>' + record.id + '_%i_%i' % ((((m.end()-1) * 3) + 2), ((n.end() * 3) + 2)) + '\n')
+                    fout.write('>' + record.id + '_%i_%i' % ((((m.end()-1) * 3) - 0), (((n.end()-1) * 3) + 2)) + '\n')
                 if rec_orf=='0-':
-                    fout.write('>' + record.id + '_%i_%i' % (rec_len - (((m.end()-1) * 3) + 2), rec_len - ((n.end() * 3) + 2)) + '\n')
+                    fout.write('>' + record.id + '_%i_%i' % (rec_nuc_len - (((n.end()-1) * 3) + 0) + 1, rec_nuc_len - (((m.end()-1) * 3) - 2) + 1) + '\n')
                 if rec_orf=='1-':
-                    fout.write('>' + record.id + '_%i_%i' % (rec_len - (((m.end()-1) * 3) + 1), rec_len - ((n.end() * 3) + 1)) + '\n')
+                    fout.write('>' + record.id + '_%i_%i' % (rec_nuc_len - (((n.end()-1) * 3) + 1) + 1, rec_nuc_len - (((m.end()-1) * 3) - 1) + 1) + '\n')
                 if rec_orf=='2-':
-                    fout.write('>' + record.id + '_%i_%i' % (rec_len - (((m.end()-1) * 3) + 0), rec_len - ((n.end() * 3) + 0)) + '\n')
+                    fout.write('>' + record.id + '_%i_%i' % (rec_nuc_len - (((n.end()-1) * 3) + 2) + 1, rec_nuc_len - (((m.end()-1) * 3) - 0) + 1) + '\n')
                 fout.write(out_str + '\n')
 
 
