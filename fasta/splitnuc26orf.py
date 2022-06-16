@@ -52,17 +52,17 @@ def splitnuc26orf(records, fout, fmp='\*[^\*]', bmp='[^\*]\*', fbmp='\**[^\*]*\*
             out_str = out_str.replace("X", "")
             if len(out_str) >= min:
                 if rec_orf=='0+':
-                    fout.write('>' + record.id + '_%i_%i' % ((((m.end()-1) * 3) + 0), ((n.end() * 3) + 0) + '\n')
+                    fout.write('>' + record.id + '_%i_%i' % ((((m.end()-1) * 3) + 0), ((n.end() * 3) + 0)) + '\n')
                 if rec_orf=='1+':
-                    fout.write('>' + record.id + '_%i_%i' % ((((m.end()-1) * 3) + 1), ((n.end() * 3) + 1) + '\n')
+                    fout.write('>' + record.id + '_%i_%i' % ((((m.end()-1) * 3) + 1), ((n.end() * 3) + 1)) + '\n')
                 if rec_orf=='2+':
-                    fout.write('>' + record.id + '_%i_%i' % ((((m.end()-1) * 3) + 2), ((n.end() * 3) + 2) + '\n')
+                    fout.write('>' + record.id + '_%i_%i' % ((((m.end()-1) * 3) + 2), ((n.end() * 3) + 2)) + '\n')
                 if rec_orf=='0-':
-                    fout.write('>' + record.id + '_%i_%i' % (rec_len - (((m.end()-1) * 3) + 2), rec_len - ((n.end() * 3) + 2) + '\n')
+                    fout.write('>' + record.id + '_%i_%i' % (rec_len - (((m.end()-1) * 3) + 2), rec_len - ((n.end() * 3) + 2)) + '\n')
                 if rec_orf=='1-':
-                    fout.write('>' + record.id + '_%i_%i' % (rec_len - (((m.end()-1) * 3) + 1), rec_len - ((n.end() * 3) + 1) + '\n')
+                    fout.write('>' + record.id + '_%i_%i' % (rec_len - (((m.end()-1) * 3) + 1), rec_len - ((n.end() * 3) + 1)) + '\n')
                 if rec_orf=='2-':
-                    fout.write('>' + record.id + '_%i_%i' % (rec_len - (((m.end()-1) * 3) + 0), rec_len - ((n.end() * 3) + 0) + '\n')
+                    fout.write('>' + record.id + '_%i_%i' % (rec_len - (((m.end()-1) * 3) + 0), rec_len - ((n.end() * 3) + 0)) + '\n')
                 fout.write(out_str + '\n')
 
 
