@@ -113,9 +113,9 @@ def nuc26orfRecord(record_iter, args):
                 for frame in range(3):
                     length = 3 * ((len(record) - frame) // 3)  # Multiple of three
                     pro = SeqIO.SeqRecord(nuc[frame:frame + length].translate(transtable[args.t]),
-                        name=record.name + "_" + str(frame) + str(strand),
-                        id=record.name + "_" + str(frame) + str(strand),
-                        description=record.name + "_" + str(frame) + str(strand))
+                        name=record.name + "_" + str(frame) + str(strand) + str(len(record)),
+                        id=record.name + "_" + str(frame) + str(strand) + str(len(record)),
+                        description=record.name + "_" + str(frame) + str(strand) + str(len(record)))
                     yield pro
 
 
