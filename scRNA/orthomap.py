@@ -96,7 +96,7 @@ def orthomap(args, parser, subparsers):
                 else:
                     og_ps = query_lineage_names[query_lineage_names['PStaxID']==oc_og_dict[og_og[0]]].values.tolist()[0]
                     og_ps = '\t'.join([str(x) for x in og_ps])
-                    qgenes = [outhandle.write(x.replace(' ','') + '\t' + og_ps + '\n') for x in og_og[og_qidx[0]].split(',')]
+                    qgenes = [outhandle.write(x.replace(' ','') + '\t' + og_og[0] + '\t' + og_ps + '\n') for x in og_og[og_qidx[0]].split(',')]
 
 
 def get_youngest_common(ql, tl):
