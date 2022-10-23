@@ -82,7 +82,7 @@ def orthomap(args, parser, subparsers):
                     oc_og_oldest_common = get_oldest_common(query_lineage, oc_og_hits_youngest_common)
                     oc_og_dict[oc_og[0]] = oc_og_oldest_common
     with open(args.out, 'w') as outhandle:
-        outhandle.write('gene\tPSnum\tPStaxID\tPSname\n')
+        outhandle.write('gene\tOrthogroup\tPSnum\tPStaxID\tPSname\n')
         with open(args.og, 'r') as og_lines:
             og_species = next(og_lines).strip().split('\t')
             og_qidx = [x for x,y in enumerate(og_species) if y==args.qname]
