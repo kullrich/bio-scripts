@@ -203,17 +203,17 @@ def define_parser():
                                                  'conda install -c bioconda trimal\n'
                                                  'conda install -c etetoolkit slr\n',
                                     formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('-i', help='input file')
-    parser.add_argument('-o', help='output folder', default='results')
-    parser.add_argument('-m', help='specify models as given here http://etetoolkit.org/documentation/ete-evol/', default='M0,M1,M2')
-    parser.add_argument('-leaves', help='specify to run a branch model for each branch', action='store_true')
-    parser.add_argument('-internals', help='specify to run a branch model for each internal node', action='store_true')
-    parser.add_argument('-tests', help='specify tests as given here http://etetoolkit.org/documentation/ete-evol/', default='M2,M1')
-    parser.add_argument('-c', help='specify number of cpu', default=2, type=int)
+    parser.add_argument('-i', help='input file [mandatory]')
+    parser.add_argument('-o', help='output folder [default: results]', default='results')
+    parser.add_argument('-m', help='specify models as given here http://etetoolkit.org/documentation/ete-evol/ [default: M0,M1,M2]', default='M0,M1,M2')
+    parser.add_argument('-leaves', help='specify to run a branch model for each branch [default: False]', action='store_true')
+    parser.add_argument('-internals', help='specify to run a branch model for each internal node [default: False]', action='store_true')
+    parser.add_argument('-tests', help='specify tests as given here http://etetoolkit.org/documentation/ete-evol/ [default: M2,M1]', default='M2,M1')
+    parser.add_argument('-c', help='specify number of cpu [default: 2]', default=2, type=int)
     parser.add_argument('-s', help='batch size [default: 1000]', default=1000, type=int)
     parser.add_argument('-t', help='transtable [default: std]', default='std')
-    parser.add_argument('-cal_dn_ds_method', help='specify method as indicated here https://biopython.org/docs/1.80/api/Bio.codonalign.codonseq.html', default='NG86')
-    parser.add_argument('-mafft_options', help='additional mafft options')
+    parser.add_argument('-cal_dn_ds_method', help='specify method as indicated here https://biopython.org/docs/1.80/api/Bio.codonalign.codonseq.html [default: NG86]', default='NG86')
+    parser.add_argument('-mafft_options', help='additional mafft options [default: None]')
     return parser
 
 
