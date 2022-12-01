@@ -169,7 +169,7 @@ def twosampletree(codonalg, outdir):
     return phyml_filename
 
 
-def run_codeml(input_fasta, input_tree, outdir, model=['M0'], leaves=False, internals=False, tests=None):
+def run_codeml(input_fasta, input_tree, outdir, model=['M0', 'M1', 'M2'], leaves=False, internals=False, tests=None):
     if leaves and internals:
         ete3_evol_cmd = ['ete3', 'evol', '-t', input_tree, '--alg', input_fasta, '--models'] + model + ['--leaves', '--internals', '-o', outdir, '--codeml_param', 'cleandata,1']
     if leaves and not internals:
@@ -205,10 +205,10 @@ def define_parser():
                                     formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('-i', help='input file')
     parser.add_argument('-o', help='output folder', default='results')
-    parser.add_argument('-m', help='specify models as given here http://etetoolkit.org/documentation/ete-evol/', default='M0')
+    parser.add_argument('-m', help='specify models as given here http://etetoolkit.org/documentation/ete-evol/', default='M0,M1,M2')
     parser.add_argument('-leaves', help='specify to run a branch model for each branch', action='store_true')
     parser.add_argument('-internals', help='specify to run a branch model for each internal node', action='store_true')
-    parser.add_argument('-tests', help='specify tests as given here http://etetoolkit.org/documentation/ete-evol/')
+    parser.add_argument('-tests', help='specify tests as given here http://etetoolkit.org/documentation/ete-evol/', default='M2,M1')
     parser.add_argument('-c', help='specify number of cpu', default=2, type=int)
     parser.add_argument('-s', help='batch size [default: 1000]', default=1000, type=int)
     parser.add_argument('-t', help='transtable [default: std]', default='std')
