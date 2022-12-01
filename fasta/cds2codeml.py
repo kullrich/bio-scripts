@@ -169,17 +169,17 @@ def twosampletree(codonalg, outdir):
     return phyml_filename
 
 
-def run_codeml(input_fasta, input_tree, outdir, model=['M0', 'M1', 'M2'], leaves=False, internals=False, tests=None):
+def run_codeml(input_fasta, input_tree, outdir, model=['M0', 'M1', 'M2'], leaves=False, internals=False, tests='M2,M1', cpu=1):
     if leaves and internals:
-        ete3_evol_cmd = ['ete3', 'evol', '-t', input_tree, '--alg', input_fasta, '--models'] + model + ['--leaves', '--internals', '-o', outdir, '--codeml_param', 'cleandata,1']
+        ete3_evol_cmd = ['ete3', 'evol', '-t', input_tree, '--alg', input_fasta, '--models'] + model + ['--leaves', '--internals', '-o', outdir, '--codeml_param', 'cleandata,1', '--cpu', str(cpu)]
     if leaves and not internals:
-        ete3_evol_cmd = ['ete3', 'evol', '-t', input_tree, '--alg', input_fasta, '--models'] + model + ['--leaves', '-o', outdir, '--codeml_param', 'cleandata,1']
+        ete3_evol_cmd = ['ete3', 'evol', '-t', input_tree, '--alg', input_fasta, '--models'] + model + ['--leaves', '-o', outdir, '--codeml_param', 'cleandata,1', '--cpu', str(cpu)]
     if not leaves and internals:
-        ete3_evol_cmd = ['ete3', 'evol', '-t', input_tree, '--alg', input_fasta, '--models'] + model + ['--internals', '-o', outdir, '--codeml_param', 'cleandata,1']
+        ete3_evol_cmd = ['ete3', 'evol', '-t', input_tree, '--alg', input_fasta, '--models'] + model + ['--internals', '-o', outdir, '--codeml_param', 'cleandata,1', '--cpu', str(cpu)]
     if not leaves and not internals:
-        ete3_evol_cmd = ['ete3', 'evol', '-t', input_tree, '--alg', input_fasta, '--models'] + model + ['-o', outdir, '--codeml_param', 'cleandata,1']
+        ete3_evol_cmd = ['ete3', 'evol', '-t', input_tree, '--alg', input_fasta, '--models'] + model + ['-o', outdir, '--codeml_param', 'cleandata,1', '--cpu', str(cpu)]
     if tests is not None:
-        ete3_evol_cmd += [tests]
+        ete3_evol_cmd += ['--tests', tests]
     subprocess.call(ete3_evol_cmd, stderr=None, stdout=None, shell=False)
 
 
@@ -252,7 +252,7 @@ def main():
     else:
         phyml_filename = twosampletree(codonalg, args.o)
     # 6. Run codeml
-    run_codeml(os.path.join(args.o, codonalg_filename), os.path.join(args.o, phyml_filename), args.o, args.m.split(','))
+    run_codeml(os.path.join(args.o, codonalg_filename), os.path.join(args.o, phyml_filename), args.o, args.m.split(','), args.c)
     print('Done')
 
 
