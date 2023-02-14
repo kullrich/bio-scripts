@@ -71,6 +71,9 @@ def main():
     outfile_rscucount = args.o + '.rscucnt'
     outfile_enc = args.o + '.enc'
     codontable = codontable1
+    six2fourtwo = False
+    if args.six2fourtwo:
+            six2fourtwo = True
     if six2fourtwo:
         codontable = codontable2
 
