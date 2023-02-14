@@ -70,11 +70,6 @@ def main():
     outfile_thirdcount = args.o + '.thirdcnt'
     outfile_rscucount = args.o + '.rscucnt'
     outfile_enc = args.o + '.enc'
-    six2fourtwo = 'False'
-    if args.six2fourtwo == 'True':
-        six2fourtwo = True
-    if args.six2fourtwo == 'False':
-        six2fourtwo = False
     codontable = codontable1
     if six2fourtwo:
         codontable = codontable2
