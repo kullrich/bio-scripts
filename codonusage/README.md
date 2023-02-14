@@ -88,7 +88,7 @@ $$F_{CF} = \sum_{i=1}^{m} (\frac {n_{i}+1}{n+m})^{2}$$
 
 **Equation (5):**
 
-$$N_{c} = \frac {K_{1} \times \sum_{j}^K_{1}}{}$$
+$$N_{c} = \frac {K_{1} \times \sum_j^K}{}$$
 
 **Relative Synonymous Codon Usage*:*
 
