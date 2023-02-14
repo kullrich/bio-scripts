@@ -71,9 +71,9 @@ If the (-enc) option was used an additional table containing the choosen method 
 
 	Effective Number of Codons: OUTPUTPREFIX.enc
 
-	Wright (1990). The effective number of codons used in a gene. Gene 87:23-29.
-	Equation (4) 
-	$\widehat{N}_{c} = 2 + GC_{(3)} + (\frac{29}{GC^{2}_{(3)} + (1 - GC^{2}_{(3)})})$
+Wright (1990). The effective number of codons used in a gene. Gene 87:23-29.
+Equation (4):
+$\widehat{N}_{c} = 2 + GC_{(3)} + (\frac{29}{GC^{2}_{(3)} + (1 - GC^{2}_{(3)})})$
 
 	Sun et al. (2012). An Improved Implementation of Effective Number of Codons (Nc). Mol. Biol. Evol. 30:191-196.
 
