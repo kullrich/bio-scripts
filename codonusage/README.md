@@ -44,7 +44,7 @@ If your FASTA file also conatins sequences that length are not divdable by 3 (le
 
 	$ ./codonusage.py -i FASTA -o OUTPUTPREFIX -r
 
-With the 'enc' option one can choose a method to calculate the effective number of codons for each sequence based either on equation (4) of '[Wright (1990). The effective number of codons used in a gene. Gene 87:23-29.](https://doi.org/10.1016/0378-1119(90)90491-9)' ['eq4Wright'] or equation (3) or equation (5) of 'Sun et al. (2012). An Improved Implementation of Effective Number of Codons (Nc). Mol. Biol. Evol. 30:191-196.' ['eq3Sun','eq4Sun'].
+With the 'enc' option one can choose a method to calculate the effective number of codons for each sequence based either on equation (4) of '[Wright (1990). The effective number of codons used in a gene. Gene 87:23-29.](https://doi.org/10.1016/0378-1119(90)90491-9)' ['eq4Wright'] or equation (3) or equation (5) of '[Sun et al. (2012). An Improved Implementation of Effective Number of Codons (Nc). Mol. Biol. Evol. 30:191-196.](https://doi.org/10.1093/molbev/mss201)' ['eq3Sun','eq4Sun'].
 
 	$ ./codonusage.py -i FASTA -o OUTPUTPREFIX -enc eq4Wright
 
