@@ -94,7 +94,7 @@ $$N_{c} = \frac {K_1 \sum\limits_{j}^{K_1} n_{j}}{\sum\limits_{j=1}^{K_1}(n_{j}F
 
 **Sharp et al. (1986). Codon usage in yeast: cluster analysis clearly differentiates highly and lowly expressed genes. Nucl. Acids. Res. 14:5125-5143.**
 
-$$RSCU_{ij} = \frac {X_{ij}} {\frac {1}{n_{i}} \sum\limits_{j=1}^{n_{i}} X_{ij}}$$
+$$RSCU_{ij} = \frac {x_{ij}} {\frac {1}{n_{i}} \sum\limits_{j=1}^{n_{i}} x_{ij}}$$
 
 Plotting ENC distributions
 --------------------------
