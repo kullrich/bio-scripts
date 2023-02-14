@@ -574,10 +574,13 @@ def calc_rscu(codoncounts, codontable):
 
 
 def gcbypos(codoncounts, six2fourtwo):
-    aminoacids = ['A', 'C', 'E', 'D', 'G', 'F', 'I', 'H', 'K', 'M', 'L', 'N', 'Q', 'P', 'S', 'R', 'T', 'W', 'V', 'Y']
+    #aminoacids = ['A', 'C', 'E', 'D', 'G', 'F', 'I', 'H', 'K', 'M', 'L', 'N', 'Q', 'P', 'S', 'R', 'T', 'W', 'V', 'Y']
+    aminoacids = ['A', 'C', 'E', 'D', 'G', 'F', 'I', 'H', 'K', 'L', 'N', 'Q', 'P', 'S', 'R', 'T', 'V', 'Y']
     if six2fourtwo:
-        aminoacids = ['A', 'C', 'E', 'D', 'G', 'F', 'I', 'H', 'K', 'M', 'L', 'L_', 'N', 'Q', 'P', 'S', 'S_', 'R', 'R_',
-                      'T', 'W', 'V', 'Y']
+        #aminoacids = ['A', 'C', 'E', 'D', 'G', 'F', 'I', 'H', 'K', 'M', 'L', 'L_', 'N', 'Q', 'P', 'S', 'S_', 'R', 'R_',
+        #              'T', 'W', 'V', 'Y']
+        aminoacids = ['A', 'C', 'E', 'D', 'G', 'F', 'I', 'H', 'K', 'L', 'L_', 'N', 'Q', 'P', 'S', 'S_', 'R', 'R_',
+                      'T', 'V', 'Y']
     gcone_gc = []
     gcone_sum = []
     gctwo_gc = []
