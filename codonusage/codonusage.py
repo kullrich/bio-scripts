@@ -584,9 +584,12 @@ def gcbypos(codoncounts, six2fourtwo):
     gctwo_sum = []
     gcthree_gc = []
     gcthree_sum = []
+    gc = []
+    gc_sum = []
     gcone = None
     gctwo = None
     gcthree = None
+    gcall = None
     for aa in aminoacids:
         tmp_aa_one = [[x[0], codoncounts[x][2]] for x in codoncounts.keys() if codoncounts[x][0] == aa]
         tmp_aa_two = [[x[1], codoncounts[x][2]] for x in codoncounts.keys() if codoncounts[x][0] == aa]
@@ -603,6 +606,12 @@ def gcbypos(codoncounts, six2fourtwo):
         gc_three = sum([x[1] for x in tmp_aa_three if x[0] == 'G' or x[0] == 'C'])
         gcthree_sum.append(tmp_aa_three_sum)
         gcthree_gc.append(gc_three)
+        gc_sum.append(tmp_aa_one_sum)
+        gc_sum.append(tmp_aa_two_sum)
+        gc_sum.append(tmp_aa_two_sum)
+        gc.append(gc_one)
+        gc.append(gc_two)
+        gc.append(gc_three)
     if float(sum(gcone_gc)) == 0 and float(sum(gcone_sum)) == 0:
         print('GCone_gc and GCone_sum zero\n')
         gcone = 0
@@ -618,7 +627,12 @@ def gcbypos(codoncounts, six2fourtwo):
         gcthree = 0
     if float(sum(gcthree_gc)) != 0 or float(sum(gcthree_sum)) != 0:
         gcthree = float(sum(gcthree_gc)) / float(sum(gcthree_sum))
-    return [gcone, gctwo, gcthree]
+    if float(sum(gc)) == 0 and float(sum(gc_sum)) == 0:
+        print('GC_gc and GC_sum zero\n')
+        gcthree = 0
+    if float(sum(gc)) != 0 or float(sum(gc_sum)) != 0:
+        gcall = float(sum(gc)) / float(sum(gc_sum))
+    return [gcone, gctwo, gcthree, gcall]
 
 
 if __name__ == '__main__':
