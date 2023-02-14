@@ -80,11 +80,11 @@ $$\widehat{N}_{c} = 2 + GC_{(3)} + (\frac{29}{GC^{2}_{(3)} + (1 - GC^{2}_{(3)})}
 
 **Equation (2):**
 
-$$F_{CF} = \sum_{i=1}^{m} (\frac {n_{i}}{n})^{2}$$
+$$F_{CF} = \sum\limits_{i=1}^{m} (\frac {n_{i}}{n})^{2}$$
 
 **Equation (3):**
 
-$$F_{CF} = \sum_{i=1}^{m} (\frac {n_{i}+1}{n+m})^{2}$$
+$$F_{CF} = \sum\limits_{i=1}^{m} (\frac {n_{i}+1}{n+m})^{2}$$
 
 **Equation (5):**
 
