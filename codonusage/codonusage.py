@@ -96,13 +96,13 @@ def main():
                             if args.enc is not None:
                                 enchandle = open(outfile_enc, 'w')
                                 if args.enc == 'eq4Wright':
-                                    enchandle.write('id\tlen\tmo3\teq4Wright\n')
+                                    enchandle.write('id\tlen\tmo3\tgc3\teq4Wright\n')
                                 if args.enc == 'eq2Sun':
-                                    enchandle.write('id\tlen\tmo3\teq2Sun\n')
+                                    enchandle.write('id\tlen\tmo3\tgc3\teq2Sun\n')
                                 if args.enc == 'eq5Sun':
-                                    enchandle.write('id\tlen\tmo3\teq5sun\n')
+                                    enchandle.write('id\tlen\tmo3\tgc3\teq5sun\n')
                                 if args.enc == 'all':
-                                    enchandle.write('id\tlen\tmo3\teq4Wright\teq2Sun\teq5Sun\n')
+                                    enchandle.write('id\tlen\tmo3\tgc3\teq4Wright\teq2Sun\teq5Sun\n')
                             codonhandle.write('id\tlen\tmo3\t' + '\t'.join(sorted(global_codons.keys())) + '\n')
                             actghandle.write('id\tlen\tmo3\t' + '\t'.join(sorted(global_actg.keys())) + '\n')
                             firsthandle.write('id\tlen\tmo3\t' + '\t'.join(sorted(global_first.keys())) + '\n')
@@ -158,15 +158,19 @@ def main():
                                     tmp_gcbypos = gcbypos(tmp_counts, six2fourtwo)
                                     if args.enc == 'eq4Wright':
                                         enchandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + str(
+                                            tmp_gcbypos[2]) + '\t' + str(
                                             calc_eq4wright(tmp_gcbypos[2])) + '\n')
                                     if args.enc == 'eq2Sun':
                                         enchandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + str(
+                                            tmp_gcbypos[2]) + '\t' + str(
                                             calc_eq2sun(tmp_counts, six2fourtwo)) + '\n')
                                     if args.enc == 'eq5Sun':
                                         enchandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + str(
+                                            tmp_gcbypos[2]) + '\t' + str(
                                             calc_eq5sun(tmp_counts, six2fourtwo)) + '\n')
                                     if args.enc == 'all':
                                         enchandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + str(
+                                            tmp_gcbypos[2]) + '\t' + str(
                                             calc_eq4wright(tmp_gcbypos[2])) + '\t' + str(
                                             calc_eq2sun(tmp_counts, six2fourtwo)) + '\t' + str(
                                             calc_eq5sun(tmp_counts, six2fourtwo)) + '\n')
