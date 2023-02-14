@@ -403,7 +403,7 @@ def calc_eq4wright(fgc):
 
 # Sun 2012 equations
 # FCF according to equation (2) without pseudocounts for eq2Sun
-# F_{CF} = \sum_{i=1}^{m} (\frac {n_{i}}{n})^{2}
+# F_{CF} = \sum\limits_{i=1}^{m} (\frac {n_{i}}{n})^{2}
 def calc_fcf(tmp):
     counts = [x[2] for x in tmp]
     na = sum(counts)
@@ -413,7 +413,7 @@ def calc_fcf(tmp):
 
 
 # FCF according to equation (3) using pseudocounts for eq5Sun
-# F_{CF} = \sum_{i=1}^{m} (\frac {n_{i}+1}{n+m})^{2}
+# F_{CF} = \sum\limits_{i=1}^{m} (\frac {n_{i}+1}{n+m})^{2}
 def calc_fcf_(tmp):
     counts = [x[2] for x in tmp]
     pseudocounts = [x + 1 for x in counts]
@@ -496,11 +496,11 @@ def calc_eq2sun(codoncounts, six2fourtwo):
     return nc
 
 
-# N_{c} = \frac {K_{1} \times \sum_{i}^{K_{1}} n_{i}}{\sum_{i=1}^{K_{i}}(n_{i} \times F_{CF_{i}})}
-#  + \frac {K_{2} \times \sum_{i}^{K_{2}} n_{i}}{\sum_{i=1}^{K_{2}}(n_{i} \times F_{CF_{i}})}
-#  + \frac {K_{3} \times \sum_{i}^{K_{3}} n_{i}}{\sum_{i=1}^{K_{3}}(n_{i} \times F_{CF_{i}})}
-#  + \frac {K_{4} \times \sum_{i}^{K_{4}} n_{i}}{\sum_{i=1}^{K_{4}}(n_{i} \times F_{CF_{i}})}
-#  + \frac {K_{6} \times \sum_{i}^{K_{6}} n_{i}}{\sum_{i=1}^{K_{6}}(n_{i} \times F_{CF_{i}})}
+# N_{c} = \frac {K_1 \sum\limits_{j}^{K_1} n_{j}}{\sum\limits_{j=1}^{K_1}(n_{j}F_{CF.j})}
+# + \frac {K_2 \sum\limits_{j}^{K_2} n_{j}}{\sum\limits_{j=1}^{K_2}(n_{j}F_{CF.j})}
+# + \frac {K_3 \sum\limits_{j}^{K_3} n_{j}}{\sum\limits_{j=1}^{K_3}(n_{j}F_{CF.j})}
+# + \frac {K_4 \sum\limits_{j}^{K_4} n_{j}}{\sum\limits_{j=1}^{K_4}(n_{j}F_{CF.j})}
+# + (\frac {K_6 \sum\limits_{j}^{K_6} n_{j}}{\sum\limits_{j=1}^{K_6}(n_{j}F_{CF.j})})
 def calc_eq5sun(codoncounts, six2fourtwo):
     six_fcf_nrc = []
     four_fcf_nrc = []
@@ -557,7 +557,7 @@ def calc_eq5sun(codoncounts, six2fourtwo):
 
 
 # Relative Synonymous Codon Usage
-# RSCU_{i,j} = \frac{X_{i,j}}{\frac{1}{n_{i}} \times \sum_{j=1}^{n_{i}} X_{i,j}}
+# RSCU_{ij} = \frac {x_{ij}} {\frac {1}{n_{i}} \sum\limits_{j=1}^{n_{i}} x_{ij}}
 def calc_rscu(codoncounts, codontable):
     rscutable = codontable()
     for codon in rscutable.keys():
