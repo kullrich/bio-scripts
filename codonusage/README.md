@@ -13,6 +13,16 @@ ENC will be calculated based on:
 RSCU will be calculated based on:
 * Sharp et al. (1986). Codon usage in yeast: cluster analysis clearly differentiates highly and lowly expressed genes. Nucl. Acids. Res. 14:5125-5143. [Sharp 1986](https://doi.org/10.1093/nar/14.13.5125)
 
+Installation with conda
+-----------------------
+
+```
+conda create -n codonusage python=3
+conda activate codonusage
+conda install -c bioconda biopython pandas seaborn ipython
+
+```
+
 Dependencies
 ------------
 This python script depends on biopython <http://biopython.org/wiki/Download>, namely the module:
