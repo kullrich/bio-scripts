@@ -75,19 +75,23 @@ If the (-enc) option was used an additional table containing the choosen method 
 
 $$\widehat{N}_{c} = 2 + GC_{(3)} + (\frac{29}{GC^{2}_{(3)} + (1 - GC^{2}_{(3)})})$$
 
-	Sun et al. (2012). An Improved Implementation of Effective Number of Codons (Nc). Mol. Biol. Evol. 30:191-196.
+**Sun et al. (2012). An Improved Implementation of Effective Number of Codons (Nc). Mol. Biol. Evol. 30:191-196.**
 
-	Equation (2)
-	#F_{CF} = \sum_{i=1}^{m} (\frac {n_{i}}{n})^{2}
+**Equation (2):**
 
-	Equation (3)
-	#F_{CF} = \sum_{i=1}^{m} (\frac {n_{i}+1}{n+m})^{2}
+$$F_{CF} = \sum_{i=1}^{m} (\frac {n_{i}}{n})^{2}$$
 
-	Equation (5)
-	#N_{c} = \frac {K_{1} \times \sum_{i}^{K_{1}} n_{i}}{\sum_{i=1}^{K_{i}}(n_{i} \times F_{CF_{i}})} + \frac {K_{2} \times \sum_{i}^{K_{2}} n_{i}}{\sum_{i=1}^{K_{2}}(n_{i} \times F_{CF_{i}})} + \frac {K_{3} \times \sum_{i}^{K_{3}} n_{i}}{\sum_{i=1}^{K_{3}}(n_{i} \times F_{CF_{i}})} + \frac {K_{4} \times \sum_{i}^{K_{4}} n_{i}}{\sum_{i=1}^{K_{4}}(n_{i} \times F_{CF_{i}})} + \frac {K_{6} \times \sum_{i}^{K_{6}} n_{i}}{\sum_{i=1}^{K_{6}}(n_{i} \times F_{CF_{i}})}	
+**Equation (3):**
 
-	Relative Synonymous Codon Usage
-	#RSCU_{i,j} = \frac{X_{i,j}}{\frac{1}{n_{i}} \times \sum_{j=1}^{n_{i}} X_{i,j}}
+$$F_{CF} = \sum_{i=1}^{m} (\frac {n_{i}+1}{n+m})^{2}$$
+
+**Equation (5):**
+
+$$N_{c} = \frac {K_{1} \times \sum_{i}^{K_{1}} n_{i}}{\sum_{i=1}^{K_{i}}(n_{i} \times F_{CF_{i}})} + \frac {K_{2} \times \sum_{i}^{K_{2}} n_{i}}{\sum_{i=1}^{K_{2}}(n_{i} \times F_{CF_{i}})} + \frac {K_{3} \times \sum_{i}^{K_{3}} n_{i}}{\sum_{i=1}^{K_{3}}(n_{i} \times F_{CF_{i}})} + \frac {K_{4} \times \sum_{i}^{K_{4}} n_{i}}{\sum_{i=1}^{K_{4}}(n_{i} \times F_{CF_{i}})} + \frac {K_{6} \times \sum_{i}^{K_{6}} n_{i}}{\sum_{i=1}^{K_{6}}(n_{i} \times F_{CF_{i}})}$$
+
+**Relative Synonymous Codon Usage*:*
+
+$$RSCU_{i,j} = \frac{X_{i,j}}{\frac{1}{n_{i}} \times \sum_{j=1}^{n_{i}} X_{i,j}}$$
 
 Plotting ENC distributions
 --------------------------
