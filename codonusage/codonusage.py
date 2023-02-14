@@ -5,13 +5,13 @@
 This script extracts codonusage from CDS input FASTA file and writes a table containing the number of codons used for each sequence in the input FASTA file. In addition to the raw codon counts global ACTG counts, ACTG counts for the first, second and thrid codon position and Relative Synonymous Codon Usage (RSCU) is written to a file. Optional different methods can be applied to calculate Effective Number of Codons (ENC) can be choosen and calculated.
 
 Author: Krisian Ullrich
-date: Dec 2014
-email: kristian.ullrich@biologie.uni-marburg.de
+date: Feb 2023
+email: ullrich@evolbio.mpg.de
 License: MIT
 
 The MIT License (MIT)
 
-Copyright (c) 2014 Kristian Ullrich
+Copyright (c) 2023 Kristian Ullrich
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -39,14 +39,14 @@ from Bio import SeqIO
 def main():
     parser = argparse.ArgumentParser(usage='%(prog)s [options]',
                                      description='Extracts codonusage from CDS input FASTA file. Output will be raw codon counts (.codoncnt), global ACTG counts (.actgcnt), first (.firstcnt), second (.secondcnt), third (.third) codon position counts and Relative Synonymous Codon Usage (.rscucnt). Optional different methods can be applied to calculate Effective Number of Codons (.enc).')
-    parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
+    parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
     parser.add_argument('-i', help='specify CDS input file in FASTA format')
     parser.add_argument('-o', help='specify output prefix')
     parser.add_argument('-r', action='store_true',
                         help='specify if CDS sequences with length modulo 3 unequal to 0 should be removed and reported to std.out')
     parser.add_argument('-enc', choices=['eq4Wright', 'eq2Sun', 'eq5Sun', 'all'],
                         help='specify equation to calculate ENC. Either equation (4) [eq4Wright] of (Wright. (1990) Gene 87:23-29) or equation (2) [eq2Sun] or equation (5) [eq5Sun] of (Sun et al. (2012) Mol. Biol. Evol. 30:191-196) or [all].')
-    parser.add_argument('-six2fourtwo', default='False', choices=['True', 'False'],
+    parser.add_argument('-six2fourtwo', action='store_true',
                         help='specify if sixfold codons should be grouped into one fourfold and one twofold group [default: False]. This will only affect calculation of ENC values.')
     args = parser.parse_args()
 
@@ -59,8 +59,8 @@ def main():
     if args.i == args.o:
         sys.exit('\nInput file and output prefix are identical, use "out" as output prefix instead')
 
-    print '\ncommand arguments used:\n'
-    print args
+    print('\ncommand arguments used:\n')
+    print(args)
 
     infile = args.i
     outfile_codoncount = args.o + '.codoncnt'
@@ -79,9 +79,9 @@ def main():
     if six2fourtwo:
         codontable = codontable2
 
-    print("read fasta")
-    original_fasta = SeqIO.parse(infile, "fasta")
-    print("extract codon counts")
+    print('read fasta')
+    original_fasta = SeqIO.parse(infile, 'fasta')
+    print('extract codon counts')
     global_codons = codontable()
     global_actg = actgtable()
     global_first = actgtable()
@@ -89,28 +89,28 @@ def main():
     global_third = actgtable()
     global_rscu = codontable()
     ids_mo3 = []
-    with open(outfile_codoncount, "w") as codonhandle:
-        with open(outfile_actgcount, "w") as actghandle:
-            with open(outfile_firstcount, "w") as firsthandle:
-                with open(outfile_secondcount, "w") as secondhandle:
-                    with open(outfile_thirdcount, "w") as thirdhandle:
-                        with open(outfile_rscucount, "w") as rscuhandle:
+    with open(outfile_codoncount, 'w') as codonhandle:
+        with open(outfile_actgcount, 'w') as actghandle:
+            with open(outfile_firstcount, 'w') as firsthandle:
+                with open(outfile_secondcount, 'w') as secondhandle:
+                    with open(outfile_thirdcount, 'w') as thirdhandle:
+                        with open(outfile_rscucount, 'w') as rscuhandle:
                             if args.enc is not None:
-                                enchandle = open(outfile_enc, "w")
+                                enchandle = open(outfile_enc, 'w')
                                 if args.enc == 'eq4Wright':
-                                    enchandle.write("id\tlen\tmo3\teq4Wright\n")
+                                    enchandle.write('id\tlen\tmo3\teq4Wright\n')
                                 if args.enc == 'eq2Sun':
-                                    enchandle.write("id\tlen\tmo3\teq2Sun\n")
+                                    enchandle.write('id\tlen\tmo3\teq2Sun\n')
                                 if args.enc == 'eq5Sun':
-                                    enchandle.write("id\tlen\tmo3\teq5sun\n")
+                                    enchandle.write('id\tlen\tmo3\teq5sun\n')
                                 if args.enc == 'all':
-                                    enchandle.write("id\tlen\tmo3\teq4Wright\teq2Sun\teq5Sun\n")
-                            codonhandle.write("id\tlen\tmo3\t" + "\t".join(sorted(global_codons.keys())) + "\n")
-                            actghandle.write("id\tlen\tmo3\t" + "\t".join(sorted(global_actg.keys())) + "\n")
-                            firsthandle.write("id\tlen\tmo3\t" + "\t".join(sorted(global_first.keys())) + "\n")
-                            secondhandle.write("id\tlen\tmo3\t" + "\t".join(sorted(global_second.keys())) + "\n")
-                            thirdhandle.write("id\tlen\tmo3\t" + "\t".join(sorted(global_third.keys())) + "\n")
-                            rscuhandle.write("id\tlen\tmo3\t" + "\t".join(sorted(global_rscu.keys())) + "\n")
+                                    enchandle.write('id\tlen\tmo3\teq4Wright\teq2Sun\teq5Sun\n')
+                            codonhandle.write('id\tlen\tmo3\t' + '\t'.join(sorted(global_codons.keys())) + '\n')
+                            actghandle.write('id\tlen\tmo3\t' + '\t'.join(sorted(global_actg.keys())) + '\n')
+                            firsthandle.write('id\tlen\tmo3\t' + '\t'.join(sorted(global_first.keys())) + '\n')
+                            secondhandle.write('id\tlen\tmo3\t' + '\t'.join(sorted(global_second.keys())) + '\n')
+                            thirdhandle.write('id\tlen\tmo3\t' + '\t'.join(sorted(global_third.keys())) + '\n')
+                            rscuhandle.write('id\tlen\tmo3\t' + '\t'.join(sorted(global_rscu.keys())) + '\n')
                             c = 0
                             cmo3 = 0
                             for record in original_fasta:
@@ -159,49 +159,49 @@ def main():
                                     tmp_enc = {}
                                     tmp_gcbypos = gcbypos(tmp_counts, six2fourtwo)
                                     if args.enc == 'eq4Wright':
-                                        enchandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + str(
-                                            calc_eq4wright(tmp_gcbypos[2])) + "\n")
+                                        enchandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + str(
+                                            calc_eq4wright(tmp_gcbypos[2])) + '\n')
                                     if args.enc == 'eq2Sun':
-                                        enchandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + str(
-                                            calc_eq2sun(tmp_counts, six2fourtwo)) + "\n")
+                                        enchandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + str(
+                                            calc_eq2sun(tmp_counts, six2fourtwo)) + '\n')
                                     if args.enc == 'eq5Sun':
-                                        enchandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + str(
-                                            calc_eq5sun(tmp_counts, six2fourtwo)) + "\n")
+                                        enchandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + str(
+                                            calc_eq5sun(tmp_counts, six2fourtwo)) + '\n')
                                     if args.enc == 'all':
-                                        enchandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + str(
-                                            calc_eq4wright(tmp_gcbypos[2])) + "\t" + str(
-                                            calc_eq2sun(tmp_counts, six2fourtwo)) + "\t" + str(
-                                            calc_eq5sun(tmp_counts, six2fourtwo)) + "\n")
+                                        enchandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + str(
+                                            calc_eq4wright(tmp_gcbypos[2])) + '\t' + str(
+                                            calc_eq2sun(tmp_counts, six2fourtwo)) + '\t' + str(
+                                            calc_eq5sun(tmp_counts, six2fourtwo)) + '\n')
                                 tmp_rscu = calc_rscu(tmp_counts, codontable)
-                                codonhandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + "\t".join(
-                                    [str(tmp_counts[x][2]) for x in sorted(tmp_counts.keys())]) + "\n")
-                                actghandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + "\t".join(
-                                    [str(tmp_actgcounts[x][1]) for x in sorted(tmp_actgcounts.keys())]) + "\n")
-                                firsthandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + "\t".join(
-                                    [str(tmp_first[x][1]) for x in sorted(tmp_first.keys())]) + "\n")
+                                codonhandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + '\t'.join(
+                                    [str(tmp_counts[x][2]) for x in sorted(tmp_counts.keys())]) + '\n')
+                                actghandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + '\t'.join(
+                                    [str(tmp_actgcounts[x][1]) for x in sorted(tmp_actgcounts.keys())]) + '\n')
+                                firsthandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + '\t'.join(
+                                    [str(tmp_first[x][1]) for x in sorted(tmp_first.keys())]) + '\n')
                                 secondhandle.write(
-                                    tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + "\t".join(
-                                        [str(tmp_second[x][1]) for x in sorted(tmp_second.keys())]) + "\n")
-                                thirdhandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + "\t".join(
-                                    [str(tmp_third[x][1]) for x in sorted(tmp_third.keys())]) + "\n")
-                                rscuhandle.write(tmp_id + "\t" + str(tmp_len) + "\t" + str(tmp_mo3) + "\t" + "\t".join(
-                                    [str(tmp_rscu[x][2]) for x in sorted(tmp_rscu.keys())]) + "\n")
-                            print("finished codon counting")
-                            codonhandle.write("global_count\t" + str(c) + "\t" + str(cmo3) + "\t" + "\t".join(
-                                [str(global_codons[x][2]) for x in sorted(global_codons.keys())]) + "\n")
-                            actghandle.write("global_actg\t" + str(c) + "\t" + str(cmo3) + "\t" + "\t".join(
-                                [str(global_actg[x][1]) for x in sorted(global_actg.keys())]) + "\n")
-                            firsthandle.write("global_first\t" + str(c) + "\t" + str(cmo3) + "\t" + "\t".join(
-                                [str(global_first[x][1]) for x in sorted(global_first.keys())]) + "\n")
-                            secondhandle.write("global_second\t" + str(c) + "\t" + str(cmo3) + "\t" + "\t".join(
-                                [str(global_second[x][1]) for x in sorted(global_second.keys())]) + "\n")
-                            thirdhandle.write("global_third\t" + str(c) + "\t" + str(cmo3) + "\t" + "\t".join(
-                                [str(global_third[x][1]) for x in sorted(global_third.keys())]) + "\n")
+                                    tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + '\t'.join(
+                                        [str(tmp_second[x][1]) for x in sorted(tmp_second.keys())]) + '\n')
+                                thirdhandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + '\t'.join(
+                                    [str(tmp_third[x][1]) for x in sorted(tmp_third.keys())]) + '\n')
+                                rscuhandle.write(tmp_id + '\t' + str(tmp_len) + '\t' + str(tmp_mo3) + '\t' + '\t'.join(
+                                    [str(tmp_rscu[x][2]) for x in sorted(tmp_rscu.keys())]) + '\n')
+                            print('finished codon counting')
+                            codonhandle.write('global_count\t' + str(c) + '\t' + str(cmo3) + '\t' + '\t'.join(
+                                [str(global_codons[x][2]) for x in sorted(global_codons.keys())]) + '\n')
+                            actghandle.write('global_actg\t' + str(c) + '\t' + str(cmo3) + '\t' + '\t'.join(
+                                [str(global_actg[x][1]) for x in sorted(global_actg.keys())]) + '\n')
+                            firsthandle.write('global_first\t' + str(c) + '\t' + str(cmo3) + '\t' + '\t'.join(
+                                [str(global_first[x][1]) for x in sorted(global_first.keys())]) + '\n')
+                            secondhandle.write('global_second\t' + str(c) + '\t' + str(cmo3) + '\t' + '\t'.join(
+                                [str(global_second[x][1]) for x in sorted(global_second.keys())]) + '\n')
+                            thirdhandle.write('global_third\t' + str(c) + '\t' + str(cmo3) + '\t' + '\t'.join(
+                                [str(global_third[x][1]) for x in sorted(global_third.keys())]) + '\n')
                             if args.enc is not None:
                                 enchandle.close()
-    print("finished writing")
+    print('finished writing')
     if args.r:
-        print '\n'.join(ids_mo3)
+        print('\n'.join(ids_mo3))
 
 
 def inversetable():
@@ -606,17 +606,17 @@ def gcbypos(codoncounts, six2fourtwo):
         gcthree_sum.append(tmp_aa_three_sum)
         gcthree_gc.append(gc_three)
     if float(sum(gcone_gc)) == 0 and float(sum(gcone_sum)) == 0:
-        print 'GCone_gc and GCone_sum zero\n'
+        print('GCone_gc and GCone_sum zero\n')
         gcone = 0
     if float(sum(gcone_gc)) != 0 or float(sum(gcone_sum)) != 0:
         gcone = float(sum(gcone_gc)) / float(sum(gcone_sum))
     if float(sum(gctwo_gc)) == 0 and float(sum(gctwo_sum)) == 0:
-        print 'GCtwo_gc and GCtwo_sum zero\n'
+        print('GCtwo_gc and GCtwo_sum zero\n')
         gctwo = 0
     if float(sum(gctwo_gc)) != 0 or float(sum(gctwo_sum)) != 0:
         gctwo = float(sum(gctwo_gc)) / float(sum(gctwo_sum))
     if float(sum(gcthree_gc)) == 0 and float(sum(gcthree_sum)) == 0:
-        print 'GCthree_gc and GCthree_sum zero\n'
+        print('GCthree_gc and GCthree_sum zero\n')
         gcthree = 0
     if float(sum(gcthree_gc)) != 0 or float(sum(gcthree_sum)) != 0:
         gcthree = float(sum(gcthree_gc)) / float(sum(gcthree_sum))
