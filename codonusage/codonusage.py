@@ -600,7 +600,7 @@ def gcbypos(codoncounts, six2fourtwo):
         gc_two = sum([x[1] for x in tmp_aa_two if x[0] == 'G' or x[0] == 'C'])
         gctwo_sum.append(tmp_aa_two_sum)
         gctwo_gc.append(gc_two)
-        gc_three = sum([x[1] for x in tmp_aa_two if x[0] == 'G' or x[0] == 'C'])
+        gc_three = sum([x[1] for x in tmp_aa_three if x[0] == 'G' or x[0] == 'C'])
         gcthree_sum.append(tmp_aa_three_sum)
         gcthree_gc.append(gc_three)
     if float(sum(gcone_gc)) == 0 and float(sum(gcone_sum)) == 0:
