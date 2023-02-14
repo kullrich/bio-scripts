@@ -90,7 +90,9 @@ $$F_{CF} = \sum\limits_{i=1}^{m} (\frac {n_{i}+1}{n+m})^{2}$$
 
 $$N_{c} = \frac {K_1 \sum\limits_{j}^{K_1} n_{j}}{\sum\limits_{j=1}^{K_1}(n_{j}F_{CF.j})} + \frac {K_2 \sum\limits_{j}^{K_2} n_{j}}{\sum\limits_{j=1}^{K_2}(n_{j}F_{CF.j})} + \frac {K_3 \sum\limits_{j}^{K_3} n_{j}}{\sum\limits_{j=1}^{K_3}(n_{j}F_{CF.j})} + \frac {K_4 \sum\limits_{j}^{K_4} n_{j}}{\sum\limits_{j=1}^{K_4}(n_{j}F_{CF.j})} + (\frac {K_6 \sum\limits_{j}^{K_6} n_{j}}{\sum\limits_{j=1}^{K_6}(n_{j}F_{CF.j})})$$
 
-**Relative Synonymous Codon Usage*:*
+**Relative Synonymous Codon Usage*:**
+
+**Sharp et al. (1986). Codon usage in yeast: cluster analysis clearly differentiates highly and lowly expressed genes. Nucl. Acids. Res. 14:5125-5143.**
 
 $$RSCU_{i,j} = \frac{X_{i,j}}{\frac{1}{n_{i}} \times \sum_{j=1}^{n_{i}} X_{i,j}}$$
 
