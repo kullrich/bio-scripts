@@ -29,7 +29,7 @@ Usage
 	-o	O	specify output prefix
 	-r		specify if CDS sequences with length modulo 3 unequal to 0 should be removed and reported to std.out
 	-enc	{eq4Wright,eq2Sun,eq5Sun,all}	specify equation to calculate ENC. Either equation (4) [eq4Wright] of (Wright. (1990) Gene 87:23-29) or equation (2) [eq2Sun] or equation (5) [eq5Sun] of (Sun et al. (2012) Mol. Biol. Evol. 30:191-196) or [all].
-	-six2fourtwo	{True,False}	specify if sixfold codons should be grouped into one fourfold and one twofold group [default: False]. This will only affect calculation of ENC values.
+	-six2fourtwo	specify if sixfold codons should be grouped into one fourfold and one twofold group [default: False]. This will only affect calculation of ENC values.
 
 Examples
 --------
