@@ -49,6 +49,7 @@ class GeneticCode(object):
         self.codons_missing = 0
         self.actg_count_table = self.get_actg_count_table()
         self.actg_missing = {0:0, 1:0, 2:0, 3:0}
+    
     def get_codons_df(self):
         codons = ['TTT', 'TTC', 'TTA', 'TTG',
               'TCT', 'TCC', 'TCA', 'TCG',
@@ -181,11 +182,13 @@ class GeneticCode(object):
                     codons_df[aa_idx] = [x for x in aa]
             codons_df.set_index('codons',inplace=True)
         return codons_df
+    
     def get_codon_count_table(self):
         count_table_df = pd.DataFrame(list(self.codons_df.index), columns=['codons'])
         count_table_df[self.transl_table] = [[x, self.codons_df[self.transl_table].value_counts()[x], self.pseudocount] for x in self.codons_df[self.transl_table]]
         count_table_df.set_index('codons',inplace=True)
         return count_table_df[self.transl_table].to_dict()
+    
     def get_actg_count_table(self):
         actgtablecount = {0:{
             'A': self.pseudocount,
@@ -205,29 +208,31 @@ class GeneticCode(object):
             'T': self.pseudocount,
             'G': self.pseudocount}}
         return actgtablecount
+    
     def set_record_id(self, record_id):
         self.record_id = record_id
+    
     def set_record_len(self, record_len):
         self.record_len = record_len
+    
     def set_record_mod3(self, record_mod3):
         self.record_mod3 = record_mod3
+    
     def get_actg_freq(self):
         actg_freq_df = pd.DataFrame(np.array([list(x.values()) for x in self.actg_count_table.values()]), columns=['A', 'C', 'T', 'G'])
         self.actg_freq_df = actg_freq_df.div(actg_freq_df.sum(1), axis='rows')
+    
     def get_codon_freq(self):
         aa_count = pd.DataFrame(self.codon_count_table).transpose().groupby([0])[2].sum().to_dict()
         codon_freq_table = copy.deepcopy(self.codon_count_table)
         for k in codon_freq_table.keys():
             codon_freq_table[k][2] = codon_freq_table[k][2]/aa_count[codon_freq_table[k][0]]
         self.codon_freq_table = codon_freq_table
+    
     def get_eq1sun(self):
         aa_count_df = pd.DataFrame(self.codon_count_table).transpose().groupby([0])[2].sum()
         #only calculate for codon classes with counts
         return pd.DataFrame(self.codon_count_table).transpose()[self.codons_df[self.transl_table].isin(aa_count_df[aa_count_df!=0].index)].groupby([0])[2].apply(lambda x: (((x.sum() * ((x / x.sum())**2)).sum())-1)/(x.sum()-1))
-
-
-
-
 
 
 def main():
