@@ -33,7 +33,201 @@ SOFTWARE.
 import sys
 
 import argparse
+import copy
+import numpy as np
+import pandas as pd
 from Bio import SeqIO
+
+
+class GeneticCode(object):
+    def __init__(self, transl_table=1, pseudocount=1, six2fourtwo=False):
+        self.transl_table = transl_table
+        self.pseudocount = pseudocount
+        self.six2fourtwo = six2fourtwo
+        self.codons_df = self.get_codons_df()
+        self.codon_count_table = self.get_codon_count_table()
+        self.codons_missing = 0
+        self.actg_count_table = self.get_actg_count_table()
+        self.actg_missing = {0:0, 1:0, 2:0, 3:0}
+    def get_codons_df(self):
+        codons = ['TTT', 'TTC', 'TTA', 'TTG',
+              'TCT', 'TCC', 'TCA', 'TCG',
+              'TAT', 'TAC', 'TAA', 'TAG',
+              'TGT', 'TGC', 'TGA', 'TGG',
+              'CTT', 'CTC', 'CTA', 'CTG',
+              'CCT', 'CCC', 'CCA', 'CCG',
+              'CAT', 'CAC', 'CAA', 'CAG',
+              'CGT', 'CGC', 'CGA', 'CGG',
+              'ATT', 'ATC', 'ATA', 'ATG',
+              'ACT', 'ACC', 'ACA', 'ACG',
+              'AAT', 'AAC', 'AAA', 'AAG',
+              'AGT', 'AGC', 'AGA', 'AGG',
+              'GTT', 'GTC', 'GTA', 'GTG',
+              'GCT', 'GCC', 'GCA', 'GCG',
+              'GAT', 'GAC', 'GAA', 'GAG',
+              'GGT', 'GGC', 'GGA', 'GGG']
+        AAs = ['',
+           'FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG',
+           'FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSSSVVVVAAAADDEEGGGG',
+           'FFLLSSSSYYQQCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           '',
+           '',
+           'FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG',
+           'FFLLSSSSYY**CCCWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSGGVVVVAAAADDEEGGGG',
+           'FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG',
+           '',
+           'FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           '',
+           '',
+           '',
+           '',
+           'FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG',
+           'FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG',
+           'FFLLSSSSYY**CCGWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYY**CC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYYQQCCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYYQQCCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYYYYCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYYEECC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           'FFLLSSSSYYEECCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',
+           '',
+           'FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG']
+        AAs6242 = ['',
+           'FFllSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKss**VVVVAAAADDEEGGGG',
+           'FFLLSSSSYY**CCWWttttPPPPHHQQRRRRIIMMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKssssVVVVAAAADDEEGGGG',
+           'FFllSSSSYYqqCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           '',
+           '',
+           'FFllSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKssssVVVVAAAADDEEGGGG',
+           'FFllSSSSYY**CCCWLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYY**CC*WLLL?PPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKssggVVVVAAAADDEEGGGG',
+           'FFllSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKssssVVVVAAAADDEEGGGG',
+           '',
+           'FFllSSSSYY*!CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           '',
+           '',
+           '',
+           '',
+           'FFllSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKssssVVVVAAAADDEEGGGG',
+           'FFllSS*SYY*!CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FF*lSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKsssKVVVVAAAADDEEGGGG',
+           'FFllSSSSYY**CCgWLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYY**CC*WLLLaPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYYQQCCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYYQQCCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYYYYCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYYEECC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           'FFllSSSSYYEECCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKssrrVVVVAAAADDEEGGGG',
+           '',
+           'FFllSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKssskVVVVAAAADDEEGGGG']
+        NAMEs = ['',
+             'Standard',
+             'Vertebrate_Mitochondrial',
+             'Yeast_Mitochondrial',
+             'Mold_Protozoan_and_Coelenterate_Mitochondria_and_Mycoplasma_Spiroplasma',
+             'Invertebrate_Mitochondrial',
+             'Ciliate_Dasycladacean_and_Hexamita_Nuclear',
+             '',
+             '',
+             'Echinoderm_and_Flatworm_Mitochondrial',
+             'Euplotid_Nuclear',
+             'Bacterial_Archaeal_and_Plant_Plastid',
+             'Alternative_Yeast_Nuclear',
+             'Ascidian_Mitochondrial',
+             'Alternative_Flatworm_Mitochondrial',
+             '',
+             'Chlorophycean_Mitochondrial',
+             '',
+             '',
+             '',
+             '',
+             'Trematode_Mitochondrial',
+             'Scenedesmus_obliquus_Mitochondrial',
+             'Thraustochytrium Mitochondrial',
+             'Rhabdopleuridae Mitochondrial',
+             'Candidate_Division_SR1_and_Gracilibacteria',
+             'Pachysolen_tannophilus_Nuclear',
+             'Karyorelict_Nuclear',
+             'Condylostoma_Nuclear',
+             'Mesodinium_Nuclear',
+             'Peritrich_Nuclear',
+             'Blastocrithidia_Nuclear',
+             '',
+             'Cephalodiscidae_Mitochondrial_UAA_Tyr']
+        if self.six2fourtwo:
+            codons_df = pd.DataFrame(codons, columns=['codons'])
+            for aa_idx, aa in enumerate(AAs6242):
+                if aa != '':
+                    codons_df[aa_idx] = [x for x in aa]
+            codons_df.set_index('codons',inplace=True)
+        else:
+            codons_df = pd.DataFrame(codons, columns=['codons'])
+            for aa_idx, aa in enumerate(AAs):
+                if aa != '':
+                    codons_df[aa_idx] = [x for x in aa]
+            codons_df.set_index('codons',inplace=True)
+        return codons_df
+    def get_codon_count_table(self):
+        count_table_df = pd.DataFrame(list(self.codons_df.index), columns=['codons'])
+        count_table_df[self.transl_table] = [[x, self.codons_df[self.transl_table].value_counts()[x], self.pseudocount] for x in self.codons_df[self.transl_table]]
+        count_table_df.set_index('codons',inplace=True)
+        return count_table_df[self.transl_table].to_dict()
+    def get_actg_count_table(self):
+        actgtablecount = {0:{
+            'A': self.pseudocount,
+            'C': self.pseudocount,
+            'T': self.pseudocount,
+            'G': self.pseudocount}, 1:{
+            'A': self.pseudocount,
+            'C': self.pseudocount,
+            'T': self.pseudocount,
+            'G': self.pseudocount}, 2:{
+            'A': self.pseudocount,
+            'C': self.pseudocount,
+            'T': self.pseudocount,
+            'G': self.pseudocount}, 3:{
+            'A': self.pseudocount,
+            'C': self.pseudocount,
+            'T': self.pseudocount,
+            'G': self.pseudocount}}
+        return actgtablecount
+    def set_record_id(self, record_id):
+        self.record_id = record_id
+    def set_record_len(self, record_len):
+        self.record_len = record_len
+    def set_record_mod3(self, record_mod3):
+        self.record_mod3 = record_mod3
+    def get_actg_freq(self):
+        actg_freq_df = pd.DataFrame(np.array([list(x.values()) for x in self.actg_count_table.values()]), columns=['A', 'C', 'T', 'G'])
+        self.actg_freq_df = actg_freq_df.div(actg_freq_df.sum(1), axis='rows')
+    def get_codon_freq(self):
+        aa_count = pd.DataFrame(self.codon_count_table).transpose().groupby([0])[2].sum().to_dict()
+        codon_freq_table = copy.deepcopy(self.codon_count_table)
+        for k in codon_freq_table.keys():
+            codon_freq_table[k][2] = codon_freq_table[k][2]/aa_count[codon_freq_table[k][0]]
+        self.codon_freq_table = codon_freq_table
+    def get_eq1sun(self):
+        aa_count_df = pd.DataFrame(self.codon_count_table).transpose().groupby([0])[2].sum()
+        #only calculate for codon classes with counts
+        return pd.DataFrame(self.codon_count_table).transpose()[self.codons_df[self.transl_table].isin(aa_count_df[aa_count_df!=0].index)].groupby([0])[2].apply(lambda x: (((x.sum() * ((x / x.sum())**2)).sum())-1)/(x.sum()-1))
+
+
+
+
 
 
 def main():
@@ -42,12 +236,15 @@ def main():
     parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
     parser.add_argument('-i', help='specify CDS input file in FASTA format')
     parser.add_argument('-o', help='specify output prefix')
-    parser.add_argument('-r', action='store_true',
+    parser.add_argument('-gc', help='specify genetic code', default=1)
+    parser.add_argument('-pseudocount', help='specify pseudocount', default=1)
+    parser.add_argument('-remstop', help='specify if stop codon should be removed prior score calculation', action='store_true')
+    parser.add_argument('-mod3', action='store_true',
                         help='specify if CDS sequences with length modulo 3 unequal to 0 should be removed and reported to std.out')
     parser.add_argument('-enc', choices=['eq4Wright', 'eq2Sun', 'eq5Sun', 'all'],
                         help='specify equation to calculate ENC. Either equation (4) [eq4Wright] of (Wright. (1990) Gene 87:23-29) or equation (2) [eq2Sun] or equation (5) [eq5Sun] of (Sun et al. (2012) Mol. Biol. Evol. 30:191-196) or [all].')
     parser.add_argument('-six2fourtwo', action='store_true',
-                        help='specify if sixfold codons should be grouped into one fourfold and one twofold group [default: False]. This will only affect calculation of ENC values.')
+                        help='specify if codons that code for the same amino acid but start with different nucleotides should be treated as distinct codon classes [default: False]. This will only affect calculation of ENC values.')
     args = parser.parse_args()
 
     if args.i is None:
@@ -70,23 +267,12 @@ def main():
     outfile_thirdcount = args.o + '.thirdcnt'
     outfile_rscucount = args.o + '.rscucnt'
     outfile_enc = args.o + '.enc'
-    codontable = codontable1
-    six2fourtwo = False
-    if args.six2fourtwo:
-            six2fourtwo = True
-    if six2fourtwo:
-        codontable = codontable2
 
     print('read fasta')
     original_fasta = SeqIO.parse(infile, 'fasta')
     print('extract codon counts')
-    global_codons = codontable()
-    global_actg = actgtable()
-    global_first = actgtable()
-    global_second = actgtable()
-    global_third = actgtable()
-    global_rscu = codontable()
-    ids_mo3 = []
+    global_gc = GeneticCode(transl_table=args.gc, pseudocount=0, six2fourtwo=args.six2fourtwo)
+    ids_mod3 = []
     with open(outfile_codoncount, 'w') as codonhandle:
         with open(outfile_actgcount, 'w') as actghandle:
             with open(outfile_firstcount, 'w') as firsthandle:
@@ -110,49 +296,40 @@ def main():
                             thirdhandle.write('id\tlen\tmo3\t' + '\t'.join(sorted(global_third.keys())) + '\n')
                             rscuhandle.write('id\tlen\tmo3\t' + '\t'.join(sorted(global_rscu.keys())) + '\n')
                             c = 0
-                            cmo3 = 0
+                            cmod3 = 0
                             for record in original_fasta:
                                 c += 1
-                                tmp_counts = codontable()
-                                tmp_actgcounts = actgtable()
-                                tmp_first = actgtable()
-                                tmp_second = actgtable()
-                                tmp_third = actgtable()
-                                tmp_id = record.id
-                                tmp_len = len(record)
-                                tmp_mo3 = 0
+                                record_gc = GeneticCode(transl_table=args.gc, pseudocount=args.pseudocount, six2fourtwo=args.six2fourtwo)
+                                record_gc.set_record_id(record.id)
+                                record_gc.set_record_len(len(record))
+                                record_gc.set_record_mod3(0)
                                 if len(record) % 3 != 0:
-                                    tmp_mo3 = 1
-                                    cmo3 += 1
-                                    ids_mo3.append(tmp_id)
-                                    if args.r:
+                                    record_gc.set_record_mod3(1)
+                                    cmod3 += 1
+                                    ids_mod3.append(record_gc.record_id)
+                                    if args.remstop:
                                         continue
                                 for i in range(0, len(record), 3):
                                     codon = str(record[i:i + 3].seq)
-                                    for nuc in codon:
-                                        if nuc in global_actg:
-                                            global_actg[nuc][1] += 1
-                                            tmp_actgcounts[nuc][1] += 1
+                                    for nuc_idx, nuc in enumerate(codon):
+                                        if nuc in global_gc.actg_count_table[0]:
+                                            global_gc.actg_count_table[0][nuc] += 1
+                                            record_gc.actg_count_table[0][nuc] += 1
+                                            global_gc.actg_count_table[nuc_idx + 1][nuc] += 1
+                                            record_gc.actg_count_table[nuc_idx + 1][nuc] += 1
+                                        else:
+                                            global_gc.actg_missing[0] += 1
+                                            record_gc.actg_missing[0] += 1
+                                            global_gc.actg_missing[nuc_idx + 1] += 1
+                                            record_gc.actg_missing[nuc_idx + 1] += 1
                                     if len(codon) != 3:
                                         continue
-                                    if codon in global_codons:
-                                        global_codons[codon][2] += 1
-                                        tmp_counts[codon][2] += 1
-                                        global_first[codon[0]][1] += 1
-                                        tmp_first[codon[0]][1] += 1
-                                        global_second[codon[1]][1] += 1
-                                        tmp_second[codon[1]][1] += 1
-                                        global_third[codon[2]][1] += 1
-                                        tmp_third[codon[2]][1] += 1
-                                    if codon not in global_codons:
-                                        global_codons['XXX'][2] += 1
-                                        tmp_counts['XXX'][2] += 1
-                                        global_first['X'][1] += 1
-                                        tmp_first['X'][1] += 1
-                                        global_second['X'][1] += 1
-                                        tmp_second['X'][1] += 1
-                                        global_third['X'][1] += 1
-                                        tmp_third['X'][1] += 1
+                                    if codon in global_gc.codon_count_table:
+                                        global_gc.codon_count_table[codon][2] += 1
+                                        record_gc.codon_count_table[codon][2] += 1
+                                    if codon not in global_gc.codon_count_table:
+                                        global_gc.codons_missing += 1
+                                        record_gc.codons_missing += 1
                                 if args.enc is not None:
                                     tmp_enc = {}
                                     tmp_gcbypos = gcbypos(tmp_counts, six2fourtwo)
@@ -206,185 +383,6 @@ def main():
         print('\n'.join(ids_mo3))
 
 
-def inversetable():
-    inversetablecount = {
-        'A': {'GCT': 0, 'GCC': 0, 'GCA': 0, 'GCG': 0},
-        'R': {'CGT': 0, 'CGC': 0, 'CGA': 0, 'CGG': 0, 'AGA': 0, 'AGG': 0},
-        'N': {'AAT': 0, 'AAC': 0},
-        'D': {'GAT': 0, 'GAC': 0},
-        'C': {'TGT': 0, 'TGC': 0},
-        'Q': {'CAA': 0, 'CAG': 0},
-        'E': {'GAA': 0, 'GAG': 0},
-        'G': {'GGT': 0, 'GGC': 0, 'GGA': 0, 'GGG': 0},
-        'H': {'CAT': 0, 'CAC': 0},
-        'I': {'ATT': 0, 'ATC': 0, 'ATA': 0},
-        'M': {'ATG': 0},
-        'L': {'TTA': 0, 'TTG': 0, 'CTT': 0, 'CTC': 0, 'CTA': 0, 'CTG': 0},
-        'K': {'AAA': 0, 'AAG': 0},
-        'F': {'TTT': 0, 'TTC': 0},
-        'P': {'CCT': 0, 'CCC': 0, 'CCA': 0, 'CCG': 0},
-        'S': {'TCT': 0, 'TCC': 0, 'TCA': 0, 'TCG': 0, 'AGT': 0, 'AGC': 0},
-        'T': {'ACT': 0, 'ACC': 0, 'ACA': 0, 'ACG': 0},
-        'W': {'TGG': 0},
-        'Y': {'TAT': 0, 'TAC': 0},
-        'V': {'GTT': 0, 'GTC': 0, 'GTA': 0, 'GTG': 0},
-        '*': {'TAA': 0, 'TGA': 0, 'TAG': 0}
-    }
-    return inversetablecount
-
-
-def codontable1():
-    codontablecount = {
-        'GCT': ['A', 'four', 0],
-        'GCC': ['A', 'four', 0],
-        'GCA': ['A', 'four', 0],
-        'GCG': ['A', 'four', 0],
-        'CGT': ['R', 'six', 0],
-        'CGC': ['R', 'six', 0],
-        'CGG': ['R', 'six', 0],
-        'CGA': ['R', 'six', 0],
-        'AGA': ['R', 'six', 0],
-        'AGG': ['R', 'six', 0],
-        'AAT': ['N', 'two', 0],
-        'AAC': ['N', 'two', 0],
-        'GAT': ['D', 'two', 0],
-        'GAC': ['D', 'two', 0],
-        'TGT': ['C', 'two', 0],
-        'TGC': ['C', 'two', 0],
-        'CAA': ['Q', 'two', 0],
-        'CAG': ['Q', 'two', 0],
-        'GAA': ['E', 'two', 0],
-        'GAG': ['E', 'two', 0],
-        'GGT': ['G', 'four', 0],
-        'GGC': ['G', 'four', 0],
-        'GGA': ['G', 'four', 0],
-        'GGG': ['G', 'four', 0],
-        'CAT': ['H', 'two', 0],
-        'CAC': ['H', 'two', 0],
-        'ATT': ['I', 'three', 0],
-        'ATC': ['I', 'three', 0],
-        'ATA': ['I', 'three', 0],
-        'ATG': ['M', 'one', 0],
-        'TTA': ['L', 'six', 0],
-        'TTG': ['L', 'six', 0],
-        'CTT': ['L', 'six', 0],
-        'CTC': ['L', 'six', 0],
-        'CTA': ['L', 'six', 0],
-        'CTG': ['L', 'six', 0],
-        'AAA': ['K', 'two', 0],
-        'AAG': ['K', 'two', 0],
-        'TTT': ['F', 'two', 0],
-        'TTC': ['F', 'two', 0],
-        'CCT': ['P', 'four', 0],
-        'CCC': ['P', 'four', 0],
-        'CCA': ['P', 'four', 0],
-        'CCG': ['P', 'four', 0],
-        'TCT': ['S', 'six', 0],
-        'TCC': ['S', 'six', 0],
-        'TCA': ['S', 'six', 0],
-        'TCG': ['S', 'six', 0],
-        'AGT': ['S', 'six', 0],
-        'AGC': ['S', 'six', 0],
-        'ACT': ['T', 'four', 0],
-        'ACC': ['T', 'four', 0],
-        'ACA': ['T', 'four', 0],
-        'ACG': ['T', 'four', 0],
-        'TGG': ['W', 'one', 0],
-        'TAT': ['Y', 'two', 0],
-        'TAC': ['Y', 'two', 0],
-        'GTT': ['V', 'four', 0],
-        'GTC': ['V', 'four', 0],
-        'GTA': ['V', 'four', 0],
-        'GTG': ['V', 'four', 0],
-        'TAA': ['*', 'three', 0],
-        'TGA': ['*', 'three', 0],
-        'TAG': ['*', 'three', 0],
-        'XXX': ['_missing', 'none', 0]
-    }
-    return codontablecount
-
-
-def codontable2():
-    codontablecount = {
-        'GCT': ['A', 'four', 0],
-        'GCC': ['A', 'four', 0],
-        'GCA': ['A', 'four', 0],
-        'GCG': ['A', 'four', 0],
-        'CGT': ['R', 'four', 0],
-        'CGC': ['R', 'four', 0],
-        'CGG': ['R', 'four', 0],
-        'CGA': ['R', 'dour', 0],
-        'AGA': ['R_', 'two', 0],
-        'AGG': ['R_', 'two', 0],
-        'AAT': ['N', 'two', 0],
-        'AAC': ['N', 'two', 0],
-        'GAT': ['D', 'two', 0],
-        'GAC': ['D', 'two', 0],
-        'TGT': ['C', 'two', 0],
-        'TGC': ['C', 'two', 0],
-        'CAA': ['Q', 'two', 0],
-        'CAG': ['Q', 'two', 0],
-        'GAA': ['E', 'two', 0],
-        'GAG': ['E', 'two', 0],
-        'GGT': ['G', 'four', 0],
-        'GGC': ['G', 'four', 0],
-        'GGA': ['G', 'four', 0],
-        'GGG': ['G', 'four', 0],
-        'CAT': ['H', 'two', 0],
-        'CAC': ['H', 'two', 0],
-        'ATT': ['I', 'three', 0],
-        'ATC': ['I', 'three', 0],
-        'ATA': ['I', 'three', 0],
-        'ATG': ['M', 'one', 0],
-        'TTA': ['L_', 'two', 0],
-        'TTG': ['L_', 'two', 0],
-        'CTT': ['L', 'four', 0],
-        'CTC': ['L', 'four', 0],
-        'CTA': ['L', 'four', 0],
-        'CTG': ['L', 'four', 0],
-        'AAA': ['K', 'two', 0],
-        'AAG': ['K', 'two', 0],
-        'TTT': ['F', 'two', 0],
-        'TTC': ['F', 'two', 0],
-        'CCT': ['P', 'four', 0],
-        'CCC': ['P', 'four', 0],
-        'CCA': ['P', 'four', 0],
-        'CCG': ['P', 'four', 0],
-        'TCT': ['S', 'four', 0],
-        'TCC': ['S', 'four', 0],
-        'TCA': ['S', 'four', 0],
-        'TCG': ['S', 'four', 0],
-        'AGT': ['S_', 'two', 0],
-        'AGC': ['S_', 'two', 0],
-        'ACT': ['T', 'four', 0],
-        'ACC': ['T', 'four', 0],
-        'ACA': ['T', 'four', 0],
-        'ACG': ['T', 'four', 0],
-        'TGG': ['W', 'one', 0],
-        'TAT': ['Y', 'two', 0],
-        'TAC': ['Y', 'two', 0],
-        'GTT': ['V', 'four', 0],
-        'GTC': ['V', 'four', 0],
-        'GTA': ['V', 'four', 0],
-        'GTG': ['V', 'four', 0],
-        'TAA': ['*', 'three', 0],
-        'TGA': ['*', 'three', 0],
-        'TAG': ['*', 'three', 0],
-        'XXX': ['_missing', 'none', 0]
-    }
-    return codontablecount
-
-
-def actgtable():
-    actgtablecount = {
-        'A': ['A', 0],
-        'C': ['C', 0],
-        'T': ['T', 0],
-        'G': ['G', 0],
-        'X': ['_missing', 0]
-    }
-    return actgtablecount
-
 
 # Wright 1990 eqautions
 def calc_fa(tmp):
@@ -404,6 +402,12 @@ def calc_eq4wright(fgc):
 
 
 # Sun 2012 equations
+# FCF according to equation (1) without pseudocounts for eq1Sun
+
+
+def eq1sun():
+
+
 # FCF according to equation (2) without pseudocounts for eq2Sun
 # F_{CF} = \sum\limits_{i=1}^{m} (\frac {n_{i}}{n})^{2}
 def calc_fcf(tmp):
@@ -575,71 +579,6 @@ def calc_rscu(codoncounts, codontable):
             tmp_codon_rscu = tmp_codon_freq * len(counts)
             rscutable[codon][2] = tmp_codon_rscu
     return rscutable
-
-
-def gcbypos(codoncounts, six2fourtwo):
-    #aminoacids = ['A', 'C', 'E', 'D', 'G', 'F', 'I', 'H', 'K', 'M', 'L', 'N', 'Q', 'P', 'S', 'R', 'T', 'W', 'V', 'Y']
-    aminoacids = ['A', 'C', 'E', 'D', 'G', 'F', 'I', 'H', 'K', 'L', 'N', 'Q', 'P', 'S', 'R', 'T', 'V', 'Y']
-    if six2fourtwo:
-        #aminoacids = ['A', 'C', 'E', 'D', 'G', 'F', 'I', 'H', 'K', 'M', 'L', 'L_', 'N', 'Q', 'P', 'S', 'S_', 'R', 'R_',
-        #              'T', 'W', 'V', 'Y']
-        aminoacids = ['A', 'C', 'E', 'D', 'G', 'F', 'I', 'H', 'K', 'L', 'L_', 'N', 'Q', 'P', 'S', 'S_', 'R', 'R_',
-                      'T', 'V', 'Y']
-    gcone_gc = []
-    gcone_sum = []
-    gctwo_gc = []
-    gctwo_sum = []
-    gcthree_gc = []
-    gcthree_sum = []
-    gc = []
-    gc_sum = []
-    gcone = None
-    gctwo = None
-    gcthree = None
-    gcall = None
-    for aa in aminoacids:
-        tmp_aa_one = [[x[0], codoncounts[x][2]] for x in codoncounts.keys() if codoncounts[x][0] == aa]
-        tmp_aa_two = [[x[1], codoncounts[x][2]] for x in codoncounts.keys() if codoncounts[x][0] == aa]
-        tmp_aa_three = [[x[2], codoncounts[x][2]] for x in codoncounts.keys() if codoncounts[x][0] == aa]
-        tmp_aa_one_sum = sum([x[1] for x in tmp_aa_one])
-        tmp_aa_two_sum = sum([x[1] for x in tmp_aa_two])
-        tmp_aa_three_sum = sum([x[1] for x in tmp_aa_three])
-        gc_one = sum([x[1] for x in tmp_aa_one if x[0] == 'G' or x[0] == 'C'])
-        gcone_sum.append(tmp_aa_one_sum)
-        gcone_gc.append(gc_one)
-        gc_two = sum([x[1] for x in tmp_aa_two if x[0] == 'G' or x[0] == 'C'])
-        gctwo_sum.append(tmp_aa_two_sum)
-        gctwo_gc.append(gc_two)
-        gc_three = sum([x[1] for x in tmp_aa_three if x[0] == 'G' or x[0] == 'C'])
-        gcthree_sum.append(tmp_aa_three_sum)
-        gcthree_gc.append(gc_three)
-        gc_sum.append(tmp_aa_one_sum)
-        gc_sum.append(tmp_aa_two_sum)
-        gc_sum.append(tmp_aa_two_sum)
-        gc.append(gc_one)
-        gc.append(gc_two)
-        gc.append(gc_three)
-    if float(sum(gcone_gc)) == 0 and float(sum(gcone_sum)) == 0:
-        print('GCone_gc and GCone_sum zero\n')
-        gcone = 0
-    if float(sum(gcone_gc)) != 0 or float(sum(gcone_sum)) != 0:
-        gcone = float(sum(gcone_gc)) / float(sum(gcone_sum))
-    if float(sum(gctwo_gc)) == 0 and float(sum(gctwo_sum)) == 0:
-        print('GCtwo_gc and GCtwo_sum zero\n')
-        gctwo = 0
-    if float(sum(gctwo_gc)) != 0 or float(sum(gctwo_sum)) != 0:
-        gctwo = float(sum(gctwo_gc)) / float(sum(gctwo_sum))
-    if float(sum(gcthree_gc)) == 0 and float(sum(gcthree_sum)) == 0:
-        print('GCthree_gc and GCthree_sum zero\n')
-        gcthree = 0
-    if float(sum(gcthree_gc)) != 0 or float(sum(gcthree_sum)) != 0:
-        gcthree = float(sum(gcthree_gc)) / float(sum(gcthree_sum))
-    if float(sum(gc)) == 0 and float(sum(gc_sum)) == 0:
-        print('GC_gc and GC_sum zero\n')
-        gcthree = 0
-    if float(sum(gc)) != 0 or float(sum(gc_sum)) != 0:
-        gcall = float(sum(gc)) / float(sum(gc_sum))
-    return [gcone, gctwo, gcthree, gcall]
 
 
 if __name__ == '__main__':
