@@ -3,7 +3,7 @@
 
 """
 Author: Krisian K Ullrich
-date: December 2022
+date: Februar 2023
 email: ullrich@evolbio.mpg.de
 License: MIT
 The MIT License (MIT)
@@ -99,7 +99,7 @@ transtable = {'std': CodonTable.CodonTable(forward_table={
     start_codons=['TTG', 'CTG', 'ATG', ])}
 
 
-def cds2aaRecord(record_iter, batch_size, t_name):
+def cds2aaRecord(record_iter, batch_size, t_name, remove_gaps=False):
     """Translates nucleotide to amino acids assuming that cds is in frame 0.
     :param record_iter:
     :param args:
@@ -108,11 +108,14 @@ def cds2aaRecord(record_iter, batch_size, t_name):
     """
     for i, batch in enumerate(batch_iterator(record_iter, batch_size)):
         for record in batch:
-            aa = SeqIO.SeqRecord(record.seq.translate(transtable[t_name]), name=record.name, id=record.name, description=record.name)
+            if remove_gaps:
+                aa = SeqIO.SeqRecord(record.seq.replace('-','').translate(transtable[t_name]), name=record.name, id=record.name, description=record.name)
+            else:
+                aa = SeqIO.SeqRecord(record.seq.translate(transtable[t_name]), name=record.name, id=record.name, description=record.name)
             yield aa
 
 
-def cds2aaFasta(input, outdir, batch_size, t_name):
+def cds2aaFasta(input, outdir, batch_size, t_name, remove_gaps=False):
     record_iter = None
     if input is None and sys.stdin.isatty():
         parser.print_help()
@@ -214,6 +217,7 @@ def define_parser():
     parser.add_argument('-t', help='transtable [default: std]', default='std')
     parser.add_argument('-cal_dn_ds_method', help='specify method as indicated here https://biopython.org/docs/1.80/api/Bio.codonalign.codonseq.html [default: NG86]', default='NG86')
     parser.add_argument('-mafft_options', help='additional mafft options [default: None]')
+    parser.add_argument('-remove_gaps', action='store_true', help='specify if gaps (-) in input CDS file should be removed [default: False]')
     return parser
 
 
@@ -228,7 +232,7 @@ def main():
     if not os.path.exists(args.o):
         os.mkdir(args.o)
     # 1. Translates nucleotide to amino acids assuming that CDS is in frame 0.
-    cds2aa_filename = cds2aaFasta(args.i, args.o, args.s, args.t)
+    cds2aa_filename = cds2aaFasta(args.i, args.o, args.s, args.t, args.remove_gaps)
     # 2. Creates amino acid alignments with MAFFT
     alg_filename = align(os.path.join(args.o, cds2aa_filename), args.o, args.mafft_options)
     # 3. Creates Codon alignments with pal2nal
