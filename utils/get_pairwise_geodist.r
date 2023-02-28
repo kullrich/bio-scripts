@@ -3,7 +3,7 @@ library(geodist)
 library(readr)
 library(dplyr)
 
-get_pairwise_geodist<-function(file){
+get_pairwise_geodist<-function(file, measure="geodesic"){
   options(scipen=22)
   input_df<-readr::read_delim(file, col_types = cols(.default = "c"))
   input_df$LAT_dec <- unlist(lapply(strsplit(input_df$LAT,","),function(x) 
@@ -18,7 +18,7 @@ get_pairwise_geodist<-function(file){
     as.numeric(x[2]),
     as.numeric(x[3]),
     x[4])))
-  gdist_mat<-geodist::geodist(dplyr::select(input_df,LONG_dec,LAT_dec))
+  gdist_mat<-geodist::geodist(dplyr::select(input_df,LONG_dec,LAT_dec),measure=measure)
   colnames(gdist_mat)<-input_df$ID
   rownames(gdist_mat)<-input_df$ID
   return(gdist_mat)
