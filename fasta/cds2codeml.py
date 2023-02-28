@@ -99,7 +99,7 @@ transtable = {'std': CodonTable.CodonTable(forward_table={
     start_codons=['TTG', 'CTG', 'ATG', ])}
 
 
-def cds2aaRecord(record_iter, batch_size, t_name, remove_gaps=False):
+def cds2aaRecord(record_iter, batch_size, t_name):
     """Translates nucleotide to amino acids assuming that cds is in frame 0.
     :param record_iter:
     :param args:
@@ -108,14 +108,28 @@ def cds2aaRecord(record_iter, batch_size, t_name, remove_gaps=False):
     """
     for i, batch in enumerate(batch_iterator(record_iter, batch_size)):
         for record in batch:
-            if remove_gaps:
-                aa = SeqIO.SeqRecord(record.seq.replace('-','').translate(transtable[t_name]), name=record.name, id=record.name, description=record.name)
-            else:
-                aa = SeqIO.SeqRecord(record.seq.translate(transtable[t_name]), name=record.name, id=record.name, description=record.name)
+            aa = SeqIO.SeqRecord(record.seq.translate(transtable[t_name]), name=record.name, id=record.name, description=record.name)
             yield aa
 
 
-def cds2aaFasta(input, outdir, batch_size, t_name, remove_gaps=False):
+def cds2preprocessRecord(record_iter, batch_size, char2gap_list, remove_gaps=False, char2gap=False):
+    """Preprocess nucleotide to substitute char to gap and remove gaps.
+    :param record_iter:
+    :param args:
+    This is a generator function, the records argument should
+    be a list or iterator returning SeqRecord objects.
+    """
+    for i, batch in enumerate(batch_iterator(record_iter, batch_size)):
+        for record in batch:
+            if char2gap:
+                for cg in char2gap_list:
+                    record.seq = record.seq.replace(cg, '-')
+            if remove_gaps:
+                record.seq = record.seq.replace('-', '')
+            yield record
+
+
+def cds2aaFasta(input, outdir, batch_size, t_name):
     record_iter = None
     if input is None and sys.stdin.isatty():
         parser.print_help()
@@ -129,6 +143,22 @@ def cds2aaFasta(input, outdir, batch_size, t_name, remove_gaps=False):
     count = SeqIO.write(cds2aa_iter, os.path.join(outdir, cds2aa_filename), 'fasta')
     print('translated %i sequences' % count)
     return cds2aa_filename
+
+
+def cds2preprocessFasta(input, outdir, batch_size, char2gap_list, remove_gaps=False, char2gap=False):
+    record_iter = None
+    if input is None and sys.stdin.isatty():
+        parser.print_help()
+        sys.exit('\nPlease provide STDIN or input file')
+    if input is None and not sys.stdin.isatty():
+        record_iter = SeqIO.parse(sys.stdin, 'fasta')
+    else:
+        record_iter = SeqIO.parse(input, 'fasta')
+    cds2preprocess_iter = cds2preprocessRecord(record_iter, batch_size, char2gap_list, remove_gaps, char2gap)
+    cds2preprocess_filename = os.path.basename(tempfile.NamedTemporaryFile().name) + '.fa'
+    count = SeqIO.write(cds2preprocess_iter, os.path.join(outdir, cds2preprocess_filename), 'fasta')
+    print('preprocessed %i sequences' % count)
+    return cds2preprocess_filename
 
 
 def align(input, outdir, mafft_options):
@@ -146,7 +176,7 @@ def align(input, outdir, mafft_options):
 
 def get_codonalg(aa_input, cds_input, outdir):
     codonalg_filename = os.path.basename(tempfile.NamedTemporaryFile().name) + '.codonalg.fa'
-    cmd = ['pal2nal.pl', aa_input, cds_input, '-output', 'fasta']
+    cmd = ['pal2nal.pl', aa_input, cds_input, '-output', 'fasta', '-nogap']
     codonalg_fo = open(os.path.join(outdir, codonalg_filename), 'w')
     subprocess.call(cmd, stderr=None, stdout=codonalg_fo, shell=False)
     codonalg_fo.close()
@@ -218,6 +248,8 @@ def define_parser():
     parser.add_argument('-cal_dn_ds_method', help='specify method as indicated here https://biopython.org/docs/1.80/api/Bio.codonalign.codonseq.html [default: NG86]', default='NG86')
     parser.add_argument('-mafft_options', help='additional mafft options [default: None]')
     parser.add_argument('-remove_gaps', action='store_true', help='specify if gaps (-) in input CDS file should be removed [default: False]')
+    parser.add_argument('-char2gap', action='store_true', help='specify if char should converted into gap char (-) in input CDS file [default: False]')
+    parser.add_argument('-char2gap_list', default=['?'], nargs='+', help='specify char that should be converted into gap (-) in input CDS file [default: False]')
     return parser
 
 
@@ -231,12 +263,20 @@ def main():
     # mkdir
     if not os.path.exists(args.o):
         os.mkdir(args.o)
+    # 0. Preprocess nucleotide
+    if args.remove_gaps or args.char2gap:
+        cds2preprocess_filename = cds2preprocessFasta(args.i, args.o, args.s, args.char2gap_list, args.remove_gaps, args.char2gap)
     # 1. Translates nucleotide to amino acids assuming that CDS is in frame 0.
-    cds2aa_filename = cds2aaFasta(args.i, args.o, args.s, args.t, args.remove_gaps)
+        cds2aa_filename = cds2aaFasta(os.path.join(args.o, cds2preprocess_filename), args.o, args.s, args.t)
+    else:
+        cds2aa_filename = cds2aaFasta(args.i, args.o, args.s, args.t)
     # 2. Creates amino acid alignments with MAFFT
     alg_filename = align(os.path.join(args.o, cds2aa_filename), args.o, args.mafft_options)
     # 3. Creates Codon alignments with pal2nal
-    codonalg_filename = get_codonalg(os.path.join(args.o, alg_filename), args.i, args.o)
+    if args.remove_gaps or args.char2gap:
+        codonalg_filename = get_codonalg(os.path.join(args.o, alg_filename), os.path.join(args.o, cds2preprocess_filename), args.o)
+    else:
+        codonalg_filename = get_codonalg(os.path.join(args.o, alg_filename), args.i, args.o)
     # 4. Calculate dNdS with Bio.codonalign.codonseq.cal_dn_ds
     codonalg = AlignIO.read(os.path.join(args.o, codonalg_filename), 'fasta')
     cal_dn_ds_list = []
@@ -248,7 +288,7 @@ def main():
     cal_dn_ds_fo = open(os.path.join(args.o, cal_dn_ds_filename), 'w')
     cal_dn_ds_fo.write('comp1\tcomp2\tname1\tname2\tdN\tdS\tmodel\n')
     for comp in cal_dn_ds_list:
-    	cal_dn_ds_fo.write(str(comp[0]) + '\t' + str(comp[1]) + '\t' + comp[2] + '\t' + comp[3] + '\t' + str(comp[4][0]) + '\t' + str(comp[4][1]) + '\t' + args.cal_dn_ds_method + '\n')
+        cal_dn_ds_fo.write(str(comp[0]) + '\t' + str(comp[1]) + '\t' + comp[2] + '\t' + comp[3] + '\t' + str(comp[4][0]) + '\t' + str(comp[4][1]) + '\t' + args.cal_dn_ds_method + '\n')
     cal_dn_ds_fo.close()
     # 5. Create PhyML tree as input for codeml
     if len(codonalg)>2:
