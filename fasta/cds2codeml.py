@@ -132,7 +132,6 @@ def cds2preprocessRecord(record_iter, batch_size, char2gap_list, remove_gaps=Fal
 def cds2aaFasta(input, outdir, batch_size, t_name):
     record_iter = None
     if input is None and sys.stdin.isatty():
-        parser.print_help()
         sys.exit('\nPlease provide STDIN or input file')
     if input is None and not sys.stdin.isatty():
         record_iter = SeqIO.parse(sys.stdin, 'fasta')
@@ -148,7 +147,6 @@ def cds2aaFasta(input, outdir, batch_size, t_name):
 def cds2preprocessFasta(input, outdir, batch_size, char2gap_list, remove_gaps=False, char2gap=False):
     record_iter = None
     if input is None and sys.stdin.isatty():
-        parser.print_help()
         sys.exit('\nPlease provide STDIN or input file')
     if input is None and not sys.stdin.isatty():
         record_iter = SeqIO.parse(sys.stdin, 'fasta')
