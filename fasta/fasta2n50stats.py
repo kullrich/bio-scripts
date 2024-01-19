@@ -75,11 +75,13 @@ def n50statsRecord(record_iter, args):
     """
     gcdict = {}
     lendict = {}
+    n_count = 0
     for i, batch in enumerate(batch_iterator(record_iter, args.s)):
         for record in batch:
             tmp_id = record.id.split()[0]
             tmp_gc = GC(record.seq)
             tmp_len = len(record)
+            n_count += record.seq.count('N')
             if tmp_id in gcdict:
                 print('duplicated id: %s; skip GC and length calculation' % tmp_id)
             if tmp_id not in gcdict:
@@ -103,7 +105,7 @@ def n50statsRecord(record_iter, args):
     n50 = np.percentile(lenr, 50)
     n75 = np.percentile(lenr, 25)
     n95 = np.percentile(lenr, 5)
-    gc_len_summary = [number_contigs, gcmean, gcsd, totallen, minlen, maxlen, meanlen, medianlen, n5, n25, n50, n75, n95]
+    gc_len_summary = [number_contigs, gcmean, gcsd, totallen, minlen, maxlen, meanlen, medianlen, n5, n25, n50, n75, n95, n_count]
     return gc_len_summary
 
 
@@ -132,6 +134,7 @@ def n50statsFasta(args, parser):
         print('%s\t%s' % ('N50', gc_len_summary[10]))
         print('%s\t%s' % ('N75', gc_len_summary[11]))
         print('%s\t%s' % ('N95', gc_len_summary[12]))
+        print('%s\t%s' % ('Ns', gc_len_summary[13]))
     else:
         with open(args.o, 'w') as outhandle:
             outhandle.write('#N50stats\n')
@@ -148,6 +151,7 @@ def n50statsFasta(args, parser):
             outhandle.write('%s\t%s\n' % ('N50', gc_len_summary[10]))
             outhandle.write('%s\t%s\n' % ('N75', gc_len_summary[11]))
             outhandle.write('%s\t%s\n' % ('N95', gc_len_summary[12]))
+            outhandle.write('%s\t%s\n' % ('Ns', gc_len_summary[13]))
 
 
 def define_parser():
