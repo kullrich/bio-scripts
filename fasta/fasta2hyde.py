@@ -61,8 +61,8 @@ def run_hyde(infile, mapfile, outgroup, nind, nsites, ntaxa, threads, pvalue, pr
     return hyderesults
 
 
-def run_hyde_individual(infile, mapfile, outgroup, triplets, nind, nsites, ntaxa, threads, pvalue, prefix):
-    hyderesults = subprocess.run(['individual_hyde.py', '-i', infile, '-m', mapfile, '-o', outgroup, '-tr', triplets, '-n', nind, '-s', nsites, '-t', ntaxa, '-j', threads, '-p', pvalue, '--prefix', prefix], capture_output=True)
+def run_hyde_individual(infile, mapfile, outgroup, triplets, nind, nsites, ntaxa, pvalue, prefix):
+    hyderesults = subprocess.run(['individual_hyde.py', '-i', infile, '-m', mapfile, '-o', outgroup, '-tr', triplets, '-n', nind, '-s', nsites, '-t', ntaxa, '--prefix', prefix], capture_output=True)
     return hyderesults
 
 
