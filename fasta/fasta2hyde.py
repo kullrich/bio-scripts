@@ -124,7 +124,7 @@ def main():
     # print args
     sys.stderr.write(str(args))
     # run
-    fasta2dhyde(args, parser)
+    fasta2hyde(args, parser)
 
 
 if __name__ == '__main__':
