@@ -61,6 +61,11 @@ def run_hyde(infile, mapfile, outgroup, nind, nsites, ntaxa, threads, pvalue, pr
     return hyderesults
 
 
+def run_hyde_individual(infile, mapfile, outgroup, triplets, nind, nsites, ntaxa, threads, pvalue, prefix):
+    hyderesults = subprocess.run(['individual_hyde.py', '-i', infile, '-m', mapfile, '-o', outgroup, '-tr', triplets, '-n', nind, '-s', nsites, '-t', ntaxa, '-j', threads, '-p', pvalue, '--prefix', prefix], capture_output=True)
+    return hyderesults
+
+
 def fasta2hyde(args, parser):
     if args.i is None:
         parser.print_help()
@@ -71,6 +76,9 @@ def fasta2hyde(args, parser):
     if args.r is None:
         parser.print_help()
         sys.exit('\nPlease provide file with genomic ranges')
+    if args.a and args.e is None:
+        parser.print_help()
+        sys.exit('\nPlease provide triplet file in case of individual testing')
     outfile = open(args.o, 'w')
     header = ['chr', 'start', 'end',
     'P1', 'Hybrid', 'P2', 'Zscore', 'Pvalue', 'Gamma',
@@ -95,6 +103,9 @@ def fasta2hyde(args, parser):
                 f.write(k+'\t')
                 f.write(v+'\n')
         run_hyde(tmpfile.name, mapfile, outgroup, nind, nsites, ntaxa, threads, pvalue, prefix)
+        if args.a:
+            triplets = args.e
+            run_hyde_individual(tmpfile.name, mapfile, outgroup, triplets, nind, nsites, ntaxa, threads, pvalue, prefix)
         hyde_results = pd.read_csv(prefix+'-out.txt', delimiter='\t')
         for hyde_index, hyde_row in hyde_results.iterrows():
             outfile.write('\t'.join([str(x) for x in [range_row[0], range_row[1], range_row[2]]] + [str(x) for x in hyde_row])+'\n')
@@ -110,6 +121,8 @@ def define_parser():
     parser.add_argument('-m', help='file with population assignment for hyde (see example_map.txt); use full path to avoid file finding')
     parser.add_argument('-r', help='file with genomic ranges to be analysed in bed format (see example_region.txt)')
     parser.add_argument('-g', help='specify outgroup population')
+    parser.add_argument('-a', help='specify if individuals should be tested', action='store_true')
+    parser.add_argument('-e', help='specify triplet file in case of indvidual testing')
     parser.add_argument('-p', help='specify hyde pvalue [default: 0.05]', default='0.05')
     parser.add_argument('-o', help='output file [default: hyde_stats.txt]', default='hyde_stats.txt')
     parser.add_argument('-t', help='number of threads for hyde [default: 1]', default=1, type=int)
