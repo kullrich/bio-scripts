@@ -103,14 +103,19 @@ def fasta2hyde(args, parser):
                 f.write(k+'\t')
                 f.write(v+'\n')
         run_hyde(tmpfile.name, mapfile, outgroup, nind, nsites, ntaxa, threads, pvalue, prefix)
-        if args.a:
-            triplets = args.e
-            run_hyde_individual(tmpfile.name, mapfile, outgroup, triplets, nind, nsites, ntaxa, prefix)
         hyde_results = pd.read_csv(prefix+'-out.txt', delimiter='\t')
         for hyde_index, hyde_row in hyde_results.iterrows():
             outfile.write('\t'.join([str(x) for x in [range_row[0], range_row[1], range_row[2]]] + [str(x) for x in hyde_row])+'\n')
+        if args.a:
+            triplets = args.e
+            run_hyde_individual(tmpfile.name, mapfile, outgroup, triplets, nind, nsites, ntaxa, prefix)
+            hyde_ind_results = pd.read_csv(prefix+'-ind.txt', delimiter='\t')
+            for hyde_ind_index, hyde_ind_row in hyde_ind_results.iterrows():
+                outfile.write('\t'.join([str(x) for x in [range_row[0], range_row[1], range_row[2]]] + [str(x) for x in hyde_ind_row])+'\n')
         os.remove(prefix+'-out.txt')
         os.remove(prefix+'-out-filtered.txt')
+        if args.a:
+            os.remove(prefix+'-ind.txt')
     outfile.close()
 
 
