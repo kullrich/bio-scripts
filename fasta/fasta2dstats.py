@@ -593,7 +593,8 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         D3_ix_iy = (dMean_ix - dMean_iy)/(dMean_ix + dMean_iy)
         D3_iy_ix = (dMean_iy - dMean_ix)/(dMean_iy + dMean_ix)
         D3_ixy = [D3_xy_iy, D3_xy_ix, D3_ix_iy][np.argmin([abs(x) for x in [D3_xy_iy, D3_xy_ix, D3_ix_iy]])]
-        D3_ixy_abs_min = ['((I,X),Y)', '((I,Y),X)', '((X,Y),I)'][np.argmin([abs(x) for x in [D3_xy_iy, D3_xy_ix, D3_ix_iy]])]
+        if not np.all(np.isnan([D3_xy_iy, D3_xy_ix, D3_ix_iy])):
+            D3_ixy_abs_min = ['((I,X),Y)', '((I,Y),X)', '((X,Y),I)'][np.argmin([abs(x) for x in [D3_xy_iy, D3_xy_ix, D3_ix_iy]])]
         D3_xy_iy_ = (dMean_xy - dMean_iy)/(dMin_xy + dMin_iy)
         D3_xy_ix_ = (dMean_xy - dMean_ix)/(dMin_xy + dMin_ix)
         D3_ix_iy_ = (dMean_ix - dMean_iy)/(dMin_ix + dMin_iy)
@@ -709,7 +710,8 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         D3_xo_xy = (dMean_xo - dMean_xy)/(dMean_xo + dMean_xy)
         D3_xy_xo = (dMean_xy - dMean_xo)/(dMean_xy + dMean_xo)
         D3_xyo = [D3_yo_xo, D3_yo_xy, D3_xo_xy][np.argmin([abs(x) for x in [D3_yo_xo, D3_yo_xy, D3_xo_xy]])]
-        D3_xyo_abs_min = ['((X,Y),O)', '((O,X),Y)', '((Y,O),X)'][np.argmin([abs(x) for x in [D3_yo_xo, D3_yo_xy, D3_xo_xy]])]
+        if not np.all(np.isnan([D3_yo_xo, D3_yo_xy, D3_xo_xy])):
+            D3_xyo_abs_min = ['((X,Y),O)', '((O,X),Y)', '((Y,O),X)'][np.argmin([abs(x) for x in [D3_yo_xo, D3_yo_xy, D3_xo_xy]])]
         D3_yo_xo_ = (dMean_yo - dMean_xo)/(dMin_yo + dMin_xo)
         D3_yo_xy_ = (dMean_yo - dMean_xy)/(dMin_yo + dMin_xy)
         D3_xo_xy_ = (dMean_xo - dMean_xy)/(dMin_xo + dMin_xy)
@@ -869,7 +871,8 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         D3_ix_iy = (dMean_ix - dMean_iy)/(dMean_ix + dMean_iy)
         D3_iy_ix = (dMean_iy - dMean_ix)/(dMean_iy + dMean_ix)
         D3_ixy = [D3_xy_iy, D3_xy_ix, D3_ix_iy][np.argmin([abs(x) for x in [D3_xy_iy, D3_xy_ix, D3_ix_iy]])]
-        D3_ixy_abs_min = ['((I,X),Y)', '((I,Y),X)', '((X,Y),I)'][np.argmin([abs(x) for x in [D3_xy_iy, D3_xy_ix, D3_ix_iy]])]
+        if not np.all(np.isnan([D3_xy_iy, D3_xy_ix, D3_ix_iy])):
+            D3_ixy_abs_min = ['((I,X),Y)', '((I,Y),X)', '((X,Y),I)'][np.argmin([abs(x) for x in [D3_xy_iy, D3_xy_ix, D3_ix_iy]])]
         D3_xy_iy_ = (dMean_xy - dMean_iy)/(dMin_xy + dMin_iy)
         D3_xy_ix_ = (dMean_xy - dMean_ix)/(dMin_xy + dMin_ix)
         D3_ix_iy_ = (dMean_ix - dMean_iy)/(dMin_ix + dMin_iy)
@@ -912,7 +915,8 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         D3_xo_xy = (dMean_xo - dMean_xy)/(dMean_xo + dMean_xy)
         D3_xy_xo = (dMean_xy - dMean_xo)/(dMean_xy + dMean_xo)
         D3_xyo = [D3_yo_xo, D3_yo_xy, D3_xo_xy][np.argmin([abs(x) for x in [D3_yo_xo, D3_yo_xy, D3_xo_xy]])]
-        D3_xyo_abs_min = ['((X,Y),O)', '((O,X),Y)', '((Y,O),X)'][np.argmin([abs(x) for x in [D3_yo_xo, D3_yo_xy, D3_xo_xy]])]
+        if not np.all(np.isnan([D3_yo_xo, D3_yo_xy, D3_xo_xy])):
+            D3_xyo_abs_min = ['((X,Y),O)', '((O,X),Y)', '((Y,O),X)'][np.argmin([abs(x) for x in [D3_yo_xo, D3_yo_xy, D3_xo_xy]])]
         D3_yo_xo_ = (dMean_yo - dMean_xo)/(dMin_yo + dMin_xo)
         D3_yo_xy_ = (dMean_yo - dMean_xy)/(dMin_yo + dMin_xy)
         D3_xo_xy_ = (dMean_xo - dMean_xy)/(dMin_xo + dMin_xy)
