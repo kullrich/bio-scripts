@@ -506,7 +506,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_xy = np.min(range_dist_df_distances.iloc[list(pop_x_pos), list(pop_y_pos)])
         dMax_xy = np.max(range_dist_df_distances.iloc[list(pop_x_pos), list(pop_y_pos)])
         dSites_xy = np.mean(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_y_pos)])
-        dSum_xy = np.sum(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_y_pos)])
+        dSum_xy = np.sum(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_y_pos)].sum())
         dMean_xy_x_y = dMean_xy - (dMean_x/2) - (dMean_y/2)
         dF2_xy = dMean_xy - ((dMean_x + dMean_y)/2)
         Gmin_xy = dMin_xy / dMean_xy
@@ -559,7 +559,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_ix = np.min(range_dist_df_distances.iloc[list(pop_i_pos), list(pop_x_pos)])
         dMax_ix = np.max(range_dist_df_distances.iloc[list(pop_i_pos), list(pop_x_pos)])
         dSites_ix = np.mean(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_x_pos)])
-        dSum_ix = np.sum(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_x_pos)])
+        dSum_ix = np.sum(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_x_pos)].sum())
         dMean_ix_i_x = dMean_ix - (dMean_i/2) - (dMean_x/2)
         dF2_ix = dMean_ix - ((dMean_i + dMean_x)/2)
         Gmin_ix = dMin_ix / dMean_ix
@@ -569,7 +569,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_iy = np.min(range_dist_df_distances.iloc[list(pop_i_pos), list(pop_y_pos)])
         dMax_iy = np.max(range_dist_df_distances.iloc[list(pop_i_pos), list(pop_y_pos)])
         dSites_iy = np.mean(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_y_pos)])
-        dSum_iy = np.sum(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_y_pos)])
+        dSum_iy = np.sum(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_y_pos)].sum())
         dMean_iy_i_y = dMean_iy - (dMean_i/2) - (dMean_y/2)
         dF2_iy = dMean_iy - ((dMean_i + dMean_y)/2)
         Gmin_iy = dMin_iy / dMean_iy
@@ -579,7 +579,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_xy = np.min(range_dist_df_distances.iloc[list(pop_x_pos), list(pop_y_pos)])
         dMax_xy = np.max(range_dist_df_distances.iloc[list(pop_x_pos), list(pop_y_pos)])
         dSites_xy = np.mean(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_y_pos)])
-        dSum_xy = np.sum(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_y_pos)])
+        dSum_xy = np.sum(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_y_pos)].sum())
         dMean_xy_x_y = dMean_xy - (dMean_x/2) - (dMean_y/2)
         dF2_xy = dMean_xy - ((dMean_x + dMean_y)/2)
         Gmin_xy = dMin_xy / dMean_xy
@@ -675,7 +675,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_xy = np.min(range_dist_df_distances.iloc[list(pop_x_pos), list(pop_y_pos)])
         dMax_xy = np.max(range_dist_df_distances.iloc[list(pop_x_pos), list(pop_y_pos)])
         dSites_xy = np.mean(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_y_pos)])
-        dSum_xy = np.sum(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_y_pos)])
+        dSum_xy = np.sum(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_y_pos)].sum())
         dMean_xy_x_y = dMean_xy - (dMean_x/2) - (dMean_y/2)
         dF2_xy = dMean_xy - ((dMean_x + dMean_y)/2)
         Gmin_xy = dMin_xy / dMean_xy
@@ -685,7 +685,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_xo = np.min(range_dist_df_distances.iloc[list(pop_x_pos), list(pop_o_pos)])
         dMax_xo = np.max(range_dist_df_distances.iloc[list(pop_x_pos), list(pop_o_pos)])
         dSites_xo = np.mean(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_o_pos)])
-        dSum_xo = np.sum(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_o_pos)])
+        dSum_xo = np.sum(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_o_pos)].sum())
         dMean_xo_x_o = dMean_xo - (dMean_x/2) - (dMean_o/2)
         dF2_xo = dMean_xo - ((dMean_x + dMean_o)/2)
         Gmin_xo = dMin_xo / dMean_xo
@@ -695,7 +695,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_yo = np.min(range_dist_df_distances.iloc[list(pop_y_pos), list(pop_o_pos)])
         dMax_yo = np.max(range_dist_df_distances.iloc[list(pop_y_pos), list(pop_o_pos)])
         dSites_yo = np.mean(range_dist_df_usedsites.iloc[list(pop_y_pos), list(pop_o_pos)])
-        dSum_yo = np.sum(range_dist_df_usedsites.iloc[list(pop_y_pos), list(pop_o_pos)])
+        dSum_yo = np.sum(range_dist_df_usedsites.iloc[list(pop_y_pos), list(pop_o_pos)].sum())
         dMean_yo_y_o = dMean_yo - (dMean_y/2) - (dMean_o/2)
         dF2_yo = dMean_yo - ((dMean_y + dMean_o)/2)
         Gmin_yo = dMin_yo / dMean_yo
@@ -805,7 +805,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_ix = np.min(range_dist_df_distances.iloc[list(pop_i_pos), list(pop_x_pos)])
         dMax_ix = np.max(range_dist_df_distances.iloc[list(pop_i_pos), list(pop_x_pos)])
         dSites_ix = np.mean(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_x_pos)])
-        dSum_ix = np.sum(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_x_pos)])
+        dSum_ix = np.sum(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_x_pos)].sum())
         dMean_ix_i_x = dMean_ix - (dMean_i/2) - (dMean_x/2)
         dF2_ix = dMean_ix - ((dMean_i + dMean_x)/2)
         Gmin_ix = dMin_ix / dMean_ix
@@ -815,7 +815,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_iy = np.min(range_dist_df_distances.iloc[list(pop_i_pos), list(pop_y_pos)])
         dMax_iy = np.max(range_dist_df_distances.iloc[list(pop_i_pos), list(pop_y_pos)])
         dSites_iy = np.mean(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_y_pos)])
-        dSum_iy = np.sum(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_y_pos)])
+        dSum_iy = np.sum(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_y_pos)].sum())
         dMean_iy_i_y = dMean_iy - (dMean_i/2) - (dMean_y/2)
         dF2_iy = dMean_iy - ((dMean_i + dMean_y)/2)
         Gmin_iy = dMin_iy / dMean_iy
@@ -825,7 +825,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_io = np.min(range_dist_df_distances.iloc[list(pop_i_pos), list(pop_o_pos)])
         dMax_io = np.max(range_dist_df_distances.iloc[list(pop_i_pos), list(pop_o_pos)])
         dSites_io = np.mean(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_o_pos)])
-        dSum_io = np.sum(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_o_pos)])
+        dSum_io = np.sum(range_dist_df_usedsites.iloc[list(pop_i_pos), list(pop_o_pos)].sum())
         dMean_io_i_o = dMean_io - (dMean_i/2) - (dMean_o/2)
         dF2_io = dMean_io - ((dMean_i + dMean_o)/2)
         Gmin_io = dMin_io / dMean_io
@@ -835,7 +835,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_xy = np.min(range_dist_df_distances.iloc[list(pop_x_pos), list(pop_y_pos)])
         dMax_xy = np.max(range_dist_df_distances.iloc[list(pop_x_pos), list(pop_y_pos)])
         dSites_xy = np.mean(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_y_pos)])
-        dSum_xy = np.sum(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_y_pos)])
+        dSum_xy = np.sum(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_y_pos)].sum())
         dMean_xy_x_y = dMean_xy - (dMean_x/2) - (dMean_y/2)
         dF2_xy = dMean_xy - ((dMean_x + dMean_y)/2)
         Gmin_xy = dMin_xy / dMean_xy
@@ -845,7 +845,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_xo = np.min(range_dist_df_distances.iloc[list(pop_x_pos), list(pop_o_pos)])
         dMax_xo = np.max(range_dist_df_distances.iloc[list(pop_x_pos), list(pop_o_pos)])
         dSites_xo = np.mean(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_o_pos)])
-        dSum_xo = np.sum(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_o_pos)])
+        dSum_xo = np.sum(range_dist_df_usedsites.iloc[list(pop_x_pos), list(pop_o_pos)].sum())
         dMean_xo_x_o = dMean_xo - (dMean_x/2) - (dMean_o/2)
         dF2_xo = dMean_xo - ((dMean_x + dMean_o)/2)
         Gmin_xo = dMin_xo / dMean_xo
@@ -855,7 +855,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMin_yo = np.min(range_dist_df_distances.iloc[list(pop_y_pos), list(pop_o_pos)])
         dMax_yo = np.max(range_dist_df_distances.iloc[list(pop_y_pos), list(pop_o_pos)])
         dSites_yo = np.mean(range_dist_df_usedsites.iloc[list(pop_y_pos), list(pop_o_pos)])
-        dSum_yo = np.sum(range_dist_df_usedsites.iloc[list(pop_y_pos), list(pop_o_pos)])
+        dSum_yo = np.sum(range_dist_df_usedsites.iloc[list(pop_y_pos), list(pop_o_pos)].sum())
         dMean_yo_y_o = dMean_yo - (dMean_y/2) - (dMean_o/2)
         dF2_yo = dMean_yo - ((dMean_y + dMean_o)/2)
         Gmin_yo = dMin_yo / dMean_yo
