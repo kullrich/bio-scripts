@@ -164,7 +164,10 @@ def fasta2dstats(args, parser):
     'dMean_xo', 'dSd_xo', 'dMin_xo', 'dMax_xo', 'dSites_xo', 'dSum_xo', 'dMean_xo_x_o', 'dF2_xo', 'Gmin_xo',
     'dMean_yo', 'dSd_yo', 'dMin_yo', 'dMax_yo', 'dSites_yo', 'dSum_yo', 'dMean_yo_y_o', 'dF2_yo', 'Gmin_yo',
     'RND_ixy', 'RNDmin_ixy',
-    'D3_xy_iy', 'D3_xy_ix', 'D3_ix_iy', 'D3_ixy',
+    'D3_xy_iy', 'D3_iy_xy',
+    'D3_xy_ix', 'D3_ix_xy',
+    'D3_ix_iy', 'D3_iy_ix',
+    'D3_ixy', 'D3_ixy_abs_min',
     'D3_xy_iy_', 'D3_xy_ix_', 'D3_ix_iy_', 'D3_ixy_',
     'D3_xy_iy__', 'D3_xy_ix__', 'D3_ix_iy__', 'D3_ixy__',
     'D3min_xy_iy', 'D3min_xy_ix', 'D3min_ix_iy', 'D3min_ixy',
@@ -174,15 +177,18 @@ def fasta2dstats(args, parser):
     'D3min_xy_min_iy_', 'D3min_xy_min_ix_', 'D3min_ix_min_iy_', 'D3min_ixy_min_',
     'D3min_xy_min_iy__', 'D3min_xy_min_ix__', 'D3min_ix_min_iy__', 'D3min_ixy_min__',
     'RND_xyo', 'RNDmin_xyo',
-    'D3_xy_yo', 'D3_xy_xo', 'D3_xo_yo', 'D3_xyo',
-    'D3_xy_yo_', 'D3_xy_xo_', 'D3_xo_yo_', 'D3_xyo_',
-    'D3_xy_yo__', 'D3_xy_xo__', 'D3_xo_yo__', 'D3_xyo__',
-    'D3min_xy_yo', 'D3min_xy_xo', 'D3min_xo_yo', 'D3min_xyo',
-    'D3min_xy_yo_', 'D3min_xy_xo_', 'D3min_xo_yo_', 'D3min_xyo_',
-    'D3min_xy_yo__', 'D3min_xy_xo__', 'D3min_xo_yo__', 'D3min_xyo__',
-    'D3min_xy_min_yo', 'D3min_xy_min_xo', 'D3min_xo_min_yo', 'D3min_xyo_min',
-    'D3min_xy_min_yo_', 'D3min_xy_min_xo_', 'D3min_xo_min_yo_', 'D3min_xyo_min_',
-    'D3min_xy_min_yo__', 'D3min_xy_min_xo__', 'D3min_xo_min_yo__', 'D3min_xyo_min__']
+    'D3_yo_xo', 'D3_xo_yo',
+    'D3_xo_xy', 'D3_xy_xo',
+    'D3_yo_xy', 'D3_xy_yo',
+    'D3_xyo', 'D3_xyo_abs_min',
+    'D3_yo_xo_', 'D3_yo_xy_', 'D3_xo_xy_', 'D3_xyo_',
+    'D3_yo_xo__', 'D3_yo_xy__', 'D3_xo_xy__', 'D3_xyo__',
+    'D3min_yo_xo', 'D3min_yo_xy', 'D3min_xo_xy', 'D3min_xyo',
+    'D3min_yo_xo_', 'D3min_yo_xy_', 'D3min_xo_xy_', 'D3min_xyo_',
+    'D3min_yo_xo__', 'D3min_yo_xy__', 'D3min_xo_xy__', 'D3min_xyo__',
+    'D3min_yo_min_xo', 'D3min_yo_min_xy', 'D3min_xo_min_xy', 'D3min_xyo_min',
+    'D3min_yo_min_xo_', 'D3min_yo_min_xy_', 'D3min_xo_min_xy_', 'D3min_xyo_min_',
+    'D3min_yo_min_xo__', 'D3min_yo_min_xy__', 'D3min_xo_min_xy__', 'D3min_xyo_min__']
     outfile.write('\t'.join(header)+'\n')
     popassignment = pd.read_csv(args.i, delimiter='\t')
     genomicranges = pd.read_csv(args.r, delimiter='\t', header=None)
@@ -366,9 +372,13 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
     RND_ixy = np.nan # dMean_xy - ((dMean_ix + dMean_iy)/2)
     RNDmin_ixy = np.nan # dMin_xy - ((dMean_ix + dMean_iy)/2)
     D3_xy_iy = np.nan # (dMean_xy - dMean_iy)/(dMean_xy + dMean_iy)
+    D3_iy_xy = np.nan # (dMean_iy - dMean_xy)/(dMean_iy + dMean_xy)
     D3_xy_ix = np.nan # (dMean_xy - dMean_ix)/(dMean_xy + dMean_ix)
+    D3_ix_xy = np.nan # (dMean_ix - dMean_xy)/(dMean_ix + dMean_xy)
     D3_ix_iy = np.nan # (dMean_ix - dMean_iy)/(dMean_ix + dMean_iy)
+    D3_iy_ix = np.nan # (dMean_iy - dMean_ix)/(dMean_iy + dMean_ix)
     D3_ixy = np.nan
+    D3_ixy_abs_min = np.nan
     D3_xy_iy_ = np.nan # (dMean_xy - dMean_iy)/(dMin_xy + dMin_iy)
     D3_xy_ix_ = np.nan # (dMean_xy - dMean_ix)/(dMin_xy + dMin_ix)
     D3_ix_iy_ = np.nan # (dMean_ix - dMean_iy)/(dMin_ix + dMin_iy)
@@ -404,41 +414,45 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
     #xyo
     RND_xyo = np.nan # dMean_xy / ((dMean_xo + dMean_yo)/2)
     RNDmin_xyo = np.nan # dMin_xy / ((dMean_xo + dMean_yo)/2)
-    D3_xy_yo = np.nan # (dMean_xy - dMean_yo)/(dMean_xy + dMean_yo)
-    D3_xy_xo = np.nan # (dMean_xy - dMean_xo)/(dMean_xy + dMean_xo)
+    D3_yo_xo = np.nan # (dMean_yo - dMean_xo)/(dMean_yo + dMean_xo)
     D3_xo_yo = np.nan # (dMean_xo - dMean_yo)/(dMean_xo + dMean_yo)
+    D3_yo_xy = np.nan # (dMean_yo - dMean_xy)/(dMean_yo + dMean_xy)
+    D3_xy_yo = np.nan # (dMean_xy - dMean_yo)/(dMean_xy + dMean_yo)
+    D3_xo_xy = np.nan # (dMean_xo - dMean_xy)/(dMean_xo + dMean_xy)
+    D3_xy_xo = np.nan # (dMean_xy - dMean_xo)/(dMean_xy + dMean_xo)
     D3_xyo = np.nan
-    D3_xy_yo_ = np.nan # (dMean_xy - dMean_yo)/(dMin_xy + dMin_yo)
-    D3_xy_xo_ = np.nan # (dMean_xy - dMean_xo)/(dMin_xy + dMin_xo)
-    D3_xo_yo_ = np.nan # (dMean_xo - dMean_yo)/(dMin_xo + dMin_yo)
+    D3_xyo_abs_min = np.nan
+    D3_yo_xo_ = np.nan # (dMean_yo - dMean_xo)/(dMin_yo + dMin_xo)
+    D3_yo_xy_ = np.nan # (dMean_yo - dMean_xy)/(dMin_yo + dMin_xy)
+    D3_xo_xy_ = np.nan # (dMean_xo - dMean_xy)/(dMin_xo + dMin_xy)
     D3_xyo_ = np.nan
-    D3_xy_yo__ = np.nan # (dMean_xy - dMean_yo)/(dMax_xy + dMax_yo)
-    D3_xy_xo__ = np.nan # (dMean_xy - dMean_xo)/(dMax_xy + dMax_xo)
-    D3_xo_yo__ = np.nan # (dMean_xo - dMean_yo)/(dMax_xo + dMax_yo)
+    D3_yo_xo__ = np.nan # (dMean_yo - dMean_xo)/(dMax_yo + dMax_xo)
+    D3_yo_xy__ = np.nan # (dMean_yo - dMean_xy)/(dMax_yo + dMax_xy)
+    D3_xo_xy__ = np.nan # (dMean_xo - dMean_xy)/(dMax_xo + dMax_xy)
     D3_xyo__ = np.nan
-    D3min_xy_yo = np.nan # (dMin_xy - dMean_yo)/(dMean_xy + dMean_yo)
-    D3min_xy_xo = np.nan # (dMin_xy - dMean_xo)/(dMean_xy + dMean_xo)
-    D3min_xo_yo = np.nan # (dMin_xo - dMean_yo)/(dMean_xo + dMean_yo)
+    D3min_yo_xo = np.nan # (dMin_yo - dMean_xo)/(dMean_yo + dMean_xo)
+    D3min_yo_xy = np.nan # (dMin_yo - dMean_xy)/(dMean_yo + dMean_xy)
+    D3min_xo_xy = np.nan # (dMin_xo - dMean_xy)/(dMean_xo + dMean_xy)
     D3min_xyo = np.nan
-    D3min_xy_yo_ = np.nan # (dMin_xy - dMean_yo)/(dMin_xy + dMin_yo)
-    D3min_xy_xo_ = np.nan # (dMin_xy - dMean_xo)/(dMin_xy + dMin_xo)
-    D3min_xo_yo_ = np.nan # (dMin_xo - dMean_yo)/(dMin_xo + dMin_yo)
+    D3min_yo_xo_ = np.nan # (dMin_yo - dMean_xo)/(dMin_yo + dMin_xo)
+    D3min_yo_xy_ = np.nan # (dMin_yo - dMean_xy)/(dMin_yo + dMin_xy)
+    D3min_xo_xy_ = np.nan # (dMin_xo - dMean_xy)/(dMin_xo + dMin_xy)
     D3min_xyo_ = np.nan
-    D3min_xy_yo__ = np.nan # (dMin_xy - dMean_yo)/(dMax_xy + dMax_yo)
-    D3min_xy_xo__ = np.nan # (dMin_xy - dMean_xo)/(dMax_xy + dMax_xo)
-    D3min_xo_yo__ = np.nan # (dMin_xo - dMean_yo)/(dMax_xo + dMax_yo)
+    D3min_yo_xo__ = np.nan # (dMin_yo - dMean_xo)/(dMax_yo + dMax_xo)
+    D3min_yo_xy__ = np.nan # (dMin_yo - dMean_xy)/(dMax_yo + dMax_xy)
+    D3min_xo_xy__ = np.nan # (dMin_xo - dMean_xy)/(dMax_xo + dMax_xy)
     D3min_xyo__ = np.nan
-    D3min_xy_min_yo = np.nan # (dMin_xy - dMin_yo)/(dMean_xy + dMean_yo)
-    D3min_xy_min_xo = np.nan # (dMin_xy - dMin_xo)/(dMean_xy + dMean_xo)
-    D3min_xo_min_yo = np.nan # (dMin_xo - dMin_yo)/(dMean_xo + dMean_yo)
+    D3min_yo_min_xo = np.nan # (dMin_yo - dMin_xo)/(dMean_yo + dMean_xo)
+    D3min_yo_min_xy = np.nan # (dMin_yo - dMin_xy)/(dMean_yo + dMean_xy)
+    D3min_xo_min_xy = np.nan # (dMin_xo - dMin_xy)/(dMean_xo + dMean_xy)
     D3min_xyo_min = np.nan
-    D3min_xy_min_yo_ = np.nan # (dMin_xy - dMin_yo)/(dMin_xy + dMin_yo)
-    D3min_xy_min_xo_ = np.nan # (dMin_xy - dMin_xo)/(dMin_xy + dMin_xo)
-    D3min_xo_min_yo_ = np.nan # (dMin_xo - dMin_yo)/(dMin_xo + dMin_yo)
+    D3min_yo_min_xo_ = np.nan # (dMin_yo - dMin_xo)/(dMin_yo + dMin_xo)
+    D3min_yo_min_xy_ = np.nan # (dMin_yo - dMin_xy)/(dMin_yo + dMin_xy)
+    D3min_xo_min_xy_ = np.nan # (dMin_xo - dMin_xy)/(dMin_xo + dMin_xy)
     D3min_xyo_min_ = np.nan
-    D3min_xy_min_yo__ = np.nan # (dMin_xy - dMin_yo)/(dMax_xy + dMax_yo)
-    D3min_xy_min_xo__ = np.nan # (dMin_xy - dMin_xo)/(dMax_xy + dMax_xo)
-    D3min_xo_min_yo__ = np.nan # (dMin_xo - dMin_yo)/(dMax_xo + dMax_yo)
+    D3min_yo_min_xo__ = np.nan # (dMin_yo - dMin_xo)/(dMax_yo + dMax_xo)
+    D3min_yo_min_xy__ = np.nan # (dMin_yo - dMin_xy)/(dMax_yo + dMax_xy)
+    D3min_xo_min_xy__ = np.nan # (dMin_xo - dMin_xy)/(dMax_xo + dMax_xy)
     D3min_xyo_min__ = np.nan
     #ixyo
     if stats_type == 'dx':
@@ -573,9 +587,13 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         RND_ixy = dMean_xy - ((dMean_ix + dMean_iy)/2)
         RNDmin_ixy = dMin_xy - ((dMean_ix + dMean_iy)/2)
         D3_xy_iy = (dMean_xy - dMean_iy)/(dMean_xy + dMean_iy)
+        D3_iy_xy = (dMean_iy - dMean_xy)/(dMean_iy + dMean_xy)
         D3_xy_ix = (dMean_xy - dMean_ix)/(dMean_xy + dMean_ix)
+        D3_ix_xy = (dMean_ix - dMean_xy)/(dMean_ix + dMean_xy)
         D3_ix_iy = (dMean_ix - dMean_iy)/(dMean_ix + dMean_iy)
+        D3_iy_ix = (dMean_iy - dMean_ix)/(dMean_iy + dMean_ix)
         D3_ixy = [D3_xy_iy, D3_xy_ix, D3_ix_iy][np.argmin([abs(x) for x in [D3_xy_iy, D3_xy_ix, D3_ix_iy]])]
+        D3_ixy_abs_min = ['((I,X),Y)', '((I,Y),X)', '((X,Y),I)'][np.argmin([abs(x) for x in [D3_xy_iy, D3_xy_ix, D3_ix_iy]])]
         D3_xy_iy_ = (dMean_xy - dMean_iy)/(dMin_xy + dMin_iy)
         D3_xy_ix_ = (dMean_xy - dMean_ix)/(dMin_xy + dMin_ix)
         D3_ix_iy_ = (dMean_ix - dMean_iy)/(dMin_ix + dMin_iy)
@@ -684,42 +702,46 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         #xyo
         RND_xyo = dMean_xy / ((dMean_xo + dMean_yo)/2)
         RNDmin_xyo = dMin_xy / ((dMean_xo + dMean_yo)/2)
-        D3_xy_yo = (dMean_xy - dMean_yo)/(dMean_xy + dMean_yo)
-        D3_xy_xo = (dMean_xy - dMean_xo)/(dMean_xy + dMean_xo)
+        D3_yo_xo = (dMean_yo - dMean_xo)/(dMean_yo + dMean_xo)
         D3_xo_yo = (dMean_xo - dMean_yo)/(dMean_xo + dMean_yo)
-        D3_xyo = [D3_xy_yo, D3_xy_xo, D3_xo_yo][np.argmin([abs(x) for x in [D3_xy_yo, D3_xy_xo, D3_xo_yo]])]
-        D3_xy_yo_ = (dMean_xy - dMean_yo)/(dMin_xy + dMin_yo)
-        D3_xy_xo_ = (dMean_xy - dMean_xo)/(dMin_xy + dMin_xo)
-        D3_xo_yo_ = (dMean_xo - dMean_yo)/(dMin_xo + dMin_yo)
-        D3_xyo_ = [D3_xy_yo_, D3_xy_xo_, D3_xo_yo_][np.argmin([abs(x) for x in [D3_xy_yo_, D3_xy_xo_, D3_xo_yo_]])]
-        D3_xy_yo__ = (dMean_xy - dMean_yo)/(dMax_xy + dMax_yo)
-        D3_xy_xo__ = (dMean_xy - dMean_xo)/(dMax_xy + dMax_xo)
-        D3_xo_yo__ = (dMean_xo - dMean_yo)/(dMax_xo + dMax_yo)
-        D3_xyo__ = [D3_xy_yo__, D3_xy_xo__, D3_xo_yo__][np.argmin([abs(x) for x in [D3_xy_yo__, D3_xy_xo__, D3_xo_yo__]])]
-        D3min_xy_yo = (dMin_xy - dMean_yo)/(dMean_xy + dMean_yo)
-        D3min_xy_xo = (dMin_xy - dMean_xo)/(dMean_xy + dMean_xo)
-        D3min_xo_yo = (dMin_xo - dMean_yo)/(dMean_xo + dMean_yo)
-        D3min_xyo = [D3min_xy_yo, D3min_xy_xo, D3min_xo_yo][np.argmin([abs(x) for x in [D3min_xy_yo, D3min_xy_xo, D3min_xo_yo]])]
-        D3min_xy_yo_ = (dMin_xy - dMean_yo)/(dMin_xy + dMin_yo)
-        D3min_xy_xo_ = (dMin_xy - dMean_xo)/(dMin_xy + dMin_xo)
-        D3min_xo_yo_ = (dMin_xo - dMean_yo)/(dMin_xo + dMin_yo)
-        D3min_xyo_ = [D3min_xy_yo_, D3min_xy_xo_, D3min_xo_yo_][np.argmin([abs(x) for x in [D3min_xy_yo_, D3min_xy_xo_, D3min_xo_yo_]])]
-        D3min_xy_yo__ = (dMin_xy - dMean_yo)/(dMax_xy + dMax_yo)
-        D3min_xy_xo__ = (dMin_xy - dMean_xo)/(dMax_xy + dMax_xo)
-        D3min_xo_yo__ = (dMin_xo - dMean_yo)/(dMax_xo + dMax_yo)
-        D3min_xyo__ = [D3min_xy_yo__, D3min_xy_xo__, D3min_xo_yo__][np.argmin([abs(x) for x in [D3min_xy_yo__, D3min_xy_xo__, D3min_xo_yo__]])]
-        D3min_xy_min_yo = (dMin_xy - dMin_yo)/(dMean_xy + dMean_yo)
-        D3min_xy_min_xo = (dMin_xy - dMin_xo)/(dMean_xy + dMean_xo)
-        D3min_xo_min_yo = (dMin_xo - dMin_yo)/(dMean_xo + dMean_yo)
-        D3min_xyo_min = [D3min_xy_min_yo, D3min_xy_min_xo, D3min_xo_min_yo][np.argmin([abs(x) for x in [D3min_xy_min_yo, D3min_xy_min_xo, D3min_xo_min_yo]])]
-        D3min_xy_min_yo_ = (dMin_xy - dMin_yo)/(dMin_xy + dMin_yo)
-        D3min_xy_min_xo_ = (dMin_xy - dMin_xo)/(dMin_xy + dMin_xo)
-        D3min_xo_min_yo_ = (dMin_xo - dMin_yo)/(dMin_xo + dMin_yo)
-        D3min_xyo_min_ = [D3min_xy_min_yo_, D3min_xy_min_xo_, D3min_xo_min_yo_][np.argmin([abs(x) for x in [D3min_xy_min_yo_, D3min_xy_min_xo_, D3min_xo_min_yo_]])]
-        D3min_xy_min_yo__ = (dMin_xy - dMin_yo)/(dMax_xy + dMax_yo)
-        D3min_xy_min_xo__ = (dMin_xy - dMin_xo)/(dMax_xy + dMax_xo)
-        D3min_xo_min_yo__ = (dMin_xo - dMin_yo)/(dMax_xo + dMax_yo)
-        D3min_xyo_min__ = [D3min_xy_min_yo__, D3min_xy_min_xo__, D3min_xo_min_yo__][np.argmin([abs(x) for x in [D3min_xy_min_yo__, D3min_xy_min_xo__, D3min_xo_min_yo__]])]
+        D3_yo_xy = (dMean_yo - dMean_xy)/(dMean_yo + dMean_xy)
+        D3_xy_yo = (dMean_xy - dMean_yo)/(dMean_xy + dMean_yo)
+        D3_xo_xy = (dMean_xo - dMean_xy)/(dMean_xo + dMean_xy)
+        D3_xy_xo = (dMean_xy - dMean_xo)/(dMean_xy + dMean_xo)
+        D3_xyo = [D3_yo_xo, D3_yo_xy, D3_xo_xy][np.argmin([abs(x) for x in [D3_yo_xo, D3_yo_xy, D3_xo_xy]])]
+        D3_xyo_abs_min = ['((X,Y),O)', '((O,X),Y)', '((Y,O),X)'][np.argmin([abs(x) for x in [D3_yo_xo, D3_yo_xy, D3_xo_xy]])]
+        D3_yo_xo_ = (dMean_yo - dMean_xo)/(dMin_yo + dMin_xo)
+        D3_yo_xy_ = (dMean_yo - dMean_xy)/(dMin_yo + dMin_xy)
+        D3_xo_xy_ = (dMean_xo - dMean_xy)/(dMin_xo + dMin_xy)
+        D3_xyo_ = [D3_yo_xo_, D3_yo_xy_, D3_xo_xy_][np.argmin([abs(x) for x in [D3_yo_xo_, D3_yo_xy_, D3_xo_xy_]])]
+        D3_yo_xo__ = (dMean_yo - dMean_xo)/(dMax_yo + dMax_xo)
+        D3_yo_xy__ = (dMean_yo - dMean_xy)/(dMax_yo + dMax_xy)
+        D3_xo_xy__ = (dMean_xo - dMean_xy)/(dMax_xo + dMax_xy)
+        D3_xyo__ = [D3_yo_xo__, D3_yo_xy__, D3_xo_yo__][np.argmin([abs(x) for x in [D3_yo_xo__, D3_yo_xy__, D3_xo_xy__]])]
+        D3min_yo_xo = (dMin_yo - dMean_xo)/(dMean_yo + dMean_xo)
+        D3min_yo_xy = (dMin_yo - dMean_xy)/(dMean_yo + dMean_xy)
+        D3min_xo_xy = (dMin_xo - dMean_xy)/(dMean_xo + dMean_xy)
+        D3min_xyo = [D3min_yo_xo, D3min_yo_xy, D3min_xo_xy][np.argmin([abs(x) for x in [D3min_yo_xo, D3min_yo_xy, D3min_xo_xy]])]
+        D3min_yo_xo_ = (dMin_yo - dMean_xo)/(dMin_yo + dMin_xo)
+        D3min_yo_xy_ = (dMin_yo - dMean_xy)/(dMin_yo + dMin_xy)
+        D3min_xo_xy_ = (dMin_xo - dMean_xy)/(dMin_xo + dMin_xy)
+        D3min_xyo_ = [D3min_yo_xo_, D3min_yo_xy_, D3min_xo_xy_][np.argmin([abs(x) for x in [D3min_yo_xo_, D3min_yo_xy_, D3min_xo_xy_]])]
+        D3min_yo_xo__ = (dMin_yo - dMean_xo)/(dMax_yo + dMax_xo)
+        D3min_yo_xy__ = (dMin_yo - dMean_xy)/(dMax_yo + dMax_xy)
+        D3min_xo_xy__ = (dMin_xo - dMean_xy)/(dMax_xo + dMax_xy)
+        D3min_xyo__ = [D3min_yo_xo__, D3min_yo_xy__, D3min_xo_xy__][np.argmin([abs(x) for x in [D3min_yo_xo__, D3min_yo_xy__, D3min_xo_xy__]])]
+        D3min_yo_min_xo = (dMin_yo - dMin_xo)/(dMean_yo + dMean_xo)
+        D3min_yo_min_xy = (dMin_yo - dMin_xy)/(dMean_yo + dMean_xy)
+        D3min_xo_min_xy = (dMin_xo - dMin_xy)/(dMean_xo + dMean_xy)
+        D3min_xyo_min = [D3min_yo_min_xo, D3min_yo_min_xy, D3min_xo_min_xy][np.argmin([abs(x) for x in [D3min_yo_min_xo, D3min_yo_min_xy, D3min_xo_min_xy]])]
+        D3min_yo_min_xo_ = (dMin_yo - dMin_xo)/(dMin_yo + dMin_xo)
+        D3min_yo_min_xy_ = (dMin_yo - dMin_xy)/(dMin_yo + dMin_xy)
+        D3min_xo_min_xy_ = (dMin_xo - dMin_xy)/(dMin_xo + dMin_xy)
+        D3min_xyo_min_ = [D3min_yo_min_xo_, D3min_yo_min_xy_, D3min_xo_min_xy_][np.argmin([abs(x) for x in [D3min_yo_min_xo_, D3min_yo_min_xy_, D3min_xo_min_xy_]])]
+        D3min_yo_min_xo__ = (dMin_yo - dMin_xo)/(dMax_yo + dMax_xo)
+        D3min_yo_min_xy__ = (dMin_yo - dMin_xy)/(dMax_yo + dMax_xy)
+        D3min_xo_min_xy__ = (dMin_xo - dMin_xy)/(dMax_xo + dMax_xy)
+        D3min_xyo_min__ = [D3min_yo_min_xo__, D3min_yo_min_xy__, D3min_xo_min_xy__][np.argmin([abs(x) for x in [D3min_yo_min_xo__, D3min_yo_min_xy__, D3min_xo_min_xy__]])]
     if stats_type == 'dixyo':
         if len_pop_i > 1:
             dMean_i = np.mean(as_dist(range_dist_df_distances.iloc[list(pop_i_pos), list(pop_i_pos)]))
@@ -841,9 +863,13 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         RND_ixy = dMean_xy - ((dMean_ix + dMean_iy)/2)
         RNDmin_ixy = dMin_xy - ((dMean_ix + dMean_iy)/2)
         D3_xy_iy = (dMean_xy - dMean_iy)/(dMean_xy + dMean_iy)
+        D3_iy_xy = (dMean_iy - dMean_xy)/(dMean_iy + dMean_xy)
         D3_xy_ix = (dMean_xy - dMean_ix)/(dMean_xy + dMean_ix)
+        D3_ix_xy = (dMean_ix - dMean_xy)/(dMean_ix + dMean_xy)
         D3_ix_iy = (dMean_ix - dMean_iy)/(dMean_ix + dMean_iy)
+        D3_iy_ix = (dMean_iy - dMean_ix)/(dMean_iy + dMean_ix)
         D3_ixy = [D3_xy_iy, D3_xy_ix, D3_ix_iy][np.argmin([abs(x) for x in [D3_xy_iy, D3_xy_ix, D3_ix_iy]])]
+        D3_ixy_abs_min = ['((I,X),Y)', '((I,Y),X)', '((X,Y),I)'][np.argmin([abs(x) for x in [D3_xy_iy, D3_xy_ix, D3_ix_iy]])]
         D3_xy_iy_ = (dMean_xy - dMean_iy)/(dMin_xy + dMin_iy)
         D3_xy_ix_ = (dMean_xy - dMean_ix)/(dMin_xy + dMin_ix)
         D3_ix_iy_ = (dMean_ix - dMean_iy)/(dMin_ix + dMin_iy)
@@ -879,42 +905,46 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         #xyo
         RND_xyo = dMean_xy / ((dMean_xo + dMean_yo)/2)
         RNDmin_xyo = dMin_xy / ((dMean_xo + dMean_yo)/2)
-        D3_xy_yo = (dMean_xy - dMean_yo)/(dMean_xy + dMean_yo)
-        D3_xy_xo = (dMean_xy - dMean_xo)/(dMean_xy + dMean_xo)
+        D3_yo_xo = (dMean_yo - dMean_xo)/(dMean_yo + dMean_xo)
         D3_xo_yo = (dMean_xo - dMean_yo)/(dMean_xo + dMean_yo)
-        D3_xyo = [D3_xy_yo, D3_xy_xo, D3_xo_yo][np.argmin([abs(x) for x in [D3_xy_yo, D3_xy_xo, D3_xo_yo]])]
-        D3_xy_yo_ = (dMean_xy - dMean_yo)/(dMin_xy + dMin_yo)
-        D3_xy_xo_ = (dMean_xy - dMean_xo)/(dMin_xy + dMin_xo)
-        D3_xo_yo_ = (dMean_xo - dMean_yo)/(dMin_xo + dMin_yo)
-        D3_xyo_ = [D3_xy_yo_, D3_xy_xo_, D3_xo_yo_][np.argmin([abs(x) for x in [D3_xy_yo_, D3_xy_xo_, D3_xo_yo_]])]
-        D3_xy_yo__ = (dMean_xy - dMean_yo)/(dMax_xy + dMax_yo)
-        D3_xy_xo__ = (dMean_xy - dMean_xo)/(dMax_xy + dMax_xo)
-        D3_xo_yo__ = (dMean_xo - dMean_yo)/(dMax_xo + dMax_yo)
-        D3_xyo__ = [D3_xy_yo__, D3_xy_xo__, D3_xo_yo__][np.argmin([abs(x) for x in [D3_xy_yo__, D3_xy_xo__, D3_xo_yo__]])]
-        D3min_xy_yo = (dMin_xy - dMean_yo)/(dMean_xy + dMean_yo)
-        D3min_xy_xo = (dMin_xy - dMean_xo)/(dMean_xy + dMean_xo)
-        D3min_xo_yo = (dMin_xo - dMean_yo)/(dMean_xo + dMean_yo)
-        D3min_xyo = [D3min_xy_yo, D3min_xy_xo, D3min_xo_yo][np.argmin([abs(x) for x in [D3min_xy_yo, D3min_xy_xo, D3min_xo_yo]])]
-        D3min_xy_yo_ = (dMin_xy - dMean_yo)/(dMin_xy + dMin_yo)
-        D3min_xy_xo_ = (dMin_xy - dMean_xo)/(dMin_xy + dMin_xo)
-        D3min_xo_yo_ = (dMin_xo - dMean_yo)/(dMin_xo + dMin_yo)
-        D3min_xyo_ = [D3min_xy_yo_, D3min_xy_xo_, D3min_xo_yo_][np.argmin([abs(x) for x in [D3min_xy_yo_, D3min_xy_xo_, D3min_xo_yo_]])]
-        D3min_xy_yo__ = (dMin_xy - dMean_yo)/(dMax_xy + dMax_yo)
-        D3min_xy_xo__ = (dMin_xy - dMean_xo)/(dMax_xy + dMax_xo)
-        D3min_xo_yo__ = (dMin_xo - dMean_yo)/(dMax_xo + dMax_yo)
-        D3min_xyo__ = [D3min_xy_yo__, D3min_xy_xo__, D3min_xo_yo__][np.argmin([abs(x) for x in [D3min_xy_yo__, D3min_xy_xo__, D3min_xo_yo__]])]
-        D3min_xy_min_yo = (dMin_xy - dMin_yo)/(dMean_xy + dMean_yo)
-        D3min_xy_min_xo = (dMin_xy - dMin_xo)/(dMean_xy + dMean_xo)
-        D3min_xo_min_yo = (dMin_xo - dMin_yo)/(dMean_xo + dMean_yo)
-        D3min_xyo_min = [D3min_xy_min_yo, D3min_xy_min_xo, D3min_xo_min_yo][np.argmin([abs(x) for x in [D3min_xy_min_yo, D3min_xy_min_xo, D3min_xo_min_yo]])]
-        D3min_xy_min_yo_ = (dMin_xy - dMin_yo)/(dMin_xy + dMin_yo)
-        D3min_xy_min_xo_ = (dMin_xy - dMin_xo)/(dMin_xy + dMin_xo)
-        D3min_xo_min_yo_ = (dMin_xo - dMin_yo)/(dMin_xo + dMin_yo)
-        D3min_xyo_min_ = [D3min_xy_min_yo_, D3min_xy_min_xo_, D3min_xo_min_yo_][np.argmin([abs(x) for x in [D3min_xy_min_yo_, D3min_xy_min_xo_, D3min_xo_min_yo_]])]
-        D3min_xy_min_yo__ = (dMin_xy - dMin_yo)/(dMax_xy + dMax_yo)
-        D3min_xy_min_xo__ = (dMin_xy - dMin_xo)/(dMax_xy + dMax_xo)
-        D3min_xo_min_yo__ = (dMin_xo - dMin_yo)/(dMax_xo + dMax_yo)
-        D3min_xyo_min__ = [D3min_xy_min_yo__, D3min_xy_min_xo__, D3min_xo_min_yo__][np.argmin([abs(x) for x in [D3min_xy_min_yo__, D3min_xy_min_xo__, D3min_xo_min_yo__]])]
+        D3_yo_xy = (dMean_yo - dMean_xy)/(dMean_yo + dMean_xy)
+        D3_xy_yo = (dMean_xy - dMean_yo)/(dMean_xy + dMean_yo)
+        D3_xo_xy = (dMean_xo - dMean_xy)/(dMean_xo + dMean_xy)
+        D3_xy_xo = (dMean_xy - dMean_xo)/(dMean_xy + dMean_xo)
+        D3_xyo = [D3_yo_xo, D3_yo_xy, D3_xo_xy][np.argmin([abs(x) for x in [D3_yo_xo, D3_yo_xy, D3_xo_xy]])]
+        D3_xyo_abs_min = ['((X,Y),O)', '((O,X),Y)', '((Y,O),X)'][np.argmin([abs(x) for x in [D3_yo_xo, D3_yo_xy, D3_xo_xy]])]
+        D3_yo_xo_ = (dMean_yo - dMean_xo)/(dMin_yo + dMin_xo)
+        D3_yo_xy_ = (dMean_yo - dMean_xy)/(dMin_yo + dMin_xy)
+        D3_xo_xy_ = (dMean_xo - dMean_xy)/(dMin_xo + dMin_xy)
+        D3_xyo_ = [D3_yo_xo_, D3_yo_xy_, D3_xo_xy_][np.argmin([abs(x) for x in [D3_yo_xo_, D3_yo_xy_, D3_xo_xy_]])]
+        D3_yo_xo__ = (dMean_yo - dMean_xo)/(dMax_yo + dMax_xo)
+        D3_yo_xy__ = (dMean_yo - dMean_xy)/(dMax_yo + dMax_xy)
+        D3_xo_xy__ = (dMean_xo - dMean_xy)/(dMax_xo + dMax_xy)
+        D3_xyo__ = [D3_yo_xo__, D3_yo_xy__, D3_xo_yo__][np.argmin([abs(x) for x in [D3_yo_xo__, D3_yo_xy__, D3_xo_xy__]])]
+        D3min_yo_xo = (dMin_yo - dMean_xo)/(dMean_yo + dMean_xo)
+        D3min_yo_xy = (dMin_yo - dMean_xy)/(dMean_yo + dMean_xy)
+        D3min_xo_xy = (dMin_xo - dMean_xy)/(dMean_xo + dMean_xy)
+        D3min_xyo = [D3min_yo_xo, D3min_yo_xy, D3min_xo_xy][np.argmin([abs(x) for x in [D3min_yo_xo, D3min_yo_xy, D3min_xo_xy]])]
+        D3min_yo_xo_ = (dMin_yo - dMean_xo)/(dMin_yo + dMin_xo)
+        D3min_yo_xy_ = (dMin_yo - dMean_xy)/(dMin_yo + dMin_xy)
+        D3min_xo_xy_ = (dMin_xo - dMean_xy)/(dMin_xo + dMin_xy)
+        D3min_xyo_ = [D3min_yo_xo_, D3min_yo_xy_, D3min_xo_xy_][np.argmin([abs(x) for x in [D3min_yo_xo_, D3min_yo_xy_, D3min_xo_xy_]])]
+        D3min_yo_xo__ = (dMin_yo - dMean_xo)/(dMax_yo + dMax_xo)
+        D3min_yo_xy__ = (dMin_yo - dMean_xy)/(dMax_yo + dMax_xy)
+        D3min_xo_xy__ = (dMin_xo - dMean_xy)/(dMax_xo + dMax_xy)
+        D3min_xyo__ = [D3min_yo_xo__, D3min_yo_xy__, D3min_xo_xy__][np.argmin([abs(x) for x in [D3min_yo_xo__, D3min_yo_xy__, D3min_xo_xy__]])]
+        D3min_yo_min_xo = (dMin_yo - dMin_xo)/(dMean_yo + dMean_xo)
+        D3min_yo_min_xy = (dMin_yo - dMin_xy)/(dMean_yo + dMean_xy)
+        D3min_xo_min_xy = (dMin_xo - dMin_xy)/(dMean_xo + dMean_xy)
+        D3min_xyo_min = [D3min_yo_min_xo, D3min_yo_min_xy, D3min_xo_min_xy][np.argmin([abs(x) for x in [D3min_yo_min_xo, D3min_yo_min_xy, D3min_xo_min_xy]])]
+        D3min_yo_min_xo_ = (dMin_yo - dMin_xo)/(dMin_yo + dMin_xo)
+        D3min_yo_min_xy_ = (dMin_yo - dMin_xy)/(dMin_yo + dMin_xy)
+        D3min_xo_min_xy_ = (dMin_xo - dMin_xy)/(dMin_xo + dMin_xy)
+        D3min_xyo_min_ = [D3min_yo_min_xo_, D3min_yo_min_xy_, D3min_xo_min_xy_][np.argmin([abs(x) for x in [D3min_yo_min_xo_, D3min_yo_min_xy_, D3min_xo_min_xy_]])]
+        D3min_yo_min_xo__ = (dMin_yo - dMin_xo)/(dMax_yo + dMax_xo)
+        D3min_yo_min_xy__ = (dMin_yo - dMin_xy)/(dMax_yo + dMax_xy)
+        D3min_xo_min_xy__ = (dMin_xo - dMin_xy)/(dMax_xo + dMax_xy)
+        D3min_xyo_min__ = [D3min_yo_min_xo__, D3min_yo_min_xy__, D3min_xo_min_xy__][np.argmin([abs(x) for x in [D3min_yo_min_xo__, D3min_yo_min_xy__, D3min_xo_min_xy__]])]
     results = [dMean_i, dSd_i, dMin_i, dMax_i, dSites_i, dSum_i,
         dMean_x, dSd_x, dMin_x, dMax_x, dSites_x, dSum_x,
         dMean_y, dSd_y, dMin_y, dMax_y, dSites_y, dSum_y,
@@ -926,7 +956,10 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         dMean_xo, dSd_xo, dMin_xo, dMax_xo, dSites_xo, dSum_xo, dMean_xo_x_o, dF2_xo, Gmin_xo,
         dMean_yo, dSd_yo, dMin_yo, dMax_yo, dSites_yo, dSum_yo, dMean_yo_y_o, dF2_yo, Gmin_yo,
         RND_ixy, RNDmin_ixy,
-        D3_xy_iy, D3_xy_ix, D3_ix_iy, D3_ixy,
+        D3_xy_iy, D3_iy_xy,
+        D3_xy_ix, D3_ix_xy,
+        D3_ix_iy, D3_iy_ix,
+        D3_ixy, D3_ixy_abs_min,
         D3_xy_iy_, D3_xy_ix_, D3_ix_iy_, D3_ixy_,
         D3_xy_iy__, D3_xy_ix__, D3_ix_iy__, D3_ixy__,
         D3min_xy_iy, D3min_xy_ix, D3min_ix_iy, D3min_ixy,
@@ -936,15 +969,18 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         D3min_xy_min_iy_, D3min_xy_min_ix_, D3min_ix_min_iy_, D3min_ixy_min_,
         D3min_xy_min_iy__, D3min_xy_min_ix__, D3min_ix_min_iy__, D3min_ixy_min__,
         RND_xyo, RNDmin_xyo,
-        D3_xy_yo, D3_xy_xo, D3_xo_yo, D3_xyo,
-        D3_xy_yo_, D3_xy_xo_, D3_xo_yo_, D3_xyo_,
-        D3_xy_yo__, D3_xy_xo__, D3_xo_yo__, D3_xyo__,
-        D3min_xy_yo, D3min_xy_xo, D3min_xo_yo, D3min_xyo,
-        D3min_xy_yo_, D3min_xy_xo_, D3min_xo_yo_, D3min_xyo_,
-        D3min_xy_yo__, D3min_xy_xo__, D3min_xo_yo__, D3min_xyo__,
-        D3min_xy_min_yo, D3min_xy_min_xo, D3min_xo_min_yo, D3min_xyo_min,
-        D3min_xy_min_yo_, D3min_xy_min_xo_, D3min_xo_min_yo_, D3min_xyo_min_,
-        D3min_xy_min_yo__, D3min_xy_min_xo__, D3min_xo_min_yo__, D3min_xyo_min__]
+        D3_yo_xo, D3_xo_yo,
+        D3_yo_xy, D3_xy_yo,
+        D3_xo_xy, D3_xy_xo,
+        D3_xyo, D3_xyo_abs_min,
+        D3_yo_xo_, D3_yo_xy_, D3_xo_xy_, D3_xyo_,
+        D3_yo_xo__, D3_yo_xy__, D3_xo_xy__, D3_xyo__,
+        D3min_yo_xo, D3min_yo_xy, D3min_xo_xy, D3min_xyo,
+        D3min_yo_xo_, D3min_yo_xy_, D3min_xo_xy_, D3min_xyo_,
+        D3min_yo_xo__, D3min_yo_xy__, D3min_xo_xy__, D3min_xyo__,
+        D3min_yo_min_xo, D3min_yo_min_xy, D3min_xo_min_xy, D3min_xyo_min,
+        D3min_yo_min_xo_, D3min_yo_min_xy_, D3min_xo_min_xy_, D3min_xyo_min_,
+        D3min_yo_min_xo__, D3min_yo_min_xy__, D3min_xo_min_xy__, D3min_xyo_min__]
     return results
 
 
