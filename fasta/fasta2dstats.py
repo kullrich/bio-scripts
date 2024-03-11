@@ -920,7 +920,7 @@ def get_stats(pop_i_pos, pop_x_pos, pop_y_pos, pop_o_pos,
         D3_yo_xo__ = (dMean_yo - dMean_xo)/(dMax_yo + dMax_xo)
         D3_yo_xy__ = (dMean_yo - dMean_xy)/(dMax_yo + dMax_xy)
         D3_xo_xy__ = (dMean_xo - dMean_xy)/(dMax_xo + dMax_xy)
-        D3_xyo__ = [D3_yo_xo__, D3_yo_xy__, D3_xo_yo__][np.argmin([abs(x) for x in [D3_yo_xo__, D3_yo_xy__, D3_xo_xy__]])]
+        D3_xyo__ = [D3_yo_xo__, D3_yo_xy__, D3_xo_xy__][np.argmin([abs(x) for x in [D3_yo_xo__, D3_yo_xy__, D3_xo_xy__]])]
         D3min_yo_xo = (dMin_yo - dMean_xo)/(dMean_yo + dMean_xo)
         D3min_yo_xy = (dMin_yo - dMean_xy)/(dMean_yo + dMean_xy)
         D3min_xo_xy = (dMin_xo - dMean_xy)/(dMean_xo + dMean_xy)
