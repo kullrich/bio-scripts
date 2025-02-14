@@ -36,7 +36,7 @@ parser$add_argument("-ph", "--pheight", help="png height (default: 800)", type="
 parser$add_argument("-n", "--nosplit", help="nosplit", action='store_true')
 parser$add_argument("-pi", "--perc_identity", help="threshold for identity (default : 85)", type="integer", default=85)
 parser$add_argument("-s", "--segLength", help="mapping segment length (default : 5,000)", type="integer", default=5000)
-parser$add_argument("-k", "--kmer", help="kmer size <= 16 (default : 16)", type="integer", default=16)
+parser$add_argument("-k", "--kmer", help="kmer size <= 19 (default : 19)", type="integer", default=19)
 parser$add_argument("-f", "--filter_mode", help="filter modes in mashmap: 'map', 'one-to-one' or 'none' (default: map)", default="map")
 parser$add_argument("-minl", "--minLength", help="minimum scaffold length (default : 5,000)", type="integer", default=5000)
 parser$add_argument("-cex", "--cex", help="cex (default : 1.0)", type="double", default=1.0)
@@ -73,10 +73,12 @@ QUERY.genome.sizes <- data.frame(name=paste0("Q:",stringr::word(names(QUERY.geno
 
 genome.df <- rbind(REF.genome.sizes, QUERY.genome.sizes) %>% dplyr::filter(end > MINLENGTH)
 
-bed <- read.table(paste0(OUTPUT,".mashmap.out"),sep=" ")
-colnames(bed) <- c("query.chr","query.length","query.start","query.end","strand","ref.chr","ref.length","ref.start","ref.end","identity")
+bed <- read.table(paste0(OUTPUT,".mashmap.out"),sep="\t")
+colnames(bed) <- c("query.chr","query.length","query.start","query.end","strand","ref.chr","ref.length","ref.start","ref.end","V10","V11","V12","identity","complexity")
 bed$ref.chr <- paste0("R:",bed$ref.chr)
 bed$query.chr <- paste0("Q:",bed$query.chr)
+bed$identity <- gsub("id:f:", "", bed$identity)
+bed$complexity <- gsub("kc:f:", "", bed$complexity)
 
 bed1 <- bed %>% dplyr::filter(ref.chr %in% genome.df$name) %>% dplyr::filter(query.chr %in% genome.df$name) %>%dplyr::select(ref.chr, ref.start, ref.end, identity)
 bed2 <- bed %>% dplyr::filter(ref.chr %in% genome.df$name) %>% dplyr::filter(query.chr %in% genome.df$name) %>%dplyr::select(query.chr, query.start, query.end, identity)
