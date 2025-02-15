@@ -127,11 +127,11 @@ def gcFasta(args, parser):
     gc_df = pd.DataFrame()
     for r in list(gcdict.keys()):
         r_df = pd.DataFrame()
-        r_df['seq'] = r
         r_df['s'] = gcdict[r]['s']
         r_df['e'] = gcdict[r]['e']
         r_df['gc'] = gcdict[r]['gc']
         r_df['n'] = gcdict[r]['n']
+        r_df['seq'] = r
         gc_df = pd.concat([gc_df, r_df])        
     gcmean = gc_df.groupby('seq')['gc'].mean()
     gcsd = gc_df.groupby('seq')['gc'].std()
