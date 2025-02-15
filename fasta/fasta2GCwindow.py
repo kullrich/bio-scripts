@@ -132,7 +132,9 @@ def gcFasta(args, parser):
         r_df['gc'] = gcdict[r]['gc']
         r_df['n'] = gcdict[r]['n']
         r_df['seq'] = r
-        gc_df = pd.concat([gc_df, r_df])        
+        gc_df = pd.concat([gc_df, r_df])
+    column_order = ['seq', 's', 'e', 'gc', 'n']
+    gc_df = gc_df[column_order]
     gcmean = gc_df.groupby('seq')['gc'].mean()
     gcsd = gc_df.groupby('seq')['gc'].std()
     if args.o is None:
