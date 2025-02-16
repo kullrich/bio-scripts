@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-library(circlize)
+library(circlize) # devtools::install_github("kullrich/circlize", force = TRUE)
 library(Biostrings)
 library(dplyr)
 library(stringr)
