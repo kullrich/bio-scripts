@@ -5,6 +5,7 @@ library(dplyr)
 library(stringr)
 #library(Redmonder)
 library(intervals)
+library(colorspace)
 require("argparse")
 
 col2transparent <- function(col, alpha.perc=0){
@@ -88,6 +89,7 @@ parser$add_argument("-m", "--mashmap", help="path to mashmap", default="/Users/u
 parser$add_argument("-r", "--reference", help="path to reference fasta file")
 parser$add_argument("-q", "--query", help="path to query fasta file")
 parser$add_argument("-mo", "--moutput", help="path to pre-existing mashmap output file")
+parser$add_argument("-cytoband", "--cytoband", help="path to cytoband file (chr IDs need to match, chr order is kept)")
 parser$add_argument("-c", "--cpu", type="integer", help = "number of threads (default: 1)", default=1)
 parser$add_argument("-p", "--prefix", help="prefix for the outputs", default="mashmap.circos")
 parser$add_argument("-pngw", "--pngwidth", help="png width (default: 1200)", type="integer", default=1200)
@@ -107,6 +109,7 @@ parser$add_argument("-merge", "--merge", help="merge adjacent blocks if distance
 parser$add_argument("-bg", "--block_gap", help="block gap between adjacent blocks as threshold to merge (default : 2,500)", type="integer", default=2500)
 parser$add_argument("-cex", "--cex", help="cex (default : 1.0)", type="double", default=1.0)
 parser$add_argument("-alpha", "--alpha", help="alpha (default : 10)", type="integer", default=10)
+parser$add_argument("-strandcolor", "--strandcolor", help="define how different strand should be colored (lighten, darken, shift, invert) (default : lighten)", default="lighten")
 parser$add_argument("-rev", "--revert", help="revert chromosome order on plot", action='store_true')
 args <- parser$parse_args()
 
@@ -114,6 +117,7 @@ MASHMAP <- args$mashmap
 REF <- args$reference
 QUERY <- args$query
 MASHMAPOUT <- args$moutput
+CYTOBANDFILE <- args$cytoband
 THREADS <- args$cpu
 OUTPUT <- args$prefix
 PNGWIDTH <- args$pngwidth
@@ -133,6 +137,7 @@ MERGE <- args$merge
 BLOCKGAP <- args$block_gap
 CEX <- args$cex
 ALPHA <- args$alpha
+STRANDCOLOR <- args$strandcolor
 REVERT <- args$revert
 
 if (is.null(MASHMAPOUT)) {
@@ -164,6 +169,11 @@ if (REVERT) {
     genome.df <- rbind(REF.genome.sizes, QUERY.genome.sizes) %>% dplyr::filter(end > MINLENGTH)
 }
 
+if (!is.null(CYTOBANDFILE)) {
+    genome.df <- read.table(CYTOBANDFILE)
+    colnames(genome.df) <- c("name", "start", "end", "bandname", "stain")
+}
+
 if (is.null(MASHMAPOUT)) {
     bed <- read.table(paste0(OUTPUT,".mashmap.out"),sep="\t")
 } else {
@@ -183,16 +193,41 @@ bed1 <- bed %>% dplyr::filter(ref.chr %in% genome.df$name) %>% dplyr::filter(que
 bed2 <- bed %>% dplyr::filter(ref.chr %in% genome.df$name) %>% dplyr::filter(query.chr %in% genome.df$name) %>%dplyr::select(query.chr, query.start, query.end, identity)
 colnames(bed1) <- colnames(bed2) <- c("chr", "start", "end", "identity")
 
+chr_colors <- CRBHitsColors(length(levels(as.factor(bed1$chr))), ALPHA)[as.factor(bed1$chr)]
+inverted_colors <- desaturate(rev(chr_colors))
+shifted_colors <- rotate_hue(chr_colors, degrees = 30)
+light_colors <- lighten(chr_colors, amount = 0.3)
+dark_colors <- darken(chr_colors, amount = 0.3)
+if (STRANDCOLOR == "lighten") {
+    plot_colors <- ifelse(bed$strand == "-", light_colors, chr_colors)    
+} else if (STRANDCOLOR == "darken") {
+    plot_colors <- ifelse(bed$strand == "-", dark_colors, chr_colors)    
+} else if (STRANDCOLOR == "shift") {
+    plot_colors <- ifelse(bed$strand == "-", shifted_colors, chr_colors)    
+} else if (STRANDCOLOR == "invert") {
+    plot_colors <- ifelse(bed$strand == "-", inverted_colors, chr_colors)    
+} else {
+    plot_colors <- chr_colors
+}
+
 png(paste0(OUTPUT,".mashmap.png"), width=PNGWIDTH, height=PNGHEIGHT)
-circos.genomicInitialize(genome.df, labels.cex=CEX)
+if (!is.null(CYTOBANDFILE)) {
+    circos.initializeWithIdeogram(genome.df, labels.cex=CEX, sort.chr=FALSE)
+} else {
+    circos.genomicInitialize(genome.df, labels.cex=CEX)
+}
 #circos.genomicLink(bed1, bed2, col=col2transparent(Redmonder::redmonder.pal(length(levels(as.factor(bed1$chr))), "qMSOStd"), ALPHA)[as.factor(bed1$chr)], border=0)
 #circos.genomicLink(bed1, bed2, col = CRBHits::CRBHitsColors(length(levels(as.factor(bed1$chr))), ALPHA)[as.factor(bed1$chr)], border = CRBHits::CRBHitsColors(length(levels(as.factor(bed1$chr))), 0)[as.factor(bed1$chr)])
-circos.genomicLink(bed1, bed2, col = CRBHitsColors(length(levels(as.factor(bed1$chr))), ALPHA)[as.factor(bed1$chr)], border = NA)
+circos.genomicLink(bed1, bed2, col = plot_colors, border = NA, inverse = bed$strand=="-")
 dev.off()
 
 pdf(paste0(OUTPUT,".mashmap.pdf"), width=PDFWIDTH, height=PDFHEIGHT)
-circos.genomicInitialize(genome.df, labels.cex=CEX)
+if (!is.null(CYTOBANDFILE)) {
+    circos.initializeWithIdeogram(genome.df, labels.cex=CEX, sort.chr=FALSE)
+} else {
+    circos.genomicInitialize(genome.df, labels.cex=CEX)
+}
 #circos.genomicLink(bed1, bed2, col=col2transparent(Redmonder::redmonder.pal(length(levels(as.factor(bed1$chr))), "qMSOStd"), ALPHA)[as.factor(bed1$chr)], border=0)
 #circos.genomicLink(bed1, bed2, col = CRBHits::CRBHitsColors(length(levels(as.factor(bed1$chr))), ALPHA)[as.factor(bed1$chr)], border = CRBHits::CRBHitsColors(length(levels(as.factor(bed1$chr))), 0)[as.factor(bed1$chr)])
-circos.genomicLink(bed1, bed2, col = CRBHitsColors(length(levels(as.factor(bed1$chr))), ALPHA)[as.factor(bed1$chr)], border = NA)
+circos.genomicLink(bed1, bed2, col = plot_colors, border = NA, inverse = bed$strand=="-")
 dev.off()
