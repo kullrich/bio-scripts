@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-library(circlize) # devtools::install_github("kullrich/circlize", force = TRUE)
+library(circlize)
 library(Biostrings)
 library(dplyr)
 library(stringr)
@@ -195,7 +195,9 @@ colnames(bed1) <- colnames(bed2) <- c("chr", "start", "end", "identity")
 
 chr_colors <- CRBHitsColors(length(levels(as.factor(bed1$chr))), ALPHA)[as.factor(bed1$chr)]
 inverted_colors <- desaturate(rev(chr_colors))
-shifted_colors <- rotate_hue(chr_colors, degrees = 30)
+chr_colors_hsl <- as(hex2RGB(chr_colors), "HLS")
+chr_colors_hsl@coords[, 1] <- (chr_colors_hsl@coords[, 1] + 30) %% 360  # Hue shift
+shifted_colors <- hex(HLS(chr_colors_hsl@coords))
 light_colors <- lighten(chr_colors, amount = 0.3)
 dark_colors <- darken(chr_colors, amount = 0.3)
 if (STRANDCOLOR == "lighten") {
