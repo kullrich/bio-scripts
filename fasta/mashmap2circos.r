@@ -109,7 +109,7 @@ parser$add_argument("-merge", "--merge", help="merge adjacent blocks if distance
 parser$add_argument("-bg", "--block_gap", help="block gap between adjacent blocks as threshold to merge (default : 2,500)", type="integer", default=2500)
 parser$add_argument("-cex", "--cex", help="cex (default : 1.0)", type="double", default=1.0)
 parser$add_argument("-alpha", "--alpha", help="alpha (default : 10)", type="integer", default=10)
-parser$add_argument("-strandcolor", "--strandcolor", help="define how different strand should be colored (lighten, darken, shift, invert) (default : lighten)", default="lighten")
+parser$add_argument("-strandcolor", "--strandcolor", help="define how different strand should be colored (lighten, darken, shift, invert) (default : darken)", default="darken")
 parser$add_argument("-rev", "--revert", help="revert chromosome order on plot", action='store_true')
 args <- parser$parse_args()
 
