@@ -62,7 +62,8 @@ with gzip.open(input_vcf, "rt") if input_vcf.endswith(".gz") else open(input_vcf
             vcf_files[chrom] = gzip.open(f"{output_prefix}_{chrom}.vcf.gz", "wt")
             mask_generators[chrom] = MaskGenerator(f"{output_prefix}_{chrom}_mask.bed.gz", chrom)
             # Write headers for the new chromosome
-            vcf_files[chrom].write(header)
+            for header in header_lines:
+                vcf_files[chrom].write(header)
             prev_chrom = chrom  # Update previous chromosome tracker
         if line_cnt % 10000 == 0:
             sys.stderr.write(f"Parsing position {pos} on {chrom}\n")
