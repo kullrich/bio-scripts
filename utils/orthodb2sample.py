@@ -53,21 +53,6 @@ def define_parser():
     return parser
 
 
-def get_filtered_sample_ogs(args, parser, sample_ogs):
-    descendants = set()
-    ancestors = set()
-    with gzip.open(args.og_pairs, 'rt') as f:
-        for line in f:
-            desc, anc = line.strip().split('\t')
-            descendants.add(desc)
-            ancestors.add(anc)
-    most_ancestral = ancestors - descendants
-    involved_ogs = descendants.union(ancestors)
-    completely_isolated = sample_ogs - involved_ogs
-    filtered_sample_ogs = (sample_ogs & most_ancestral).union(completely_isolated)
-    return filtered_sample_ogs
-
-
 def get_samples(args, parser):
     samples = []
     with gzip.open(args.species, 'rt') as f:
@@ -86,6 +71,29 @@ def get_sample_ogs(args, parser):
             if species_id == args.species_id:
                 sample_ogs.add(og_id)
     return sample_ogs
+
+
+def get_filtered_sample_ogs(args, parser, sample_ogs):
+    descendants = set()
+    ancestors = set()
+    with gzip.open(args.og_pairs, 'rt') as f:
+        for line in f:
+            desc, anc = line.strip().split('\t')
+            descendants.add(desc)
+            ancestors.add(anc)
+    most_ancestral = ancestors - descendants
+    involved_ogs = descendants.union(ancestors)
+    completely_isolated = sample_ogs - involved_ogs
+    filtered_sample_ogs = (sample_ogs & most_ancestral).union(completely_isolated)
+    return filtered_sample_ogs
+
+
+def create_species_list(args, parser):
+    with open(args.sl, 'w') as fo:
+        with gzip.open(args.species, 'rt') as f:
+            for line in f:
+                taxID, orgID, *_ = line.strip().split('\t')
+                fo.write(orgID + '\t' + taxID + '\n')
 
 
 def get_sample_oc_og(args, parser, sample_to_index, sample_ogs):
