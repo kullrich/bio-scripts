@@ -120,6 +120,30 @@ def get_sample_oc_og(args, parser, sample_to_index, sample_ogs):
     return og_counts, og_genes
 
 
+def filter_empty_columns(data_dict, samples, is_counts=True):
+    num_cols = len(samples)
+    keep_indices = set(range(num_cols))
+    for idx in range(num_cols):
+        all_empty = True
+        for values in data_dict.values():
+            val = values[idx]
+            if is_counts and val != 0:
+                all_empty = False
+                break
+            if not is_counts and val != '':
+                all_empty = False
+                break
+        if all_empty:
+            keep_indices.discard(idx)
+    keep_indices = sorted(keep_indices)
+    filtered_samples = [samples[i] for i in keep_indices]
+    filtered_data = {
+        og: [values[i] for i in keep_indices]
+        for og, values in data_dict.items()
+    }
+    return filtered_data, filtered_samples
+
+
 def write_tsv(data_dict, samples, output_path, is_counts=True):
     with open(output_path, 'w') as f:
         header = ['Orthogroup'] + samples + ['Total'] if is_counts else ['Orthogroup'] + samples
@@ -157,10 +181,15 @@ def main():
     create_species_list(args, parser)
     og_set_to_use = filtered_sample_ogs if args.use_filtered_ogs else sample_ogs
     sample_oc, sample_og = get_sample_oc_og(args, parser, sample_to_index, og_set_to_use)
+    sample_oc_filtered, samples_filtered_counts = filter_empty_columns(sample_oc, samples, is_counts=True)
+    sample_og_filtered, samples_filtered_genes = filter_empty_columns(sample_og, samples, is_counts=False)
+    assert samples_filtered_counts == samples_filtered_genes, "Mismatch in filtered sample columns"
     # Write zipped gene counts
-    write_tsv(sample_oc, samples, args.oc, is_counts=True)
+    #write_tsv(sample_oc, samples, args.oc, is_counts=True)
+    write_tsv(sample_oc_filtered, samples_filtered_counts, args.oc, is_counts=True)
     # Write zipped gene identifiers
-    write_tsv(sample_og, samples, args.og, is_counts=False)
+    #write_tsv(sample_og, samples, args.og, is_counts=False)
+    write_tsv(sample_og_filtered, samples_filtered_genes, args.og, is_counts=False)
     print(f"Files written: {args.oc}, {args.og}")
 
 
