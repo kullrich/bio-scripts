@@ -88,12 +88,13 @@ def get_filtered_sample_ogs(args, parser, sample_ogs):
     return filtered_sample_ogs
 
 
-def create_species_list(args, parser):
+def create_species_list(args, parser, samples):
     with open(args.sl, 'w') as fo:
         with gzip.open(args.species, 'rt') as f:
             for line in f:
-                taxID, orgID, *_ = line.strip().split('\t')
-                fo.write(orgID + '\t' + taxID + '\n')
+                tax_id, species_id, *_ = line.strip().split('\t')
+                if species_id in samples:
+                    fo.write(species_id + '\t' + tax_id + '\n')
 
 
 def get_sample_oc_og(args, parser, sample_to_index, sample_ogs):
@@ -178,12 +179,14 @@ def main():
     sample_to_index = {name: idx for idx, name in enumerate(samples)}
     sample_ogs = get_sample_ogs(args, parser)
     filtered_sample_ogs = get_filtered_sample_ogs(args, parser, sample_ogs)
-    create_species_list(args, parser)
     og_set_to_use = filtered_sample_ogs if args.use_filtered_ogs else sample_ogs
     sample_oc, sample_og = get_sample_oc_og(args, parser, sample_to_index, og_set_to_use)
     sample_oc_filtered, samples_filtered_counts = filter_empty_columns(sample_oc, samples, is_counts=True)
     sample_og_filtered, samples_filtered_genes = filter_empty_columns(sample_og, samples, is_counts=False)
     assert samples_filtered_counts == samples_filtered_genes, "Mismatch in filtered sample columns"
+    #Write species list
+    samples_to_use = samples_filtered_counts if args.use_filtered_ogs else samples
+    create_species_list(args, parser, samples_to_use)
     # Write zipped gene counts
     #write_tsv(sample_oc, samples, args.oc, is_counts=True)
     write_tsv(sample_oc_filtered, samples_filtered_counts, args.oc, is_counts=True)
