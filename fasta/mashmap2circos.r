@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 #Author: Krisian K Ullrich
-#date: February 2025
+#date: April 2025
 #email: ullrich@evolbio.mpg.de
 #License: MIT
 #
