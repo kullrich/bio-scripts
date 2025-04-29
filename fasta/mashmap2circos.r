@@ -192,6 +192,7 @@ if (MERGE) {
 bed1 <- bed %>% dplyr::filter(ref.chr %in% genome.df$name) %>% dplyr::filter(query.chr %in% genome.df$name) %>%dplyr::select(ref.chr, ref.start, ref.end, identity)
 bed2 <- bed %>% dplyr::filter(ref.chr %in% genome.df$name) %>% dplyr::filter(query.chr %in% genome.df$name) %>%dplyr::select(query.chr, query.start, query.end, identity)
 colnames(bed1) <- colnames(bed2) <- c("chr", "start", "end", "identity")
+bed_strand <- bed %>% dplyr::filter(ref.chr %in% genome.df$name) %>% dplyr::filter(query.chr %in% genome.df$name) %>%dplyr::select(strand)
 
 chr_colors <- CRBHitsColors(length(levels(as.factor(bed1$chr))), ALPHA)[as.factor(bed1$chr)]
 inverted_colors <- desaturate(rev(chr_colors))
@@ -201,13 +202,13 @@ shifted_colors <- hex(HLS(chr_colors_hsl@coords))
 light_colors <- lighten(chr_colors, amount = 0.3)
 dark_colors <- darken(chr_colors, amount = 0.3)
 if (STRANDCOLOR == "lighten") {
-    plot_colors <- ifelse(bed$strand == "-", light_colors, chr_colors)
+    plot_colors <- ifelse(bed_strand == "-", light_colors, chr_colors)
 } else if (STRANDCOLOR == "darken") {
-    plot_colors <- ifelse(bed$strand == "-", dark_colors, chr_colors)
+    plot_colors <- ifelse(bed_strand == "-", dark_colors, chr_colors)
 } else if (STRANDCOLOR == "shift") {
-    plot_colors <- ifelse(bed$strand == "-", shifted_colors, chr_colors)
+    plot_colors <- ifelse(bed_strand == "-", shifted_colors, chr_colors)
 } else if (STRANDCOLOR == "invert") {
-    plot_colors <- ifelse(bed$strand == "-", inverted_colors, chr_colors)
+    plot_colors <- ifelse(bed_strand == "-", inverted_colors, chr_colors)
 } else {
     plot_colors <- chr_colors
 }
