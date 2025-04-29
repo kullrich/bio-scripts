@@ -212,6 +212,12 @@ if (STRANDCOLOR == "lighten") {
     plot_colors <- chr_colors
 }
 
+bed_out <- cbind(bed1, bed2, strand=bed_strand, plot_color=plot_colors)
+colnames(bed_out) <- c("ref_chr", "ref_start", "ref_end", "ref_identity",
+                       "query_chr", "query_start", "query_end", "query_identity",
+                       "strand", "plot_colors")
+write.table(bed_out, file=paste0(OUTPUT,".mashmap.bed"), sep="\t", quote=FALSE, col.names=TRUE, row.names=FALSE)
+
 png(paste0(OUTPUT,".mashmap.png"), width=PNGWIDTH, height=PNGHEIGHT)
 if (!is.null(CYTOBANDFILE)) {
     circos.initializeWithIdeogram(genome.df, labels.cex=CEX, sort.chr=FALSE)
