@@ -221,7 +221,7 @@ if (!is.null(CYTOBANDFILE)) {
 }
 #circos.genomicLink(bed1, bed2, col=col2transparent(Redmonder::redmonder.pal(length(levels(as.factor(bed1$chr))), "qMSOStd"), ALPHA)[as.factor(bed1$chr)], border=0)
 #circos.genomicLink(bed1, bed2, col = CRBHits::CRBHitsColors(length(levels(as.factor(bed1$chr))), ALPHA)[as.factor(bed1$chr)], border = CRBHits::CRBHitsColors(length(levels(as.factor(bed1$chr))), 0)[as.factor(bed1$chr)])
-circos.genomicLink(bed1, bed2, col = plot_colors, border = NA, inverse = bed$strand=="-")
+circos.genomicLink(bed1, bed2, col = plot_colors, border = NA, inverse = bed_strand=="-")
 dev.off()
 
 pdf(paste0(OUTPUT,".mashmap.pdf"), width=PDFWIDTH, height=PDFHEIGHT)
@@ -232,5 +232,5 @@ if (!is.null(CYTOBANDFILE)) {
 }
 #circos.genomicLink(bed1, bed2, col=col2transparent(Redmonder::redmonder.pal(length(levels(as.factor(bed1$chr))), "qMSOStd"), ALPHA)[as.factor(bed1$chr)], border=0)
 #circos.genomicLink(bed1, bed2, col = CRBHits::CRBHitsColors(length(levels(as.factor(bed1$chr))), ALPHA)[as.factor(bed1$chr)], border = CRBHits::CRBHitsColors(length(levels(as.factor(bed1$chr))), 0)[as.factor(bed1$chr)])
-circos.genomicLink(bed1, bed2, col = plot_colors, border = NA, inverse = bed$strand=="-")
+circos.genomicLink(bed1, bed2, col = plot_colors, border = NA, inverse = bed_strand=="-")
 dev.off()
