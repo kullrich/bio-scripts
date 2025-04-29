@@ -1,4 +1,30 @@
 #!/usr/bin/env Rscript
+
+#Author: Krisian K Ullrich
+#date: February 2025
+#email: ullrich@evolbio.mpg.de
+#License: MIT
+#
+#The MIT License (MIT)
+#
+#Copyright (c) 2025 Kristian Ullrich
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the 'Software'), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
 require(circlize)
 require(Biostrings)
 require(dplyr)
@@ -84,7 +110,7 @@ merge_intervals <- function(bed, distance){
 }
 
 parser <- ArgumentParser()
-parser$add_argument("-m", "--mashmap", help="path to mashmap", default="/Users/ullrich/projects/scientific/books/statisctical_population_genomics_2nd_edition/data/MashMap-3.1.3/build/bin/mashmap")
+parser$add_argument("-m", "--mashmap", help="path to mashmap", default="mashmap")
 parser$add_argument("-r", "--reference", help="path to reference fasta file")
 parser$add_argument("-q", "--query", help="path to query fasta file")
 parser$add_argument("-mo", "--moutput", help="path to pre-existing mashmap output file")
@@ -147,14 +173,14 @@ if (is.null(MASHMAPOUT)) {
     }
 }
 
-if (file_ext(REF) %in% c("fna", "fasta", "fa")) {
+if (file_ext(REF) %in% c("fna", "fasta", "fa", "gz")) {
     REF.genome <- Biostrings::readDNAStringSet(REF)
     REF.genome.sizes <- data.frame(name=paste0(PREFIXREF,":",stringr::word(names(REF.genome))), start=0, end=width(REF.genome))
 } else if (file_ext(REF) %in% c("fai")) {
     REF.genome.fai <- read.table(REF)
     REF.genome.sizes <- data.frame(name=paste0(PREFIXREF,":",REF.genome.fai$V1), start=0, end=REF.genome.fai$V2)
 }
-if (file_ext(QUERY) %in% c("fna", "fasta", "fa")) {
+if (file_ext(QUERY) %in% c("fna", "fasta", "fa", "gz")) {
     QUERY.genome <- Biostrings::readDNAStringSet(QUERY)
     QUERY.genome.sizes <- data.frame(name=paste0(PREFIXQUERY,":",stringr::word(names(QUERY.genome))), start=0, end=width(QUERY.genome))
 } else if (file_ext(QUERY) %in% c("fai")) {
