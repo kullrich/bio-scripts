@@ -4,7 +4,7 @@
 
 """
 Author: Krisian Ullrich
-date: December 2021
+date: May 2025
 email: ullrich@evolbio.mpg.de
 License: MIT
 The MIT License (MIT)
@@ -39,13 +39,28 @@ def multiple_replace(string, rep_dict):
     return pattern.sub(lambda x: rep_dict[x.group(0)], string)
 
 
-def parse_lines(fin, fou, ind, keep, add):
+def get_chrom_line(fin):
+    for line in fin:
+        if line[0] == '#':
+            if(line.split('\t')[0] == '#CHROM'):
+                linesplit = line.strip().split('\t')
+                return linesplit
+
+
+def parse_lines(fin, fou, ind_name, keep, add):
     switchcount = 0
     removecount = 0
     outmissing = 0
     totalcount = 0
+    ind = 0
     for line in fin:
         if line[0] == '#':
+            if(line.split('\t')[0] == '#CHROM'):
+                linesplit = line.strip().split('\t')
+                if ind_name in linesplit:
+                    ind = linesplit[9:].index(ind_name) + 1
+                else:
+                    raise ValueError(f"Sample name '{ind_name}' not found in VCF header.")
             if(add):
                 if(line.split('\t')[0] == '#CHROM'):
                     fou.write('##INFO=<ID=AA,Number=1,Type=String,Description="Ancestral Allele">\n')
@@ -102,9 +117,10 @@ bcftools commands to retain only bi-allelic sites and GT field:
 | cat | bcftools view -m2 -M2 -v snps
  '''))
     parser.add_argument('-out', help='specify output file')
-    parser.add_argument('-ind', type=int, help='specify individual idx to be used for switch REF and ALT allele')
+    parser.add_argument('-ind', help='specify individual name to be used for switch REF and ALT allele')
     parser.add_argument('-keep', action='store_true', help='specify if undefined ancestral states should be kept in output')
     parser.add_argument('-add', action='store_true', help='add ancestral state to INFO field')
+    parser.add_argument('-show_ind', action='store_true', help='print individuals and corresponding idx to screen and exit')
     args = parser.parse_args()
     print(args)
     if args.vcf is None:
@@ -113,25 +129,45 @@ bcftools commands to retain only bi-allelic sites and GT field:
     if args.out is None:
         parser.print_help()
         sys.exit('Please specify output file')
-    if args.ind is None:
+    if args.ind is None and args.show_ind is False:
         parser.print_help()
-        sys.exit('Please specify individual idx')
+        sys.exit('Please specify individual name')
     if args.out.endswith('gz'):
         with gzip.open(args.out, 'wt') as fou:
             if args.vcf.endswith('gz'):
                 with gzip.open(args.vcf, 'rt') as fin:
-                    parse_lines(fin, fou, args.ind, args.keep, args.add)
+                    if args.show_ind:
+                        chrom_line = get_chrom_line(fin)
+                        for ind_idx, ind_name in enumerate(chrom_line[9:]):
+                            print(str(ind_idx + 1) + ' : ' + ind_name)
+                    else:
+                        parse_lines(fin, fou, args.ind, args.keep, args.add)
             if not args.vcf.endswith('gz'):
                 with open(args.vcf, 'rt') as fin:
-                    parse_lines(fin, fou, args.ind, args.keep, args.add)
+                    if args.show_ind:
+                        chrom_line = get_chrom_line(fin)
+                        for ind_idx, ind_name in enumerate(chrom_line[9:]):
+                            print(str(ind_idx + 1) + ' : ' + ind_name)
+                    else:
+                        parse_lines(fin, fou, args.ind, args.keep, args.add)
     if not args.out.endswith('gz'):
         with open(args.out, 'wt') as fou:
             if args.vcf.endswith('gz'):
                 with gzip.open(args.vcf, 'rt') as fin:
-                    parse_lines(fin, fou, args.ind, args.keep, args.add)
+                    if args.show_ind:
+                        chrom_line = get_chrom_line(fin)
+                        for ind_idx, ind_name in enumerate(chrom_line[9:]):
+                            print(str(ind_idx + 1) + ' : ' + ind_name)
+                    else:
+                        parse_lines(fin, fou, args.ind, args.keep, args.add)
             if not args.vcf.endswith('gz'):
                 with open(args.vcf, 'rt') as fin:
-                    parse_lines(fin, fou, args.ind, args.keep, args.add)
+                    if args.show_ind:
+                        chrom_line = get_chrom_line(fin)
+                        for ind_idx, ind_name in enumerate(chrom_line[9:]):
+                            print(str(ind_idx + 1) + ' : ' + ind_name)
+                    else:
+                        parse_lines(fin, fou, args.ind, args.keep, args.add)
 
 
 if __name__ == '__main__':
