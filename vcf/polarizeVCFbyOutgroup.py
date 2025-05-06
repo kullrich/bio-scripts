@@ -35,139 +35,110 @@ import re
 
 
 def multiple_replace(string, rep_dict):
-    pattern = re.compile("|".join([re.escape(k) for k in sorted(rep_dict,key=len,reverse=True)]), flags=re.DOTALL)
+    pattern = re.compile("|".join([re.escape(k) for k in sorted(rep_dict, key=len, reverse=True)]), flags=re.DOTALL)
     return pattern.sub(lambda x: rep_dict[x.group(0)], string)
 
 
 def get_chrom_line(fin):
     for line in fin:
-        if line[0] == '#':
-            if(line.split('\t')[0] == '#CHROM'):
-                linesplit = line.strip().split('\t')
-                return linesplit
+        if line.startswith('#') and line.startswith('#CHROM'):
+            return line.strip().split('\t')
 
 
-def parse_lines(fin, fou, ind_name, keep, add):
+def parse_lines(fin, fou, ind_names, keep, add):
     switchcount = 0
     removecount = 0
     outmissing = 0
     totalcount = 0
-    ind = 0
+    outgroup_indices = []
+
     for line in fin:
-        if line[0] == '#':
-            if(line.split('\t')[0] == '#CHROM'):
-                linesplit = line.strip().split('\t')
-                if ind_name in linesplit:
-                    ind = linesplit[9:].index(ind_name) + 1
-                else:
-                    raise ValueError(f"Sample name '{ind_name}' not found in VCF header.")
-            if(add):
-                if(line.split('\t')[0] == '#CHROM'):
+        if line.startswith('#'):
+            if line.startswith('#CHROM'):
+                headers = line.strip().split('\t')
+                sample_names = headers[9:]
+                missing = [name for name in ind_names if name not in sample_names]
+                if missing:
+                    raise ValueError(f"Sample name(s) not found in VCF header: {', '.join(missing)}")
+                outgroup_indices = [sample_names.index(name) + 9 for name in ind_names]
+
+                if add:
                     fou.write('##INFO=<ID=AA,Number=1,Type=String,Description="Ancestral Allele">\n')
-                    fou.write(line)
-                else:
-                    fou.write(line)
+                fou.write(line)
             else:
                 fou.write(line)
-        if line[0] != '#':
-            totalcount += 1
-            linesplit = line.strip().split('\t')
-            if linesplit[8 + ind] == './.' or linesplit[8 + ind] == '.|.':
-                outmissing += 1
-            if linesplit[8 + ind] == '0/0' or linesplit[8 + ind] == '0|0':
-                if(add):
-                    linesplit[7] = 'AA=' + linesplit[3] + ';' + linesplit[7]
-                    fou.write('\t'.join(linesplit) + '\n')
-                else:
-                    fou.write(line)
-            if linesplit[8 + ind] == '0/1' or linesplit[8 + ind] == '0|1' or linesplit[8 + ind] == '1/0' or linesplit[8 + ind] == '1|0':
-                removecount += 1
-                if keep:
-                    fou.write(line)
-            if linesplit[8 + ind] == '1/1' or linesplit[8 + ind] == '1|1':
-                switchcount += 1
-                REF = linesplit[4]
-                ALT = linesplit[3]
-                linesplit[3] = REF
-                linesplit[4] = ALT
-                changed = linesplit[:9] + [multiple_replace('\t'.join(linesplit[9:]),{'0':'1', '1':'0'})]
-                if(add):
-                    changed[7] = 'AA=' + changed[3] + ';' + changed[7]
-                    fou.write('\t'.join(changed) + '\n')
-                else:
-                    fou.write('\t'.join(changed) + '\n')
-    print('Parsed ' + str(totalcount) + ' sites.')
-    print('Removed ' + str(outmissing) + ' sites due to missing allele info in switch individual.')
-    if keep:
-        print('Kept ' + str(removecount) + ' sites with undefined ancestral state.')
-    if not keep:
-        print('Removed ' + str(removecount) + ' sites with undefined ancestral state.')
-    print('Switched REF and ALT allele for ' + str(switchcount) + ' sites.')
+            continue
+
+        totalcount += 1
+        fields = line.strip().split('\t')
+        outgroup_gts = [fields[i].split(':')[0] for i in outgroup_indices]
+
+        if any(gt in ['./.', '.|.'] for gt in outgroup_gts):
+            outmissing += 1
+            continue
+
+        if any(gt in ['0/1', '1/0', '0|1', '1|0'] for gt in outgroup_gts):
+            removecount += 1
+            if keep:
+                fou.write(line)
+            continue
+
+        if all(gt in ['0/0', '0|0'] for gt in outgroup_gts):
+            if add:
+                fields[7] = f'AA={fields[3]};' + fields[7]
+            fou.write('\t'.join(fields) + '\n')
+        elif all(gt in ['1/1', '1|1'] for gt in outgroup_gts):
+            switchcount += 1
+            fields[3], fields[4] = fields[4], fields[3]  # Swap REF/ALT
+            genotypes = '\t'.join(fields[9:])
+            swapped_genotypes = multiple_replace(genotypes, {'0': 'x', '1': '0', 'x': '1'})
+            if add:
+                fields[7] = f'AA={fields[3]};' + fields[7]
+            fou.write('\t'.join(fields[:9]) + '\t' + swapped_genotypes + '\n')
+        else:
+            removecount += 1
+            if keep:
+                fou.write(line)
+
+    print(f'Parsed {totalcount} sites.')
+    print(f'Removed {outmissing} sites due to missing allele info in any outgroup individual.')
+    print(f'{"Kept" if keep else "Removed"} {removecount} sites with undefined ancestral state.')
+    print(f'Switched REF and ALT allele for {switchcount} sites.')
 
 
 def main():
-    parser = argparse.ArgumentParser(prog='polarizeVCFbyOutgroup', description='Switch REF and ALT allele of a vcf file, if specified individual is homozygous ALT.', formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-vcf', help=textwrap.dedent('''\
-specify vcf input file
-vcf file should only contain bi-allelic sites and only GT field
-bcftools commands to retain only bi-allelic sites and GT field:
-(bcftools view -h VCFFILE;
- bcftools query -f
- "%%CHROM\\t%%POS\\t%%ID\\t%%REF\\t%%ALT\\t%%QUAL\\t%%FILTER\\t%%INFO\\tGT\\t[%%GT\\t]\\n" VCFFILE)
-| cat | bcftools view -m2 -M2 -v snps
- '''))
-    parser.add_argument('-out', help='specify output file')
-    parser.add_argument('-ind', help='specify individual name to be used for switch REF and ALT allele')
-    parser.add_argument('-keep', action='store_true', help='specify if undefined ancestral states should be kept in output')
-    parser.add_argument('-add', action='store_true', help='add ancestral state to INFO field')
-    parser.add_argument('-show_ind', action='store_true', help='print individuals and corresponding idx to screen and exit')
+    parser = argparse.ArgumentParser(
+        prog='polarizeVCFbyOutgroup',
+        description='Switch REF and ALT allele of a VCF file if all specified individuals are homozygous ALT.',
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    parser.add_argument('-vcf', required=True, help='VCF input file (VCF must be bi-allelic and GT-only)')
+    parser.add_argument('-out', required=True, help='Output VCF file')
+    parser.add_argument('-ind', required=True, nargs='+', help='One or more individual names used as outgroup')
+    parser.add_argument('-keep', action='store_true', help='Keep sites with undefined ancestral states')
+    parser.add_argument('-add', action='store_true', help='Add ancestral allele info (AA=) to INFO field')
+    parser.add_argument('-show_ind', action='store_true', help='Show sample indices and exit')
     args = parser.parse_args()
-    print(args)
-    if args.vcf is None:
-        parser.print_help()
-        sys.exit('Please specify vcf input file')
-    if args.out is None:
-        parser.print_help()
-        sys.exit('Please specify output file')
-    if args.ind is None and args.show_ind is False:
-        parser.print_help()
-        sys.exit('Please specify individual name')
-    if args.out.endswith('gz'):
-        with gzip.open(args.out, 'wt') as fou:
-            if args.vcf.endswith('gz'):
-                with gzip.open(args.vcf, 'rt') as fin:
-                    if args.show_ind:
-                        chrom_line = get_chrom_line(fin)
-                        for ind_idx, ind_name in enumerate(chrom_line[9:]):
-                            print(str(ind_idx + 1) + ' : ' + ind_name)
-                    else:
-                        parse_lines(fin, fou, args.ind, args.keep, args.add)
-            if not args.vcf.endswith('gz'):
-                with open(args.vcf, 'rt') as fin:
-                    if args.show_ind:
-                        chrom_line = get_chrom_line(fin)
-                        for ind_idx, ind_name in enumerate(chrom_line[9:]):
-                            print(str(ind_idx + 1) + ' : ' + ind_name)
-                    else:
-                        parse_lines(fin, fou, args.ind, args.keep, args.add)
-    if not args.out.endswith('gz'):
-        with open(args.out, 'wt') as fou:
-            if args.vcf.endswith('gz'):
-                with gzip.open(args.vcf, 'rt') as fin:
-                    if args.show_ind:
-                        chrom_line = get_chrom_line(fin)
-                        for ind_idx, ind_name in enumerate(chrom_line[9:]):
-                            print(str(ind_idx + 1) + ' : ' + ind_name)
-                    else:
-                        parse_lines(fin, fou, args.ind, args.keep, args.add)
-            if not args.vcf.endswith('gz'):
-                with open(args.vcf, 'rt') as fin:
-                    if args.show_ind:
-                        chrom_line = get_chrom_line(fin)
-                        for ind_idx, ind_name in enumerate(chrom_line[9:]):
-                            print(str(ind_idx + 1) + ' : ' + ind_name)
-                    else:
-                        parse_lines(fin, fou, args.ind, args.keep, args.add)
+
+    if args.out.endswith('.gz'):
+        fout = gzip.open(args.out, 'wt')
+    else:
+        fout = open(args.out, 'wt')
+
+    if args.vcf.endswith('.gz'):
+        fin = gzip.open(args.vcf, 'rt')
+    else:
+        fin = open(args.vcf, 'rt')
+
+    if args.show_ind:
+        chrom_line = get_chrom_line(fin)
+        for idx, name in enumerate(chrom_line[9:]):
+            print(f'{idx + 1} : {name}')
+        sys.exit(0)
+
+    parse_lines(fin, fout, args.ind, args.keep, args.add)
+    fin.close()
+    fout.close()
 
 
 if __name__ == '__main__':
