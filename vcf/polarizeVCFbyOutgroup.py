@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-
 import sys
 import argparse
 import textwrap
@@ -34,9 +33,19 @@ import gzip
 import re
 
 
-def multiple_replace(string, rep_dict):
-    pattern = re.compile("|".join([re.escape(k) for k in sorted(rep_dict, key=len, reverse=True)]), flags=re.DOTALL)
-    return pattern.sub(lambda x: rep_dict[x.group(0)], string)
+#def multiple_replace(string, rep_dict):
+#    pattern = re.compile("|".join([re.escape(k) for k in sorted(rep_dict,key=len,reverse=True)]), flags=re.DOTALL)
+#    return pattern.sub(lambda x: rep_dict[x.group(0)], string)
+def swap_genotypes(genotypes_str, rep_dict):
+    genotypes = genotypes_str.strip().split('\t')
+    swapped = []
+    for gt in genotypes:
+        if gt in rep_dict:
+            swapped.append(rep_dict[gt])
+        else:
+            print(f"Warning: Genotype '{gt}' not found in replacement dictionary. Keeping as is.")
+            swapped.append(gt)
+    return '\t'.join(swapped)
 
 
 def get_chrom_line(fin):
@@ -51,7 +60,13 @@ def parse_lines(fin, fou, ind_names, keep, add):
     outmissing = 0
     totalcount = 0
     outgroup_indices = []
-
+    rep_dict = {
+        '0/0': '1/1',
+        '1/1': '0/0',
+        '0/1': '1/0',
+        '1/0': '0/1',
+        './.': './.'
+    }
     for line in fin:
         if line.startswith('#'):
             if line.startswith('#CHROM'):
@@ -61,37 +76,35 @@ def parse_lines(fin, fou, ind_names, keep, add):
                 if missing:
                     raise ValueError(f"Sample name(s) not found in VCF header: {', '.join(missing)}")
                 outgroup_indices = [sample_names.index(name) + 9 for name in ind_names]
-
                 if add:
                     fou.write('##INFO=<ID=AA,Number=1,Type=String,Description="Ancestral Allele">\n')
                 fou.write(line)
             else:
                 fou.write(line)
             continue
-
         totalcount += 1
         fields = line.strip().split('\t')
         outgroup_gts = [fields[i].split(':')[0] for i in outgroup_indices]
-
         if any(gt in ['./.', '.|.'] for gt in outgroup_gts):
             outmissing += 1
             continue
-
         if any(gt in ['0/1', '1/0', '0|1', '1|0'] for gt in outgroup_gts):
             removecount += 1
             if keep:
                 fou.write(line)
             continue
-
         if all(gt in ['0/0', '0|0'] for gt in outgroup_gts):
             if add:
                 fields[7] = f'AA={fields[3]};' + fields[7]
             fou.write('\t'.join(fields) + '\n')
         elif all(gt in ['1/1', '1|1'] for gt in outgroup_gts):
             switchcount += 1
-            fields[3], fields[4] = fields[4], fields[3]  # Swap REF/ALT
+            REF = fields[4]
+            ALT = fields[3]
+            fields[3] = REF
+            fields[4] = ALT
             genotypes = '\t'.join(fields[9:])
-            swapped_genotypes = multiple_replace(genotypes, {'0': 'x', '1': '0', 'x': '1'})
+            swapped_genotypes = swap_genotypes(genotypes, rep_dict)
             if add:
                 fields[7] = f'AA={fields[3]};' + fields[7]
             fou.write('\t'.join(fields[:9]) + '\t' + swapped_genotypes + '\n')
@@ -132,8 +145,8 @@ def main():
 
     if args.show_ind:
         chrom_line = get_chrom_line(fin)
-        for idx, name in enumerate(chrom_line[9:]):
-            print(f'{idx + 1} : {name}')
+        for idx, name in enumerate(chrom_line):
+            print(f'{idx} : {name}')
         sys.exit(0)
 
     parse_lines(fin, fout, args.ind, args.keep, args.add)
