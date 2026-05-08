@@ -44,11 +44,11 @@ header_lines = []  # Store header lines
 with gzip.open(input_vcf, "rt") if input_vcf.endswith(".gz") else open(input_vcf, "r") as vcf_file:
     line_cnt = 0
     for line in vcf_file:
-        line = line.rstrip()
         if line.startswith('#'):
             # Write header to all chromosome VCF files when they are created
             header_lines.append(line)
             continue
+        line = line.rstrip('\n')
         fields = line.split('\t')
         chrom, pos, refAllele, altAllele, info, genotypes = (
             fields[0], int(fields[1]), fields[3], fields[4], fields[7], fields[9]
